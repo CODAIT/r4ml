@@ -1,0 +1,39 @@
+---
+title: "HydraR a distributed R "
+author: "Apache HydraR Team"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+HydraR is the distributed R with the following goals and mission
+
+- Work on the `big data`
+- Support common `Machine Learning` algorithms
+- Support the various commons `Statistical` and `dataframe` functionality with look and feel as much as close to the base and stats R packages
+- Support for the ability to run CRAN R packages over the distributed `dataframe`
+
+
+The HydraR is build on the top of the [Apache SparkR]() ( [Spark]()) and [Apache SystemML]() . This allows HydraR user to use
+
+- All the SparkR capabilities
+- All the SystemML custom Machine learning algorithms
+- Extra features supported by [HydraR]()
+
+------
+
+## HydraR Table of Contents
+
+* [Introduction](Introduction.html)
+* [Installing and Loading](Install.html)
+* [HydraR Basic DataTypes](Datatypes.html)
+* [Consuming and exporting data](IO.html)
+* [Core Operations](CoreOps.html)
+* [HydraR Machine Learning Algorithms](Machinelearning.html)
+* [Simple examples](SimpleExamples.html)
+* [Real life examples](RealisticExamples.html)   
+
+

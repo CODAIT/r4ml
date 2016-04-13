@@ -1,0 +1,27 @@
+Package: HydraR
+Type: Package
+Title: Distributed R based on the Apache SparkR and Apache SystemML
+Version: 0.1
+Date: 2016-03-27
+Author: Apache Open Source
+Maintainer: Who to complain to <noreply@apache.org>
+Description: Distributed R based on the Apache SparkR and Apache SystemML.
+URL: https://github.com/SparkTC/spark-hydrar/
+LazyData: TRUE
+Depends:
+    R(>= 3.0.0),
+    SparkR
+Imports:
+    readr
+Suggests:
+    testthat,
+    iris,
+    airquality,
+    knitr
+License: file LICENSE
+Collate:
+    'zzz.R'
+    'HydraR.R'
+    'hydrar.env.R'
+    'util.io.R'
+VignetteBuilder: knitr

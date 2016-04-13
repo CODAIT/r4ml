@@ -1,0 +1,30 @@
+---
+title: "HydraR Data Types"
+author: "Apache HydraR Team"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+HydraR supports all the standard R datatypes but for the bigdata, we supports three data types
+
+- SparkR::DataFrame
+- hydrar.frame
+- hydrar.matrix
+
+## Details of the data types
+
+### SparkR::DataFrame.
+  More information is here for [creating SparkR::DataFrame](https://spark.apache.org/docs/latest/sparkr.html#creating-dataframes) and [SparkR::DataFrame operations](https://spark.apache.org/docs/latest/sparkr.html#dataframe-operations)
+
+### hydrar.frame
+  This is based on SparkR::DataFrame but supports extra functionalities. They are
+   - 
+   - 
+  
+### hydrar.matrix
+  This is based on hydrar.frame with extra requirement that all the entries must be numeric. Extra functionalities allows it to interface with the [system ML DML ](http://apache.github.io/incubator-systemml/dml-language-reference.html)
