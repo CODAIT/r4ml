@@ -23,5 +23,6 @@ Collate:
     'zzz.R'
     'HydraR.R'
     'hydrar.env.R'
+    'util.commons.R'
     'util.io.R'
 VignetteBuilder: knitr
