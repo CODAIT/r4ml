@@ -24,6 +24,8 @@ Collate:
     'HydraR.R'
     'hydrar.env.R'
     'java.bridge.R'
+    'sparkr.bridge.R'
+    'sysml.bridge.R'
     'util.commons.R'
     'util.io.R'
 VignetteBuilder: knitr

@@ -2,3 +2,9 @@
 
 export(detach_package)
 export(hydrar.env)
+export(sysml.execute)
+exportClasses(java.ArrayList)
+exportClasses(sysml.MLContext)
+exportClasses(sysml.MLOutput)
+exportClasses(sysml.MatrixCharacteristics)
+exportClasses(sysml.RDDConverterUtils)
