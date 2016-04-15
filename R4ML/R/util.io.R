@@ -41,7 +41,7 @@ hydrar.warn <- function(source, message, immediate.=F) {
   if (missing(message)) {
     message <- ""
   }
-  warnBit <- trunc(bigr.env$LOG_LEVEL / 2) %% 2
+  warnBit <- trunc(hydrar.env$LOG_LEVEL / 2) %% 2
   if (warnBit == 1) {
     warning("[" %++% source %++% "]: " %++% message, call. = F, immediate.=immediate.)
   }

@@ -35,12 +35,12 @@ hydrar.emptySymbol <- function() (quote(f(,)))[[2]]
 # it is an array which only contains NULL, NA or "" values.
 # @param x an object or variable to be evaluated
 # @return a logical value indicating whether the given object is NULL, NA or empty
-# @rdname internal.bigr.isNullOrEmpty
+# @rdname internal.hydrar.isNullOrEmpty
 # @keywords internal
 .hydrar.isNullOrEmpty <- function(x) {
   logSource <- ".hydrar.isNullOrEmpty"
   if (missing(x)) {
-    bigr.err(logSource,
+    hydrar.err(logSource,
              sprintf("A value for parameter '%s' must be specified.", deparse(substitute(x))))
   }
   if (is.null(x)) {
@@ -58,7 +58,7 @@ hydrar.emptySymbol <- function() (quote(f(,)))[[2]]
 
 # check if the seq of inputs has atleast one Null or Empty
 .hydrar.hasNullOrEmpty <- function(x) {
-  logSource <- ".bigr.isNullOrEmpty"
+  logSource <- ".hydrar.isNullOrEmpty"
   if (.hydrar.isNullOrEmpty(x)) {
     return(TRUE)
   }

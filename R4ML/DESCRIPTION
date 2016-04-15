@@ -23,6 +23,7 @@ Collate:
     'zzz.R'
     'HydraR.R'
     'hydrar.env.R'
+    'hydrar.frame.R'
     'java.bridge.R'
     'sparkr.bridge.R'
     'sysml.bridge.R'

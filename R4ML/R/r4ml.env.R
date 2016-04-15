@@ -42,7 +42,7 @@ with(hydrar.env, {
   DEL <- "DEL";
   LINE_FILE <- "LINE"
   JSON <- "JSON";
-  TRANSFORM <- "TRANSF"; # When a bigr.dataset is the result of a transformation (e.g., projection or filtering)
+  TRANSFORM <- "TRANSF"; # When a hydrar.dataset is the result of a transformation (e.g., projection or filtering)
 
   EMPTY_TABLE_EXPRESSION <- "[[]]";
 
@@ -119,13 +119,13 @@ with(hydrar.env, {
 
   ALL_COLUMNS = ".";
 
-  # bigr.function constants
+  # hydrar.function constants
 
 
   REGISTERED_FUNCTIONS <- list();
 
 
-  # bigr.sampling constants
+  # hydrar.sampling constants
   RANDOM_SEED <- 71
 
   # warnings and errors log file
@@ -140,7 +140,7 @@ with(hydrar.env, {
   # A list of temporary files to be removed by the finalizers
   TEMP_FILES <- list();
 
-  # A list of temporary files to be removed when the exit from bigr.err
+  # A list of temporary files to be removed when the exit from hydrar.err
   DELETE_ON_ERROR_FILES <- list();
 
 
@@ -256,8 +256,6 @@ with(hydrar.env, {
   BETA <- "/beta.csv";
   STATISTICS <- "/statistics.csv";
 
-  # component release directory
-  BIGR_REL_DIR <- "/usr/ibmpacks/current/bigr";
 }) # End with
 
 # define the global utility function in the hydrar.env
