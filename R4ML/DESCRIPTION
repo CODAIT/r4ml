@@ -17,13 +17,15 @@ Suggests:
     testthat,
     iris,
     airquality,
-    knitr
+    knitr,
+    devtools
 License: file LICENSE
 Collate:
     'zzz.R'
     'HydraR.R'
     'hydrar.env.R'
     'hydrar.frame.R'
+    'hydrar.matrix.R'
     'java.bridge.R'
     'sparkr.bridge.R'
     'sysml.bridge.R'
