@@ -35,7 +35,7 @@ test_that("sysml.RDDConverterUtils", {
   require(HydraR)
   aq_ozone <- airquality$Ozone
   aq_ozone[is.na(aq_ozone)] <- 0
-  aq_ozone_df <- createDataFrame(sqlContext, as.data.frame(aq_ozone))
+  aq_ozone_df <- as.hydrar.matrix(as.hydrar.frame(as.data.frame(aq_ozone)))
   mc <- HydraR:::sysml.MatrixCharacteristics$new(count(aq_ozone_df), 1, 10, 1)
   rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
   sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
@@ -48,7 +48,8 @@ test_that("sysml.MLContext sample data",{
   as.data.frame(v)
   tdf=as.data.frame(v)
   dv=as.data.frame(v)
-  dv_df=createDataFrame(sqlContext, dv)
+  dv_df <- as.hydrar.matrix(as.hydrar.frame(dv))
+  
   mc <- HydraR:::sysml.MatrixCharacteristics$new(count(dv_df), 1, 10,1)
   rdd_utils<- HydraR:::sysml.RDDConverterUtils$new()
   mlc = HydraR:::sysml.MLContext$new(sc)
@@ -70,7 +71,7 @@ test_that("sysml.MLContext sample data",{
   mlc$reset()
   mlc$registerInput("X", sysml_jrdd, mc)
   mlc$registerOutput("O")
-  outputs <- mlc$executeScript(dml)
+  outputs <- mlc$executeScript(dml, c("factor"), c("2"))
   o1 = outputs$getDF("O")
   cat("output dataframe")
   SparkR:::showDF(o1)
@@ -91,8 +92,8 @@ test_that("sysml.MLContext Short data", {
   '
   aq_ozone <- airquality$Ozone
   aq_ozone[is.na(aq_ozone)] <- 0
-  aq_ozone_df <- createDataFrame(sqlContext, as.data.frame(aq_ozone))
-
+  aq_ozone_df <- as.hydrar.matrix(as.hydrar.frame(as.data.frame(aq_ozone)))
+  
   x_cnt = SparkR:::count(aq_ozone_df)
   mc <- HydraR:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
   rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()

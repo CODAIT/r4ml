@@ -28,6 +28,7 @@ Collate:
     'hydrar.matrix.R'
     'java.bridge.R'
     'ml.model.base.R'
+    'ml.model.lm.R'
     'sparkr.bridge.R'
     'sysml.bridge.R'
     'util.commons.R'

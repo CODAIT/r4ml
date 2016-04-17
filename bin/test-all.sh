@@ -17,23 +17,28 @@
 # limitations under the License.
 #
 
-# Script to create API docs for HydraR
-# This requires `devtools` and `knitr` to be installed on the machine.
-
-# After running this script the html docs can be found in 
-# $HYDRAR_HOME/HydraR/html
-
+# This scripts packages the HydraR source files (R and C files) and
+# creates a package that can be loaded in R. The package is by default installed to
+# $FWDIR/lib and the package can be loaded by using the following command in R:
+#
+#   library(HydraR, lib.loc="$FWDIR/lib")
+#
+# NOTE(shivaram): Right now we use $SPARK_HOME/R/lib to be the installation directory
+# to load the SparkR package on the worker nodes.
 
 set -o pipefail
 set -e
 
-# Figure out where the script is
-export FWDIR="$(cd "`dirname "$0"`/../"; pwd)"
-pushd $FWDIR
+FWDIR="$(cd `dirname $0`/../; pwd)"
+LIB_DIR="$FWDIR/lib"
+PKG_NAME="HydraR"
 
-# Install the package (this will also generate the Rd files)
-$FWDIR/bin/create-docs.sh
+pushd $FWDIR > /dev/null
 
+# test all the code
+Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::test(pkg="HydraR") }'
+status=$?
 
-# run all the relevant test cases
-$FWDIR/bin/test-all.sh
+popd > /dev/null
+
+exit $status

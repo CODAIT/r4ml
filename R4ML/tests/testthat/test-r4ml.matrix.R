@@ -17,3 +17,11 @@
 library (HydraR)
 
 context("Testing hydrar.matrix\n")
+
+test_that("is.hydrar.matrix", {
+  warning("test is.hydrar.matrix is not implemented yet")
+})
+
+test_that("as.hydrar.matrix", {
+  warning("test as.hydrar.matrix is not implemented yet")
+})

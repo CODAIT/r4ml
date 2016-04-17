@@ -177,34 +177,58 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       #DEBUG browser()
       stopifnot(class(dml_script) == "character")
 
-      stopifnot(length(arg_keys) == length(arg_vals))
+      is_namedargs = FALSE
+      if (!missing(arg_keys) && !missing(arg_vals)) {
+        stopifnot(length(arg_keys) == length(arg_vals))
+        if (length(arg_keys) > 0) {
+          is_namedargs = TRUE
+        }
+      }
       # create keys
       jarg_keys <- java.ArrayList$new()
-      sapply(arg_keys, function (e) {
-        jarg_keys$add(e)
-      })
+      if (!missing(arg_keys)) {
+        sapply(arg_keys, function (e) {
+          jarg_keys$add(e)
+        })
+      }
 
       #create vals
       jarg_vals <- java.ArrayList$new()
-      sapply(arg_vals, function (e) {
-        jarg_vals$add(e)
-      })
+      if (!missing(arg_vals)) {
+        sapply(arg_vals, function (e) {
+          jarg_vals$add(e)
+        })
+      }
       #DEBUG browser()
       out_jref <- NULL
       if (is.file) {
-        out_jref <- SparkR:::callJMethod(
-                      env$jref, "execute",
-                      dml_script,
-                      jarg_keys$env$jref,
-                      jarg_vals$env$jref
-                    )
+        if (is_namedargs) {
+          out_jref <- SparkR:::callJMethod(
+                        env$jref, "execute",
+                        dml_script,
+                        jarg_keys$env$jref,
+                        jarg_vals$env$jref
+                      )
+        } else {
+          out_jref <- SparkR:::callJMethod(
+                        env$jref, "execute",
+                        dml_script
+                      )
+        }
       } else {
-        out_jref <- SparkR:::callJMethod(
-          env$jref, "executeScript",
-          dml_script,
-          jarg_keys$env$jref,
-          jarg_vals$env$jref
-        )
+        if (is_namedargs) {
+          out_jref <- SparkR:::callJMethod(
+                        env$jref, "executeScript",
+                        dml_script,
+                        jarg_keys$env$jref,
+                        jarg_vals$env$jref
+                       )
+        } else {
+          out_jref <- SparkR:::callJMethod(
+                        env$jref, "executeScript",
+                        dml_script
+                      )
+        }
       }
       #@TODO. get sqlContext from the ctor
       outputs <- sysml.MLOutput$new(out_jref, sqlContext)
