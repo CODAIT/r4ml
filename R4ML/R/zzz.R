@@ -88,10 +88,13 @@ hydrar.load.SparkR <- function() {
   }
 
   #start the SparkR shell and initialization
-  sysml_jars <- file.path(system.file(package="HydraR"), "inst", "lib", "SystemML.jar")
+  sysml_jars <- file.path(system.file(package="HydraR"), "lib", "SystemML.jar")
   if (nchar(Sys.getenv("SYSML_HOME")) >= 1) {
     # if user has set the env then we can use that jar
     sysml_jars <- file.path(Sys.getenv("SYSML_HOME"), "target", "SystemML.jar")
+  }
+  if (!file.exists(sysml_jars)) {
+    stop("ERROR: can't find the SystemML.jar for initialization")
   }
   sc <- SparkR::sparkR.init(
     master = "local[*]",

@@ -10,7 +10,8 @@ URL: https://github.com/SparkTC/spark-hydrar/
 LazyData: TRUE
 Depends:
     R(>= 3.0.0),
-    SparkR
+    SparkR,
+    readr
 Imports:
     readr
 Suggests:
