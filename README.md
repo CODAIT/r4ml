@@ -1,6 +1,4 @@
-# HydraR
-<img src="HydraR/inst/images/hydraR-logo.png" 
-alt="IMAGE ALT TEXT HERE" width="240" height="180" />
+# HydraR <img src="HydraR/inst/images/hydraR-logo.png" alt="IMAGE ALT TEXT HERE" width="340" height="250" />
 
 ## How to install
 
@@ -25,15 +23,18 @@ alt="IMAGE ALT TEXT HERE" width="240" height="180" />
 
 #### 2) R packages
    Install all the package which have dependencies and suggestion in the DESCRIPTION file using the 
+
    `install.packages(pkgname)` command in R
    One can see the content as follows
    ```
    cat HydraR/DESCRIPTION
    ```
+
 ### Install Instruction (follow one of the following instruction)
 
 #### For development. clone github and load it without installing
   1)
+
    ```
    mkdir -p $HOME/apache
    git clone https://github.com/SparkTC/spark-hydrar
@@ -41,9 +42,27 @@ alt="IMAGE ALT TEXT HERE" width="240" height="180" />
    bin/install-all.sh
    cd ..
    ```
+
   2) Add the following path to the R_LIBS
+
    ```
-  R_LIBS=$HOME/apache/spark/R/lib:$HOME/apache/spark-hydrar/lib/HydraR:$R_LIBS 
+  R_LIBS=$HOME/apache/spark/R/lib:$HOME/apache/spark-hydrar/lib:$R_LIBS 
+   ```
+
+  3) set the environment variable 
+
+   3.1) for R shell
+
+   ```
+     export SPARK_HOME=$HOME/apache/spark
+   ```
+
+   3.2) for the RStudio
+
+    in the RStudio add this
+   ```R
+    # change <USER_ID> to  your linux/mac/unix id
+    Sys.setenv(SPARK_HOME = "/Users/<USER_ID>/apache/spark")
    ```
 
 #### for user 
@@ -53,10 +72,26 @@ alt="IMAGE ALT TEXT HERE" width="240" height="180" />
     After step 1, one can install using install.packages command in R
 
    2) github install
+
     Note that this will install in the standard R installation folder
     ```R
     library(devtools)
     install_github("sparkTC/spark-hydrar", subdir="HydraR")
     ```
 
+   3) set the environment variable 
+
+   3.1) for R shell
+
+   ```
+     export SPARK_HOME=$HOME/apache/spark
+   ```
+
+   3.2) for the RStudio
+
+    in the RStudio add this
+   ```R
+    # change <USER_ID> to  your linux/mac/unix id
+    Sys.setenv(SPARK_HOME = "/Users/<USER_ID>/apache/spark")
+   ```
 

@@ -73,16 +73,13 @@ hydrar.reload.SparkR <- function() {
 
 #load and initialize SparkR
 hydrar.load.SparkR <- function() {
-  # first try to load with the normal path defined by
-  # user in the .Rprofile or .Renviron
+  # try to see if user has set the SPARK_HOME
+  if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
+    stop("Must have the SPARK_HOME env variable set or RLIBS in ~/.Renviron")
+  }
+
   if (!requireNamespace("SparkR")) {
     warning("SparkR not found in the standard library or in the R_LIBS path. Consider rechecking your ~/.Renviron file")
-    # now try to see if user has set the SPARK_HOME
-    if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
-      Sys.setenv(SPARK_HOME = "/Users/singhal/Git/sparkR/spark")
-      #Sys.setenv(SPARK_HOME = "/home/spark")
-      stop("Must have the SPARK_HOME env variable set or RLIBS in ~/.Renviron")
-    }
 
     lib_loc = file.path(Sys.getenv("SPARK_HOME"), "R", "lib")
     .libPaths(c(lib_loc, .libPaths()))
@@ -90,11 +87,16 @@ hydrar.load.SparkR <- function() {
     requireNameSpace("SparkR")
   }
 
-  #@TODO take the jar from env
+  #start the SparkR shell and initialization
+  sysml_jars <- file.path(system.file(package="HydraR"), "inst", "lib", "SystemML.jar")
+  if (nchar(Sys.getenv("SYSML_HOME")) >= 1) {
+    # if user has set the env then we can use that jar
+    sysml_jars <- file.path(Sys.getenv("SYSML_HOME"), "target", "SystemML.jar")
+  }
   sc <- SparkR::sparkR.init(
     master = "local[*]",
     sparkEnvir = list(spark.driver.memory="2g"),
-    sparkJars = c("/Users/singhal/Git/incubator-systemml/target/SystemML.jar")
+    sparkJars = sysml_jars
   )
 
   #spark context
