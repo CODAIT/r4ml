@@ -27,6 +27,7 @@ Collate:
     'hydrar.env.R'
     'hydrar.frame.R'
     'hydrar.matrix.R'
+    'hydrar.sampling.R'
     'java.bridge.R'
     'ml.model.base.R'
     'ml.model.lm.R'

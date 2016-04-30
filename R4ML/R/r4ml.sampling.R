@@ -40,7 +40,7 @@ NULL
 #' @return For random sampling, a single hydrar.frame/hydrar.matrix/DataFrame is returned. For
 #'   partitioned sampling, a list of hydrar.frames or hydrar.matrices or Spark DataFrame is returned, and each
 #'   element in the list represents a partition.
-#' 
+#' @export
 #' @examples \dontrun{
 #'
 #' # Generate a 10% random sample of data
@@ -80,7 +80,7 @@ hydrar.sample <- function(data, perc) {
   if (!inherits(data, "hydrar.frame") & !inherits(data, "hydrar.matrix") & !inherits(data, "DataFrame")) {
     hydrar.err(logSource, "The specified dataset must be a hydrar.frame or hydrar.matrix or Spark DataFrame.")
   }
-  
+  # functor to convert the output type to the relevant input type
   outputType = function(...) {
     data_type <- class(data)
     castDF <- function(df) {
@@ -108,6 +108,7 @@ hydrar.sample <- function(data, perc) {
     return(outputType(df1))
   } else if (length(perc) == 2 && 
       (class(data) %in% c('hydrar.frame', 'hydrar.matrix', 'DataFrame'))) {
+    # this is probably slightly faster version of when length(perc)>2
     if (abs(sum(perc) - 1.0) >= 1e-6) {
       hydrar.err(logSource, "Random split must have the value sum to 1")
     } 
@@ -127,8 +128,11 @@ hydrar.sample <- function(data, perc) {
     if (rcolname %in% SparkR::colnames(data)) {
       stop("data has already have column " %++% rcolname)
     }
+    # create the uniform random (0,1) in the column rcolname
     aug_data <- SparkR::withColumn(data, rcolname, SparkR::rand())
     aug_data_cnames <- SparkR::colnames(aug_data)
+
+    # partition the column based the uniform disribution
     create_data_fold <- function (bounds) {
       lb <- bounds[[1]]
       ub <- bounds[[2]]
