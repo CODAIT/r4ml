@@ -36,7 +36,7 @@ setClass("hydrar.model",
   ), "VIRTUAL"
 )
 
-# Abstract method: bigr.model.validateTrainingParameters
+# Abstract method: hydrar.model.validateTrainingParameters
 # ------------------------------------------------------
 # This method must be overloaded by every subclass of hydrar.model. In here, specific
 # model parameters can be validated: e.g., 'laplace' for Naive Bayes or 'intercept' for linear models.
@@ -77,7 +77,7 @@ setGeneric("hydrar.model.postTraining", def =
 # coefficients for Linear Models or probabilities for Naive Bayes).
 # Note: Argument emptyModelForDispatch is just an empty model. It is used for the
 # generic function to dispatch the corresponding version of hydrar.model.import for
-# each class extending from bigr.model.
+# each class extending from hydrar.model.
 setGeneric("hydrar.model.import", def =
   function(emptyModelForDispatch, directory) {
     hydrar.err("hydrar.model.import", "Class " %++% class(emptyModelForDispatch) %++%
@@ -138,7 +138,7 @@ setMethod("initialize", "hydrar.model",
         return (hydrar.model.import(new(class(.Object)), directory))
       } else if (missing(formula) || missing(data)) {
         # If the model requires a formula, check that both formula and data are provided
-        bigr.err(logSource, "Both formula and data arguments must be provided.")
+        hydrar.err(logSource, "Both formula and data arguments must be provided.")
       }
     } else if (missing(data)) {
       .hydrar.checkParameter(logSource, directory, "character", checkExistence=T, expectedExistence=T)
@@ -340,13 +340,13 @@ hydrar.getFunctionArguments <- function(call, env) {
 # calculate statistics for boxplots and histograms.
 # also will be useful for ml formulas
 #
-# @param formula a formula or a bigr.vector
+# @param formula a formula or hydrar.vector
 # @return
 .hydrar.parseFormulaToPlot <- function(formula, data=NULL, checkNamesInData=T) {
   logSource <- ".hydrar.parseFormulaToPlot"
 
   # Validate formula
-  if (class(formula) != "formula" && class(formula) != "bigr.vector") {
+  if (class(formula) != "formula" && class(formula) != "hydrar.vector") {
     return(NULL)
   }
   if (class(formula) == "formula") {
@@ -453,7 +453,7 @@ hydrar.getFunctionArguments <- function(call, env) {
     }
     #@TODO change it
     if (class(data) != "hydrar.frame" & !inherits(data, "hydrar.matrix")) {
-      hydrar.err(logSource, "Parameter data must be a bigr.frame or a subclass of bigr.matrix in order to compute boxplot or histogram statistics.")
+      hydrar.err(logSource, "Parameter data must be a hydrar.frame or a subclass of hydrar.matrix in order to compute boxplot or histogram statistics.")
     }
     hydrar.info(logSource, "targetColname: " %++% targetColname)
 
@@ -495,7 +495,7 @@ hydrar.getFunctionArguments <- function(call, env) {
     return(list(data, targetColId, targetColname, groupByColIds,
                 groupByColnames))
   } else {
-    # If a bigr.vector is provided
+    # If a hydrar.vector is provided
     if (formula@dataType != "numeric" & formula@dataType != "integer") {
       hydrar.err(logSource, "Target column for plot must be of type 'numeric' or 'integer'.")
     }

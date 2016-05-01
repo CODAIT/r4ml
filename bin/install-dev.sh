@@ -38,8 +38,8 @@ mkdir -p $LIB_DIR
 pushd $FWDIR > /dev/null
 
 # Generate Rd files if devtools is installed
-#Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::document(pkg="HydraR", roclets=c("rd")) }'
-Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::document(pkg="HydraR") }'
+Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::document(pkg="HydraR", roclets=c("rd")) }'
+#Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::document(pkg="HydraR") }'
 
 # Install SparkR to $LIB_DIR
 R CMD INSTALL --library=$LIB_DIR $FWDIR/$PKG_NAME

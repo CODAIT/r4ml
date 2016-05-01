@@ -1,9 +1,29 @@
-# HydraR <img src="HydraR/inst/images/hydraR-logo.png" alt="IMAGE ALT TEXT HERE" width="340" height="250" />
+# <img src="HydraR/inst/images/hydraR-logo.png" alt="IMAGE ALT TEXT HERE" width="340" height="250" />
+
+# Table of Contents
+
+-[How to install](#how-to-install)
+
+&nbsp;&nbsp;-[Install Dependencies](#install-dependencies)
+
+&nbsp;&nbsp;&nbsp;&nbsp;-[SparkR](#sparkr)
+
+&nbsp;&nbsp;&nbsp;&nbsp;-[R packages](#r-packages)
+
+&nbsp;&nbsp;-[Install HydraR](#install-hydrar)
+
+&nbsp;&nbsp;&nbsp;&nbsp;-[HydraR development and usages](#hydrar-development-and_usages)
+
+&nbsp;&nbsp;&nbsp;&nbsp;-[HydraR usages](#hydrar-usages)
+
+
 
 ## How to install
 
 ### Install Dependencies
-#### 1) SparkR
+
+#### SparkR
+
    1) If not installed, run the following scripts
 
    ```
@@ -16,12 +36,25 @@
    popd
    ```
 
-   2)Add the following lines in $HOME/.Renviron
+   2) first get the existing system library path by running on the terminal
    ```
-   R_LIBS=$HOME/apache/spark/R/lib:$R_LIBS
+    Rscript -e "paste(.libPaths(), collapse=':')"
+   ```
+   
+   3)Add the following lines in $HOME/.Renviron (note: replace <OUTPUT_FROM_PREVIOUS_CODE> appropriately
+   ```
+   R_LIBS=<OUTPUT_FROM_PREVIOUS_CODE>:$HOME/apache/spark/R/lib:$R_LIBS
+   ```
+    
+
+   4) set the spark home environment in the `$HOME/.Renviron` file by adding the following line
+
+   ```
+   SPARK_HOME=$HOME/apache/spark
    ```
 
-#### 2) R packages
+#### R packages
+
    Install all the package which have dependencies and suggestion in the DESCRIPTION file using the 
 
    `install.packages(pkgname)` command in R
@@ -30,10 +63,11 @@
    cat HydraR/DESCRIPTION
    ```
 
-### Install Instruction (follow one of the following instruction)
+### Install HydraR
+One can follow one of the following instructions...
 
-#### For development. clone github and load it without installing
-  1)
+#### HydraR development and usages
+  1) clone github and load it without installing
 
    ```
    mkdir -p $HOME/apache
@@ -43,55 +77,40 @@
    cd ..
    ```
 
-  2) Add the following path to the R_LIBS
+  2) Add the following path to the R_LIBS in the `$HOME/.Renviron` file
 
    ```
   R_LIBS=$HOME/apache/spark/R/lib:$HOME/apache/spark-hydrar/lib:$R_LIBS 
    ```
 
-  3) set the environment variable 
 
-   3.1) for R shell
-
-   ```
-     export SPARK_HOME=$HOME/apache/spark
-   ```
-
-   3.2) for the RStudio
-
-    in the RStudio add this
-   ```R
-    # change <USER_ID> to  your linux/mac/unix id
-    Sys.setenv(SPARK_HOME = "/Users/<USER_ID>/apache/spark")
-   ```
-
-#### for user 
+#### HydraR usages
 
    1) Direct download as explained in the previous steps
 
-    After step 1, one can install using install.packages command in R
+    Same as the previous instruction step 1 i.e run the following command
 
-   2) github install
+   ```
+   mkdir -p $HOME/apache
+   git clone https://github.com/SparkTC/spark-hydrar
+   cd spark-hydrar
+   bin/install-all.sh
+   cd ..
+   ```
 
-    Note that this will install in the standard R installation folder
-    ```R
+   After that one can use the install packages to install into library
+
+   ```
+   Rscript -e 'install.packages("./lib/HydraR",repos=NULL, type="source")'
+   ```
+    
+
+
+   2) github install (Currently not recommended)
+
+    Note that this will install in the standard R installation folder 
+
+    ```
     library(devtools)
     install_github("sparkTC/spark-hydrar", subdir="HydraR")
     ```
-
-   3) set the environment variable 
-
-   3.1) for R shell
-
-   ```
-     export SPARK_HOME=$HOME/apache/spark
-   ```
-
-   3.2) for the RStudio
-
-    in the RStudio add this
-   ```R
-    # change <USER_ID> to  your linux/mac/unix id
-    Sys.setenv(SPARK_HOME = "/Users/<USER_ID>/apache/spark")
-   ```
-

@@ -48,7 +48,8 @@ setGeneric("as.hydrar.matrix", function(object) {
   standardGeneric("as.hydrar.matrix")
 })
 
-#' Convert a hydrar.frame to hydrar.martix by
+#' @title Convert a hydrar.frame to hydrar.martix by
+#' @description It converts the hydrar.frame to hydrar.matrix so that it is consumable by all the relevant ml algo
 #'   - assigning machine learning types i.e (scale, nominal, ordinal, dummy).
 #'     (default = scale)
 #'   - use transform to convert the type so that it is numeric. Not yet implemented
@@ -76,6 +77,7 @@ setMethod("as.hydrar.matrix",
     } else {
       #@TODO auto convert
       # else throw error
+      stop("can't convert the hydrar.frame to hydrar.matrix")
     }
     result
   }
@@ -156,8 +158,8 @@ setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
 #'
 #' # Create a hdyrar.matrix after dummycoding, binning, and scaling some attributes
 #' # this features is not implemented
-#' irisBM <- hydrar.transform(bf = irisbf, outData = "/user/bigr/examples/irisbf.rcd",
-#'                                       transformPath = "/user/bigr/examples/irisbf.maps",
+#' irisBM <- hydrar.transform(bf = irisbf, outData = "/user/hydrar/examples/irisbf.rcd",
+#'                                       transformPath = "/user/hydrar/examples/irisbf.maps",
 #'                                       dummycodeAttrs = "Species",
 #'                                       binningAttrs = c("Sepal.Length", "Sepal.Width"),
 #'                                       numBins=4,

@@ -37,3 +37,10 @@ $FWDIR/bin/create-docs.sh
 
 # run all the relevant test cases
 $FWDIR/bin/test-all.sh
+
+# now finally re-install the package so as to have all the docs and other info
+$FWDIR/bin/install-dev.sh
+
+# currently, the html folder is not copied to the lib dir. So we manually do it
+echo "Coping the html folder to lib"
+\cp -rf $FWDIR/HydraR/html/* $FWDIR/lib/HydraR/html

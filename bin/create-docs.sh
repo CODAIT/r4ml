@@ -41,7 +41,9 @@ pushd HydraR/html
 
 echo "Creating man pages"
 Rscript -e ' libDir <- "../../lib"; library(HydraR, lib.loc=libDir); library(knitr); knit_rd("HydraR", links = tools::findHTMLlinks(paste(libDir, "HydraR", sep="/"))) '
+popd
 
+pushd HydraR/vignettes
 echo "Creating Vignettes"
 Rscript -e ' libDir <- "../../lib"; library(HydraR, lib.loc=libDir); library(devtools); devtools::build_vignettes()'
 popd

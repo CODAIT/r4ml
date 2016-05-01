@@ -62,7 +62,7 @@ setClass("hydrar.lm",
 #'  \tabular{rlll}{
 ##'\tab\code{coefficients}  \tab (numeric)   \tab Coefficients of the regression\cr
 ##'\tab\code{modelPath}     \tab (character) \tab HDFS location where the model files are stored\cr
-##'\tab\code{transformPath} \tab (character) \tab HDFS location where the \code{bigr.transform()}
+##'\tab\code{transformPath} \tab (character) \tab HDFS location where the \code{hydrar.transform()}
 ##'                                               metadata are stored \cr
 ##'\tab\code{yIdx}          \tab (numeric)   \tab Column id of the response variable\cr
 ##'\tab\code{numFeatures}   \tab (numeric)   \tab The number of attributes\cr
@@ -89,7 +89,7 @@ setClass("hydrar.lm",
 #'                    recodeAttrs=c("DayOfWeek"),
 #'                    missingAttrs=c("Distance", "ArrDelay"),
 #'                    imputationMethod=c("global_mode"),
-#'                    transformPath="/user/bigr/examples/lm/airline.transform")
+#'                    transformPath="/user/hydrar/examples/lm/airline.transform")
 #'
 #' # Split the data into 70% for training and 30% for testing
 #' samples <- hydrar.sample(airlineMatrix, perc=c(0.7, 0.3))

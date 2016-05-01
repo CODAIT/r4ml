@@ -36,7 +36,8 @@ PKG_NAME="HydraR"
 pushd $FWDIR > /dev/null
 
 # test all the code
-Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::test(pkg="HydraR") }'
+Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); libDir <- "./lib"; library(HydraR, lib.loc=libDir); devtools::test(pkg="HydraR") }'
+
 status=$?
 
 popd > /dev/null

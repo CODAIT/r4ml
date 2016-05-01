@@ -97,7 +97,7 @@ hydrar.load.SparkR <- function() {
     stop("ERROR: can't find the SystemML.jar for initialization")
   }
   sc <- SparkR::sparkR.init(
-    master = "local[*]",
+    master = "local[*]", #@TODO make it to use cluster in future
     sparkEnvir = list(spark.driver.memory="2g"),
     sparkJars = sysml_jars
   )
@@ -113,7 +113,19 @@ hydrar.load.SparkR <- function() {
 
 #Initialize HydraR
 hydrar.init <- function() {
+  #logger and level settings
+  logger <- log4j.Logger$new("org")
+  assign("logger", logger, .GlobalEnv)
 
+  logger <- log4j.Logger$new()
+  assign("logger", logger, .GlobalEnv)
+
+  logger$setLevel("WARN")
+
+  #static class sysml.RDDUtils
+  # since actual class is static, we need this
+  sysml.RDDUtils = sysml.RDDConverterUtils$new()
+  assign("sysml.RDDUtils", sysml.RDDUtils, .GlobalEnv)
 }
 
 # unload SparkR and claim the cluster and cleanup
