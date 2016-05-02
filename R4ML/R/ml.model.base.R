@@ -66,10 +66,10 @@ setGeneric("hydrar.model.buildTrainingArgs", def =
 # This method must be overloaded by every subclass of hydrar.model. In here, each model
 # process, the output information created by dml scripts by calling hydrar.execute()
 setGeneric("hydrar.model.postTraining", def =
-             hydrar.model.postTraining <- function(model) {
-               hydrar.err("hydrar.model.postTraining", "Class " %++% class(model) %++%
-                            " doesn't implement method hydrar.model.postTraining.")
-             }
+      hydrar.model.postTraining <- function(model) {
+        hydrar.err("hydrar.model.postTraining", "Class " %++% class(model) %++%
+       " doesn't implement method hydrar.model.postTraining.")
+      }
 )
 
 # Abstract method: hydrar.model.import
@@ -119,7 +119,7 @@ setMethod("initialize", "hydrar.model",
                                                                       "clustering", "feature-extraction", "factorization", "other"))
 
     isSupervised <- modelType %in% c("classification", "regression")
-
+    isFeatureExtraction <- modelType %in% c("feature-extraction")
     # Assign common parameters for any hydrar.model objects
     formula <- argValues$formula
     data <- argValues$data
@@ -147,6 +147,10 @@ setMethod("initialize", "hydrar.model",
       return (hydrar.model.import(new(class(.Object)), directory))
     }
 
+    if(isFeatureExtraction == TRUE) {
+      hydrar.info(logSource, "Feature Extraction is true, assigning data as INPUT param...")
+      # place holder for future feature-extraction specific code
+    }
     # Automatically generate a directory path if not provided
     #if (missing(directory)) {
     #    directory <- hydrar.generateFileName()
@@ -280,6 +284,12 @@ hydrar.model.splitXY <- function(data, yColname) {
   return(.hydrar.separateXAndY(data, yColname))
 }
 
+hydrar.model.getFeatureVector <- function(data) {
+  cols <- SparkR::colnames(data)
+  features <- as.hydrar.matrix(as.hydrar.frame(SparkR::select(data,cols)))
+  return(features)
+}
+
 
 # Given a call (which could come from ...), this method retrieves
 # the list of arguments passed to the parent function
@@ -313,12 +323,12 @@ hydrar.getFunctionArguments <- function(call, env) {
         # If the error was that the parameter is missing, treat it as
         # a missing parameter
         if (.hydrar.contains(errMsg, "is missing, with no default")) {
-          hydrar.info(logSource, "Missing argument: " %++% argStrings[[i]])
-          # Empty symbol will be later on recognized as a missing parameter value
-          hydrar.emptySymbol()
+   hydrar.info(logSource, "Missing argument: " %++% argStrings[[i]])
+   # Empty symbol will be later on recognized as a missing parameter value
+   hydrar.emptySymbol()
         } else {
-          # If another error was thrown, just rethrow it
-          hydrar.err(logSource, errMsg)
+   # If another error was thrown, just rethrow it
+   hydrar.err(logSource, errMsg)
         }
       })
     } else {
@@ -472,7 +482,7 @@ hydrar.getFunctionArguments <- function(call, env) {
       if (length(groupByColnames) == 1 && groupByColnames==".") {
         groupByColnames = SparkR::colnames(data)[-targetColId]
         if (length(groupByColnames) < 1) {
-          hydrar.err(logSource, sprintf("The %s specified does not have any groupby column. Colnames='%s'", class(data), colnames(data)))
+   hydrar.err(logSource, sprintf("The %s specified does not have any groupby column. Colnames='%s'", class(data), colnames(data)))
         }
       }
     }
@@ -486,7 +496,7 @@ hydrar.getFunctionArguments <- function(call, env) {
     }
 
     return(list(data, targetColId, targetColname, groupByColIds,
-                groupByColnames))
+         groupByColnames))
   } else {
     # If a hydrar.vector is provided
     if (formula@dataType != "numeric" & formula@dataType != "integer") {
@@ -498,6 +508,6 @@ hydrar.getFunctionArguments <- function(call, env) {
     groupByColIds <- vector()
     groupByColnames <- vector()
     return(list(data, targetColId, targetColname, groupByColIds,
-                groupByColnames))
+         groupByColnames))
   }
 }

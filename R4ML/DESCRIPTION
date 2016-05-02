@@ -32,8 +32,10 @@ Collate:
     'util.commons.R'
     'ml.model.base.R'
     'ml.model.lm.R'
+    'ml.model.pca.R'
     'ml.model.svm.R'
     'sparkr.bridge.R'
     'sysml.bridge.R'
     'util.io.R'
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1
