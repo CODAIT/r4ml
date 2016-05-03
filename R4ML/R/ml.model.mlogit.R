@@ -80,7 +80,7 @@ setClass("hydrar.mlogit",
 #'
 
 hydrar.mlogit <- function(formula, data, intercept=F, shiftAndRescale=F, tolerance,
-                               outer.iter.max, inner.iter.max, lambda, labelNames) {
+                               outer.iter.max, inner.iter.max, lambda, labelNames=character(0)) {
   new("hydrar.mlogit", modelType="classification", formula=formula, data = data, 
     intercept = intercept, shiftAndRescale=shiftAndRescale, tolerance=tolerance,
       outer.iter.max=outer.iter.max, inner.iter.max=inner.iter.max, lambda=lambda,labelNames=labelNames

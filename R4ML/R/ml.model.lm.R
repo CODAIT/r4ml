@@ -250,9 +250,6 @@ setMethod("coef", signature="hydrar.lm", def =
   }
 )
 
-setGeneric("stats", function(object) attributes(object))
-setGeneric("stats")
-
 #' @title Get the statistics data of a learned model
 #' @description With this method we can get the statistics of a learned model
 #'              represented by the object
