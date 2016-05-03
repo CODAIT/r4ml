@@ -287,12 +287,12 @@ with(hydrar.env, {
 
   #utility to find the location of the scratch workspace
   # this location is used for temporaty storage
-  WORKSPACE_ROOT <- function() {
+  WORKSPACE_ROOT <- function(subdir="") {
     home <- Sys.getenv("HOME")
     if (is.null(home) || home == "") {
       stop("User HOME env not found")
     }
-    workspace <- file.path(home, PACKAGE_NAME, "scratch_workspace");
+    workspace <- file.path(home, PACKAGE_NAME, "scratch_workspace", subdir);
     if (!file.exists(workspace)) {
       system(paste0("mkdir -p ", workspace))
     }

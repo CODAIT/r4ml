@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+#' @include util.commons.R
+
 NULL
 
 #' An S4 class to represent the hydrar.model
@@ -275,16 +277,7 @@ hydrar.model.splitXY <- function(data, yColname) {
   #  yColname <- dummyCols[1]
   #  numCols <- length(dummyCols)
   #}
-
-  colnames <- SparkR::colnames(data)
-  isYColName <- function (c) c %in% yColname
-  yCols <- Filter(isYColName, colnames)
-  xCols <- Filter(Negate(isYColName), colnames)
-  #DEBUG browser()
-  yHM <- as.hydrar.matrix(as.hydrar.frame(SparkR::select(data, yCols)))
-  xHM <- as.hydrar.matrix(as.hydrar.frame(SparkR::select(data, xCols)))
-  XandY <- c(X=xHM, Y=yHM)
-  return(XandY)
+  return(.hydrar.separateXAndY(data, yColname))
 }
 
 

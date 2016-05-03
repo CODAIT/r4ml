@@ -1,4 +1,4 @@
 library(testthat)
-library(iSparkR)
+library(HydraR)
 
-test_check("iSparkR")
+test_check("HydraR")

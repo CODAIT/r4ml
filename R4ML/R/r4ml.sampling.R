@@ -80,6 +80,7 @@ hydrar.sample <- function(data, perc) {
   if (!inherits(data, "hydrar.frame") & !inherits(data, "hydrar.matrix") & !inherits(data, "DataFrame")) {
     hydrar.err(logSource, "The specified dataset must be a hydrar.frame or hydrar.matrix or Spark DataFrame.")
   }
+
   # functor to convert the output type to the relevant input type
   outputType = function(...) {
     data_type <- class(data)

@@ -29,10 +29,11 @@ Collate:
     'hydrar.matrix.R'
     'hydrar.sampling.R'
     'java.bridge.R'
+    'util.commons.R'
     'ml.model.base.R'
     'ml.model.lm.R'
+    'ml.model.svm.R'
     'sparkr.bridge.R'
     'sysml.bridge.R'
-    'util.commons.R'
     'util.io.R'
 VignetteBuilder: knitr

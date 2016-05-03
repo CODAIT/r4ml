@@ -119,7 +119,6 @@ hydrar.init <- function() {
 
   logger <- log4j.Logger$new()
   assign("logger", logger, .GlobalEnv)
-
   logger$setLevel("WARN")
 
   #static class sysml.RDDUtils

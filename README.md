@@ -29,7 +29,8 @@
    ```
    mkdir -p $HOME/apache
    pushd $HOME/apache
-   git clone https://github.com/apache/spark
+   # 1.6 maintenance branch with stability fixes on top of Spark 1.6.1
+   git clone git://github.com/apache/spark.git -b branch-1.6
    cd spark
    mvn -DskipTests -Pnetlib-lgpl -Psparkr clean package
    cd ..
@@ -43,7 +44,7 @@
    
    3)Add the following lines in $HOME/.Renviron (note: replace <OUTPUT_FROM_PREVIOUS_CODE> appropriately
    ```
-   R_LIBS=<OUTPUT_FROM_PREVIOUS_CODE>:$HOME/apache/spark/R/lib:$R_LIBS
+   R_LIBS=<OUTPUT_FROM_PREVIOUS_CODE>:<HOME>/apache/spark/R/lib:$R_LIBS
    ```
     
 
@@ -80,7 +81,7 @@ One can follow one of the following instructions...
   2) Add the following path to the R_LIBS in the `$HOME/.Renviron` file
 
    ```
-  R_LIBS=$HOME/apache/spark/R/lib:$HOME/apache/spark-hydrar/lib:$R_LIBS 
+  R_LIBS=<PREVIOUS_PATH_FOR_R_LIBRARY>:<PATH_FOR_SPARKR_LIB>:<HOME>/apache/spark-hydrar/lib:$R_LIBS 
    ```
 
 
@@ -93,15 +94,17 @@ One can follow one of the following instructions...
    ```
    mkdir -p $HOME/apache
    git clone https://github.com/SparkTC/spark-hydrar
-   cd spark-hydrar
+   pushd spark-hydrar
    bin/install-all.sh
-   cd ..
+   popd
    ```
 
    After that one can use the install packages to install into library
 
    ```
+   pushd spark-hydrar
    Rscript -e 'install.packages("./lib/HydraR",repos=NULL, type="source")'
+   popd
    ```
     
 
@@ -114,3 +117,5 @@ One can follow one of the following instructions...
     library(devtools)
     install_github("sparkTC/spark-hydrar", subdir="HydraR")
     ```
+
+

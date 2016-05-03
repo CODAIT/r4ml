@@ -163,7 +163,8 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.lm", def =
 
       #coefPath <- model@modelPath %++% "/coefficients.csv"
       #statsPath <- model@modelPath %++% "/stats.csv"
-      statsPath <- file.path(hydrar.env$WORKSPACE_ROOT(), "stats.csv")
+      workspace <- hydrar.env$WORKSPACE_ROOT("hydrar.lm")
+      statsPath <- file.path(workspace, "stats.csv")
       dmlPath <- file.path(hydrar.env$SYSML_ALGO_ROOT(),
                    ifelse(args$method=="direct-solve",
                      hydrar.env$DML_LM_DS_SCRIPT, hydrar.env$DML_LM_CG_SCRIPT))
@@ -173,7 +174,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.lm", def =
         X = args$X,
         y = args$Y,
         icpt = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
-        "beta_out", # output
+        "beta_out", # output from DML script
         O = statsPath,
         fmt = "csv")
       if (!missing(lambda)) {
@@ -215,6 +216,8 @@ setMethod("hydrar.model.postTraining", signature="hydrar.lm", def =
       i <- i + 1
       model@dmlOuts[outName] <- output
     }
+
+    model@coefficients <- coef(model)
     return(model)
   }
 )

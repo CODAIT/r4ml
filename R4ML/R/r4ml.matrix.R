@@ -76,6 +76,8 @@ setMethod("as.hydrar.matrix",
       ml.coltypes(result) <- rep("scale", ncol)
     } else {
       #@TODO auto convert
+      warning("as.hydrar.matrix, auto conversion from non numeric hydrar.frame is not supported yet")
+      stop("object " %++% object %++% "is not numeric.")
       # else throw error
       stop("can't convert the hydrar.frame to hydrar.matrix")
     }

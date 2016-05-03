@@ -1,0 +1,104 @@
+#-------------------------------------------------------------
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+#-------------------------------------------------------------
+
+# This script can be used to compute label predictions
+# Meant for use with a model learnt using l2-svm.dml
+#
+# Given ground truth labels, the script will compute an 
+# accuracy (%) for the predictions
+#
+# Example Usage:
+# hadoop jar SystemML.jar -f l2-svm-predict.dml -nvargs X=data Y=labels scoring_only="no" model=model scores=scores accuracy=accuracy confusion=confusion fmt="text"
+#
+# Note about inputs: 
+# labels (entries in Y) should either be set to +1/-1
+# or be the result of recoding
+# anything else may prompt an error message from this script
+
+cmdLine_Y = ifdef($Y, " ")
+cmdLine_confusion = ifdef($confusion, " ")
+cmdLine_accuracy = ifdef($accuracy, " ")
+cmdLine_scores = ifdef($scores, " ")
+cmdLine_scoring_only = ifdef($scoring_only, "no")
+cmdLine_fmt = ifdef($fmt, "text")
+
+X = read($X)
+
+W = read($model)
+
+dimensions = as.scalar(W[nrow(W),1])
+if(dimensions != ncol(X))
+	stop("Stopping due to invalid input: Model dimensions do not seem to match input data dimensions")
+	
+intercept = as.scalar(W[nrow(W)-1,1])
+negative_label = as.scalar(W[nrow(W)-2,1])
+positive_label = as.scalar(W[nrow(W)-3,1])
+W = W[1:(nrow(W)-4),]
+
+b = 0.0
+if(intercept == 1)
+	b = castAsScalar(W[nrow(W),1])
+
+scores = b + (X %*% W[1:ncol(X),])
+
+if(cmdLine_scores != " ")
+	write(scores, cmdLine_scores, format=cmdLine_fmt)
+	
+if(cmdLine_scoring_only == "no"){
+	y = read(cmdLine_Y)
+
+	pred = ppred(scores, 0, ">")
+	pred_labels = pred*positive_label + (1-pred)*negative_label
+	num_correct = sum(ppred(pred_labels, y, "=="))
+	acc = 100*num_correct/nrow(X)
+
+	acc_str = "Accuracy (%): " + acc
+	print(acc_str)
+	if(cmdLine_accuracy != " ")
+		write(acc_str, cmdLine_accuracy)
+
+	if(cmdLine_confusion != " "){
+		pred = 2*pred - 1
+		if(negative_label != -1 | positive_label != +1)
+        	y = 2/(positive_label - negative_label)*y - (negative_label + positive_label)/(positive_label - negative_label)
+		
+		pred_is_minus = ppred(pred, -1, "==")
+		pred_is_plus = 1 - pred_is_minus
+		y_is_minus = ppred(y, -1, "==")
+		y_is_plus = 1 - y_is_minus
+
+		check_min_y_minus = sum(pred_is_minus*y_is_minus)
+		check_min_y_plus = sum(pred_is_minus*y_is_plus)
+		check_max_y_minus = sum(pred_is_plus*y_is_minus)
+		check_max_y_plus = sum(pred_is_plus*y_is_plus)
+
+		s = check_min_y_minus + "," + check_min_y_plus
+		s = append(s, check_max_y_minus + "," + check_max_y_plus)
+		s = append(s, "")
+		confusion_mat = matrix(0, rows=2, cols=2)
+		confusion_mat[1,1] = check_min_y_minus
+		confusion_mat[1,2] = check_min_y_plus
+		confusion_mat[2,1] = check_max_y_minus
+		confusion_mat[2,2] = check_max_y_plus
+		write(confusion_mat, cmdLine_confusion)
+		#write(s, cmdLine_confusion)
+	}
+}

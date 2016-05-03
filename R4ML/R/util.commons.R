@@ -211,3 +211,76 @@ hydrar.emptySymbol <- function() (quote(f(,)))[[2]]
   return(TRUE)
 }
 
+.hydrar.separateXAndY <- function(xy, yColnames) {
+  .hydrar.binary.splitXY(xy, yColnames)
+}
+
+.hydrar.binary.splitXY <- function(xy, yColnames) {
+  colnames <- SparkR::colnames(xy)
+  isYColName <- function (c) c %in% yColnames
+  yCols <- Filter(isYColName, colnames)
+  xCols <- Filter(Negate(isYColName), colnames)
+  #DEBUG browser()
+  yHM <- as.hydrar.matrix(as.hydrar.frame(SparkR::select(xy, yCols)))
+  xHM <- as.hydrar.matrix(as.hydrar.frame(SparkR::select(xy, xCols)))
+  XandY <- c(X=xHM, Y=yHM)
+  return(XandY)
+}
+
+
+hydrar.ml.checkModelFeaturesMatchData <- function (modelMatrix, dataMatrix, intercept, labelColumnName, labelColumnIndex) {
+  logSource <- "hydrar.ml.checkModelFeaturesMatchData"
+  hydrar.info(logSource, "Ensuring the consistency between model and data features")
+  
+  #@TODO add the matrix's nrow and ncol in hydrar.matrix
+  colnames_dm <- SparkR::colnames(dataMatrix)
+  rownames_mm <- rownames(modelMatrix)
+  nrow_mm <- nrow(modelMatrix) # 
+  ncol_dm <- length(SparkR::colnames(dataMatrix))
+  str_rownames_mm <- function() {paste(rownames_mm, collapse = ",")}
+  str_colnames_mm <- function() {paste(colnames_dm[-labelColumnIndex], collapse = ",")}
+  log_error <- function() {
+    hydrar.err(logSource, "Data matrix features: [ " %++% 
+      str_colnames_dm() %++%
+      "] do not match the features of the given model [" %++% 
+      str_rownames_mm() %++%"]")
+  }
+  if (intercept) {
+    if (nrow_mm == ncol_dm) {
+      if (all(c(colnames_dm[-labelColumnIndex], hydrar.env$INTERCEPT) == rownames_mm)) { 
+        testing <- TRUE
+      } else {
+        log_error()
+      }
+    } else if (ncol_dm == nrow_mm - 1) {
+      if (all(c(colnames_dm, bigr.env$INTERCEPT) == rownames_mm)) { 
+        testing <- FALSE
+      } else {
+        log_error()
+      }
+    } else {
+      log_error()
+    }
+  } else {
+    if (nrow_mm == ncol_dm) {
+      if(all(colnames_dm == rownames_mm)) { 
+        testing <- FALSE
+      } else {
+        log_error()
+      }
+    } else if (ncol_dm == nrow_mm + 1) {
+      if (all(colnames_dm[-labelColumnIndex] == rownames_mm) && 
+          colnames_dm[labelColumnIndex] == labelColumnName) { 
+        testing <- TRUE
+      } else {
+        log_error()
+      }
+    } else {
+      log_error()
+    }
+  }
+  return(testing)
+}
+  
+  
+
