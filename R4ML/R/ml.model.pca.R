@@ -45,12 +45,24 @@ setClass(
 #' @param projData (logical) a boolean value indicating whether the data should be projected in the new feature space. If
 #' set to TRUE, a list (hydrar.pca model, hydrar.matrix projData) is returned. If set to FALSE, only the hydrar.pca model is returned.
 #' Default value for \code{projData} is TRUE.
-#' @param applyPCA (hydrarr.pca) (optional) Currently is not supported. In future this option will import an existing hydrarr.pca model. If provided, \code{data} will be projected to the
+#' @param applyPCA (hydrar.pca) (optional) Currently is not supported. In future this option will import an existing hydrarr.pca model. If provided, \code{data} will be projected to the
 #' new feature space given the existing eigen vectors. In this case, a new hydrar.matrix will be returned.
 #' @export
-#'  @examples \dontrun{
+#' @return hydrar.pca S4 object is returned if projData is set to FALSE:\cr
+#' A hydrar.pca S4 object contains the following additional fields:
 #'
+##' \tabular{rlll}{
+##'\tab\code{eigen.vectors}       \tab (data.frame) \tab The eigen vectors. \cr
+##'\tab\code{std.deviations}     \tab (data.frame) \tab The square root of the eigen values.\cr
+##'\tab\code{eigen.values}     \tab (data.frame) \tab The eigen values.\cr
+##'\tab\code{call}          \tab (character) \tab String representation of this method's call,
+##'including the parameters and values passed to it.\cr
+##'}
 #'
+#' If projData is set to TRUE a list is returned containing (1) a hydrar.pca model and (2) a hydrar.matrix with the new data
+## @TODO add  @seealso link{hydrar.transform}
+#'
+#' @examples \dontrun{
 #'
 #' # Load the Iris dataset to HDFS
 #' train <- as.hydrar.matrix(iris[, -5])
@@ -64,20 +76,8 @@ setClass(
 #' iris_pca <- hydrar.pca(train, center=T, scale=T, k=2, projData=F)
 #' show(iris_pca)
 #'
+#' }
 #'
-#' @return hydrar.pca S4 object is returned if projData is set to FALSE:\cr
-#' A hydrar.pca S4 object contains the following additional fields:
-#'
-##' \tabular{rlll}{
-##'\tab\code{eigen.vectors}       \tab (data.frame) \tab The eigen vectors. \cr
-##'\tab\code{std.deviations}     \tab (data.frame) \tab The square root of the eigen values.\cr
-##'\tab\code{eigen.values}     \tab (data.frame) \tab The eigen values.\cr
-##'\tab\code{call}          \tab (character) \tab String representation of this method's call,
-##'including the parameters and values passed to it.\cr
-##'}
-##'
-##'If projData is set to TRUE a list is returned containing (1) a hydrar.pca model and (2) a hydrar.matrix with the new data
-## @TODO add  @seealso \link{hydrar.transform}
 hydrar.pca <- function(data, k, center, scale, projData, applyPCA) {
   pca <- new(
     "hydrar.pca",
