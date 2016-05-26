@@ -25,6 +25,7 @@ Collate:
     'zzz.R'
     'HydraR.R'
     'hydrar.env.R'
+    'hydrar.vector.R'
     'hydrar.frame.R'
     'hydrar.generic.R'
     'hydrar.matrix.R'

@@ -1,4 +1,3 @@
-#
 # (C) Copyright IBM Corp. 2015, 2016
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+#' @include hydrar.vector.R
 requireNamespace("SparkR")
 #'
 #' hydrar.frame, An S4 class which is inherited from SparkR DataFrame

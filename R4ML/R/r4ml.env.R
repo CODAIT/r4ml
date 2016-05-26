@@ -74,6 +74,9 @@ with(hydrar.env, {
   # The number of rows returned by head and tail methods
   DEFAULT_HEAD_ROWS <- 6;
 
+  # The number of rows returned by show method
+  DEFAULT_SHOW_ROWS <- 20;  
+
   # The default delimiter for text files
   DEFAULT_DELIMITER <- ",";
 
