@@ -237,7 +237,7 @@ hydrar.ml.checkModelFeaturesMatchData <- function (modelMatrix, dataMatrix, inte
   nrow_mm <- nrow(modelMatrix) # 
   ncol_dm <- length(SparkR::colnames(dataMatrix))
   str_rownames_mm <- function() {paste(rownames_mm, collapse = ",")}
-  str_colnames_mm <- function() {paste(colnames_dm[-labelColumnIndex], collapse = ",")}
+  str_colnames_dm <- function() {paste(colnames_dm[-labelColumnIndex], collapse = ",")}
   log_error <- function() {
     hydrar.err(logSource, "Data matrix features: [ " %++% 
       str_colnames_dm() %++%
