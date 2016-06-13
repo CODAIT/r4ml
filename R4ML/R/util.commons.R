@@ -232,6 +232,7 @@ hydrar.ml.checkModelFeaturesMatchData <- function (modelMatrix, dataMatrix, inte
   hydrar.info(logSource, "Ensuring the consistency between model and data features")
   
   #@TODO add the matrix's nrow and ncol in hydrar.matrix
+  #@TODO update rows/columns so that intercept=T does not create inconsistency
   colnames_dm <- SparkR::colnames(dataMatrix)
   rownames_mm <- rownames(modelMatrix)
   nrow_mm <- nrow(modelMatrix) # 
@@ -252,7 +253,7 @@ hydrar.ml.checkModelFeaturesMatchData <- function (modelMatrix, dataMatrix, inte
         log_error()
       }
     } else if (ncol_dm == nrow_mm - 1) {
-      if (all(c(colnames_dm, bigr.env$INTERCEPT) == rownames_mm)) { 
+      if (all(c(colnames_dm, hydrar.env$INTERCEPT) == rownames_mm)) { 
         testing <- FALSE
       } else {
         log_error()

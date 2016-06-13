@@ -19,6 +19,7 @@ setClass("hydrar.lm",
                         intercept = "logical",
                         shiftAndRescale = "logical",
                         transformPath = "character",
+                        labelColumnName = "character",
                         method="character"),
          contains = "hydrar.model"
 )
@@ -216,6 +217,7 @@ setMethod("hydrar.model.postTraining", signature="hydrar.lm", def =
     }
 
     model@coefficients <- coef(model)
+    model@labelColumnName <- model@yColname
     return(model)
   }
 )
@@ -244,7 +246,9 @@ setMethod(f = "show", signature = "hydrar.lm", definition =
 #' @seealso \link{show}
 setMethod("coef", signature="hydrar.lm", def =
   function(object) {
-    SparkR:::as.data.frame(object@dmlOuts[['beta_out']])
+    obj <- SparkR:::as.data.frame(object@dmlOuts[['beta_out']])
+    rownames(obj) <- object@featureNames
+    obj
   }
 )
 
@@ -259,3 +263,85 @@ setMethod("stats", signature="hydrar.lm", def =
     return(object@dmlOuts$stats)
   }
 )
+
+#' @name predict.hydrar.lm
+#' @title Predict method for Linear Regression models
+#' @description This method allows to score/test a linear regression model for a given hydrar.matrix. If the testing set
+#' is labeled, testing will be done and some statistics will be computed to measure the quality of the model. 
+#' Otherwise, scoring will be performed and only the predictions will be computed.
+#' @param object (hydrar.lm) The linear regression model
+#' @param data   (bigr.matrix) The data to be tested or scored.
+#' @return If the testing dataset is not labeled, the result will be a hydrar.matrix with the predictions for each row.
+#' Otherwise, the result will be a list with a hydrar.matrix with the predictions for each row (\code{$probabilities}), and
+#' (2) a data.frame with goodness-of-fit statistics ($statistics) for each column. Please refer to \link{predict.hydrar.glm} for the
+#' definitions of these statistics.
+#' @examples \dontrun{
+#' 
+#'   require(SparkR)
+#'   require(HydraR)
+#'   df <- iris
+#'   df$Species <- (as.numeric(df$Species))
+#'   iris_df <- as.hydrar.frame(df)
+#'   iris_mat <- as.hydrar.matrix(iris_df)
+#'   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
+#'   s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
+#'   test <- s[[1]]
+#'   train <- s[[2]]
+#'   y_test = as.hydrar.matrix(as.hydrar.frame(test[,1]))
+#'   y_test = SparkR:::as.data.frame(y_test)
+#'   test = as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
+#'   iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
+#'   output <- predict(iris_lm, test)
+#' }       
+#' 
+#' @export
+#' @seealso \link{hydrar.lm}
+predict.hydrar.lm <- function(object, data) {
+    logSource <- "predict.hydrar.lm"
+    
+    hydrar.info(logSource, "Predicting labels using given Linear Regression model.")
+    model <- object
+    .hydrar.checkParameter(logSource, data, inheritsFrom="hydrar.matrix")
+
+    # Create path for storing goodness-of-fit statistics
+    statsPath <- file.path(hydrar.env$WORKSPACE_ROOT("hydrar.mlogit"), "stats_predict.csv")
+
+    # compare the column name vector with the data's to determine if we're making predictions
+    testing <- hydrar.ml.checkModelFeaturesMatchData(coef(object), data, object@intercept, object@labelColumnName, object@yColId)  
+
+    # accumulate arguments for generating statistics if label data is present
+    if (testing) {
+        # testing
+        xAndY <- hydrar.model.splitXY(data, model@yColname)
+        testset_x <- xAndY$X
+        testset_y <- xAndY$Y   
+        args = list(X = testset_x, Y = testset_y)
+        args <- c(args, O = statsPath)
+        args <- c(args)
+    }
+    # accumulate argument if no label data is present to make predictions
+    else {
+        # scoring
+        args = list(X = data)
+    }
+    # add arguments that are general across testing/scoring
+    args <- c(args, dfam = 1)
+    args <- c(args, B_full = as.hydrar.matrix(as.hydrar.frame(coef(object))))
+    args <- c(args, "means")
+    args <- c(args, fmt = "csv")
+    args <- c(args, dml=file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_GLM_TEST_SCRIPT))
+    
+    # call the predict DML script
+    dmlOuts <- do.call("sysml.execute", args)
+    preds <- dmlOuts[['means']]
+    SparkR:::colnames(preds) <- c("preds")
+
+    # orgainze result for presentation to user
+    if (testing) {
+      stats <- as.data.frame(read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+      return(list("predictions"=preds, "statistics"=stats))
+    }
+    else {
+      return(list("predictions"=preds))
+    }
+}

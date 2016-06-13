@@ -258,12 +258,13 @@ setMethod("coef", signature="hydrar.mlogit", def =
 #'  test = as.hydrar.matrix(as.hydrar.frame(test[,c(1:4)]))
 #'
 #'  # Compute probabilities for the testing set
-#'  output <- predict.hydrar.mlogit(iris_log_reg, test)
+#'  output <- predict(iris_log_reg, test)
 #'
 #' }
+#' @export
 #' @seealso \link{hydrar.mlogit}
 predict.hydrar.mlogit <- function(object, data) {
-  logSource <- "hydrahead(r.predict.mlogit"
+  logSource <- "predict.hydrar.mlogit"
   hydrar.info(logSource, "Predicting labels using given Logistic Regression model on data" %++% data)
   mlogit <- object
   

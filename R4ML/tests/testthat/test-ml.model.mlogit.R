@@ -193,7 +193,7 @@ test_that("scoring", {
   ml.coltypes(train) <- c("scale", "scale", "scale", "scale", "nominal") 
   ml.coltypes(test) <- c("scale", "scale", "scale", "scale", "nominal") 
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = train, labelNames=c("Setosa","Versicolor","Virginica")) 
-  output <- predict.hydrar.mlogit(iris_log_reg, test)
+  output <- predict(iris_log_reg, test)
 })
   
 test_that("testing/prediction", {   
@@ -210,5 +210,5 @@ test_that("testing/prediction", {
   ml.coltypes(test) <- c("scale", "scale", "scale", "scale", "nominal") 
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = train, labelNames=c("Setosa","Versicolor","Virginica")) 
   test = as.hydrar.matrix(as.hydrar.frame(test[,c(1:4)]))
-  output <- predict.hydrar.mlogit(iris_log_reg, test)
+  output <- predict(iris_log_reg, test)
 })

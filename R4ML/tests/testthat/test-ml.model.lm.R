@@ -57,3 +57,40 @@ test_that("hydrar.lm iterative", {
   coef(aq_lm)
   stats(aq_lm)
 })
+
+test_that("hydrar.lm predict", {
+  require(SparkR)
+  require(HydraR)
+  df <- iris
+  df$Species <- (as.numeric(df$Species))
+  iris_df <- as.hydrar.frame(df)
+  iris_mat <- as.hydrar.matrix(iris_df)
+  ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
+  s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
+  test <- s[[1]]
+  train <- s[[2]]
+  y_test = as.hydrar.matrix(as.hydrar.frame(test[,1]))
+  y_test = SparkR:::as.data.frame(y_test)
+  test = as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
+  iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
+  output <- predict(iris_lm, test)
+  expect_lt(mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)), 5)
+})
+
+test_that("hydrar.lm predict_scoring", {
+  require(SparkR)
+  require(HydraR)
+  df <- iris
+  df$Species <- (as.numeric(df$Species))
+  iris_df <- as.hydrar.frame(df)
+  iris_mat <- as.hydrar.matrix(iris_df)
+  ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
+  s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
+  test <- s[[1]]
+  train <- s[[2]]
+  y_test = as.hydrar.matrix(as.hydrar.frame(test[,1]))
+  y_test = SparkR:::as.data.frame(y_test)
+  test = as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
+  iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
+  output <- predict(iris_lm, test)
+})
