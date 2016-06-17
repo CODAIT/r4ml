@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 library (HydraR)
-
+library(testthat)
 context("Testing hydrar.frame\n")
 
 # test hydra c'tor
@@ -45,4 +45,10 @@ test_that("as.hydrar.frame", {
 test_that("as.hydrar.frame", {
   warning("test as.hydrar.frame from SparkR DataFrame is not implemented yet")
   # test that we can convert from SparkR DataFrame
+})
+
+test_that("show", {
+  irisHDF <- as.hydrar.frame(iris)
+  expect_equal(all(capture.output(show(head(iris, 20)))[2:20] == capture.output(show(irisHDF))[2:20]), TRUE)
+    # test that we can convert from SparkR DataFrame
 })

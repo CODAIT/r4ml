@@ -106,3 +106,32 @@ setMethod("as.hydrar.frame",
   }
 )
 
+#' @export
+setMethod(f = "show", signature = "hydrar.frame", definition = 
+            function(object) {
+              logSource <- "hydrar.frame.show"
+              # Get the query result as a data.frame
+              df <- as.data.frame(
+                if (hydrar.env$DEFAULT_SHOW_ROWS > 0) {
+                  SparkR:::head(object, hydrar.env$DEFAULT_SHOW_ROWS)
+                } else {
+                  object                
+                }
+              )
+
+              if (.hydrar.isNullOrEmpty(df)) {
+                df <- data.frame()
+              }            
+              if (ncol(object) == 0) {
+                cat("hydrar.frame with 0 columns\n")
+              } else if (nrow(df) == 0) {
+                cat(paste(colnames(object), collapse="    "))
+                cat("\n<0 rows>\n")
+              } else {
+                # Show the contents of the hydra.frame as a data.frame
+                show(df)
+                cat("... " %++% " showing first " %++% hydrar.env$DEFAULT_SHOW_ROWS %++% " rows only.\n")
+              }
+              invisible(NULL);
+            }
+)
