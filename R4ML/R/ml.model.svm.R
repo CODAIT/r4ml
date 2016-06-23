@@ -332,7 +332,7 @@ setMethod(f = "show", signature = "hydrar.svm", definition =
 #' @return If the testing dataset is not labeled, the result will be a hydrar.matrix with per-class probabilities for each row. 
 #' Otherwise, the result will be a list with (1) a hydrar.matrix with per-class probabilities for each row (\code{$probabilities}),
 #' (2) the overall accuracy (\code{$accuracy}), and (3) the confusion matrix (\code{$ctable})
-
+#' @export
 #' @examples \dontrun{
 #' 
 #' # Load the Iris dataset to HDFS 

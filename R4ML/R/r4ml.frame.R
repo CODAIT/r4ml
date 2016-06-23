@@ -58,7 +58,7 @@ setGeneric("is.hydrar.numeric", function(object, ...) {
   standardGeneric("is.hydrar.numeric")
 })
 
-
+#' @export
 setMethod("is.hydrar.numeric",
   signature(object = "hydrar.frame"),
   function(object, ...) {
@@ -106,7 +106,19 @@ setMethod("as.hydrar.frame",
   }
 )
 
+# 
+#' Show the content of the hydrar.frame
+#'
+#' This is the convenient method for showing the content of the hydrar.frame. The output
+#' is similar to the output produce by R
+#'
+#' @name show
+#' @param object a R data.frame 
 #' @export
+#' @examples \dontrun{
+#'    hf1 <- as.hydrar.frame(iris)
+#'    show(hf1)
+#' }
 setMethod(f = "show", signature = "hydrar.frame", definition = 
             function(object) {
               logSource <- "hydrar.frame.show"
@@ -135,3 +147,140 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
               invisible(NULL);
             }
 )
+
+
+#' @name hydrar.recode
+#' @title Recode the categorical value into the nominal values
+#' @description Specified categorical columns will be 
+#'  mapped into consecutive numeric categories. For example, if a column has values "Low", "Medium", and "High",
+#'  these will be mapped to 1, 2, and 3. \strong{Note}: All columns of type character will be automatically recoded.
+#'  The order of the recoded values is non-deterministic.
+#' @param ... list of columns to be recoded. If no columns are given all the columns are recoded
+#' @details The transformed dataset will be returned as a \code{hydrar.frame} object.
+#'   The transform meta-info is also returned. This is helpful to keep track of which 
+#'   transformations were performed as well as to apply the same set of transformations to a different dataset.
+#'   The structure of the metadata is the nested env
+#'    NOTE: output contain atleast same number of columns as the original hydrar.frame
+#' @export
+#'      
+#' @examples \dontrun{
+#'  hf <- as.hydrar.frame(as.data.frame(iris))
+#'  hf_rec = hydrar.recode(hf, c("Species"))
+#'
+#'  # make sure that recoded value is right
+#'  rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
+#'  rhf_data <- rhf_rec$data # recoded hydrar.frame
+#'  rhf_md <- rhf_rec$metadata # metadata associated with the recode
+#'  show(rhf_data)
+#'  rhf_md$Species$setosa # check one of the recoded value
+#' }
+#'
+setGeneric("hydrar.recode", function(hf, ...) {
+  standardGeneric("hydrar.recode")
+})
+
+
+setMethod("hydrar.recode",
+  signature(hf = "hydrar.frame"),
+  function(hf, ...) {
+
+    # get the list of all input columns and set default (if needed)
+    icols <- unlist(list(...), recursive = T)
+    hf_colnames <- SparkR:::colnames(hf)
+    if (missing(icols) || length(icols) == 0) {
+      icols <- hf_colnames
+    }
+    nurow_max <- 1e6 # maximum number of unique element
+
+    # dynamically create command to be executed later
+
+    #salt <- "r:"
+    salt <- ""
+    # create the env aka hashmap for each column
+    icol2rec_env = new.env(hash=TRUE, parent = emptyenv())
+    for (icol in icols) {
+      icol_df <- SparkR:::select(hf, icol)
+      uicol_df <- SparkR:::distinct(icol_df)
+      uicol_nr <- SparkR:::nrow(uicol_df)
+      if (uicol_nr > nurow_max) {
+        hydrar.err("Number of unique element in the col " %++% icol %++%
+                     "exceed maximum" %++% nurow_max)
+      }
+      uicol_rdf_tmp <- SparkR::as.data.frame(uicol_df)
+      #make sure that we have defined order of the distinct i.e natural order.
+      #note that distinct can give different order in sep run
+      uicol_rdf <- setNames(
+        as.data.frame(uicol_rdf_tmp[order(uicol_rdf_tmp[icol]),]),
+        icol)
+
+      # this is the recode mapping for column icol, which will be used later
+      # and also will be used as metadata
+      # since some of the columns will be "" so we use this hack
+      icol2recode <- list2env(as.list(
+        setNames(1:uicol_nr, paste(salt, uicol_rdf[,icol], sep=""))),
+        parent=emptyenv()
+      )
+      assign(icol, icol2recode, envir=icol2rec_env)
+    }
+
+    hf_colid2name <- list2env(
+      as.list(setNames(hf_colnames, 1:length(hf_colnames))),
+      parent=emptyenv()
+    )
+
+    hf_colname2id <- list2env(
+      as.list(setNames(1:length(hf_colnames), hf_colnames)),
+      parent=emptyenv()
+    )
+
+    # create the new RDD of the recoded columns, note that all the recoding
+    # is done in single pass
+    new_row_rdd <- SparkR:::lapply(
+      hf,
+      function(row) {
+        ret = list()
+        for (i in 1:length(hf_colnames)) {
+          row_i <- row[[i]]
+          cname <- get(toString(i), envir=hf_colid2name, inherits = F)
+          if (exists(cname, envir=icol2rec_env, inherits = F)) {
+            icol2recode <- get(cname, envir=icol2rec_env, inherits = F)
+            if (exists(cname, envir=icol2rec_env, inherits = F)) {
+              row_i_salty <- paste(salt, row_i, sep="")
+              rec_val <- get(row_i_salty, icol2recode, inherits = F)
+              ret = c(ret, rec_val)
+            } else {
+              stop("hydrar.recode FATAL can't find the recode value")
+            }
+          } else {
+            ret = c(ret, row_i)
+          }
+        }
+        as.list(ret)
+      }
+    )
+   
+    #calculate the new schema
+    old_sch <- SparkR:::schema(hf)
+    old_sch_flds <- old_sch$fields()
+    new_sf = list()
+    for (i in 1:length(hf_colnames)) {
+      old_sch_fld <- old_sch_flds[[i]]
+      cname <- get(toString(i), envir=hf_colid2name, inherits = F)
+      new_sch_fld <- old_sch_fld
+      if (exists(cname, envir=icol2rec_env, inherits = F)) {
+        old_sch_fld <- old_sch_flds[[i]]
+        new_sch_fld <- structField(old_sch_fld$name(), "integer",
+                                   old_sch_fld$nullable())
+      } else {
+        #default  new_sch_fld <- old_sch_fld
+      }
+      new_sf[[length(new_sf)+1]] <- new_sch_fld
+    }
+    new_row_rdd_sch <- do.call("structType", as.list(new_sf))
+    res_hf <- as.hydrar.frame(as.DataFrame(sqlContext, new_row_rdd, new_row_rdd_sch))
+    meta_db <- icol2rec_env
+    list(data=res_hf, metadata=meta_db)
+  }
+)
+
+
