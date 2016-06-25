@@ -152,14 +152,17 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
 #' @name hydrar.recode
 #' @title Recode the categorical value into the nominal values
 #' @description Specified categorical columns will be 
-#'  mapped into consecutive numeric categories. For example, if a column has values "Low", "Medium", and "High",
-#'  these will be mapped to 1, 2, and 3. \strong{Note}: All columns of type character will be automatically recoded.
-#'  The order of the recoded values is non-deterministic.
-#' @param ... list of columns to be recoded. If no columns are given all the columns are recoded
-#' @details The transformed dataset will be returned as a \code{hydrar.frame} object.
-#'   The transform meta-info is also returned. This is helpful to keep track of which 
-#'   transformations were performed as well as to apply the same set of transformations to a different dataset.
-#'   The structure of the metadata is the nested env
+#'  mapped into consecutive numeric categories. For example, if a column has 
+#'  values "Low", "Medium", and "High", these will be mapped to 1, 2, and 3. 
+#'  \strong{Note}: All columns of type character will be automatically recoded.
+#'  The order of the recoded values is non-deterministic. 
+#'  @param ... list of columns to be recoded. If no columns are given all 
+#'      the columns are recoded
+#' @details The transformed dataset will be returned as a \code{hydrar.frame}
+#'  object. The transform meta-info is also returned. This is helpful to keep
+#'  track of which transformations were performed as well as to apply the same
+#'  set of transformations to a different dataset.The structure of the metadata
+#'  is the nested env
 #'    NOTE: output contain atleast same number of columns as the original hydrar.frame
 #' @export
 #'      

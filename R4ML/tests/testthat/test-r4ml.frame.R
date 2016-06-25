@@ -57,7 +57,7 @@ test_that("show", {
 
 #begin hydrar.recode testing
 test_that("hydrar.recode iris data with one recode", {
-  skip("skip for now")
+  #skip("skip for now")
   require(SparkR)
   require(HydraR)
   data("iris")

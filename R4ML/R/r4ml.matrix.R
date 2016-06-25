@@ -182,6 +182,142 @@ ml.coltypes <- function(bm) {
   return(hydrar.env$DML_DATA_TYPES[bm@ml.coltypes])
 }
 
+#' see  the \link{hydrar.onehot} for usages and details
+#' @export  
+hydrar.onehot.column <- function(hm, colname) {
+  dml= '
+  #  # encode dml function for one hot encoding
+  encode_onehot = function(matrix[double] X) return(matrix[double] Y) {
+  N = nrow(X)
+  Y = table(seq(1, N, 1), X)
+  }
+  # a dummy read, which allows sysML to attach variables
+  X = read("") 
+  
+  col_idx = $onehot_index
+  
+  nc = ncol(X)
+  if (col_idx < 1 | col_idx > nc) {
+  stop("one hot index out of range")
+  }
+  Y = matrix(0, rows=1, cols=1)
+  oneHot = encode_onehot(X[,col_idx:col_idx])
+  if (col_idx == 1) {
+  if (col_idx < nc) {
+  X_tmp = X[, col_idx+1:nc]
+  Y = append(oneHot, X_tmp)
+  } else {
+  Y = oneHot
+  }
+  } else if (1 < col_idx & col_idx < nc) {
+  Y = append(append(X[,1:col_idx-1], oneHot), X[, col_idx+1:nc])
+  } else { # col_idx == nc
+  Y = append(X[,1:col_idx-1], oneHot)
+  }
+  # a dummy write, which allows sysML to attach varibles
+  write(Y, "")
+  
+  '
+  
+  hm_names <- SparkR:::colnames(hm)
+  oh_colname <- colname
+  col_idx <- match(oh_colname, hm_names)
+  if (length(col_idx) > 1) {
+    stop("multiple one hot matches")
+  }
+  if (col_idx < 1 || col_idx > length(hm_names)) {
+    stop("col_idx out of range")
+  }
+  # call the sysml connector to execute the code in the cluster after
+  # matrix optimization  
+  outputs <- sysml.execute(
+    dml = dml, # dml code
+    X = hm, # attach the input hydrar matrix to X var in dml
+    onehot_index  = col_idx,
+    "Y" # attach the output Y from dml
+  )
+  Y = outputs[['Y']] # get the output dataframes
+  
+  # assign the proper column names
+  hm_names <- SparkR:::colnames(hm)
+  hm_colsize <- length(hm_names)
+  oh_name <- hm_names[col_idx]
+  y_ncol <- SparkR:::ncol(Y)
+  oh_colsize <- y_ncol - (length(hm_names) - 1)
+  oh_new_names <- paste(oh_name, 1:oh_colsize, sep="_")
+  y_names <- character(0)
+  if (col_idx == 1) {
+    if (col_idx < hm_colsize) {
+      y_names <- c(oh_new_names, hm_names[2:hm_colsize])
+    } else {
+      y_names <- oh_new_names
+    }
+  } else if (1 < col_idx && col_idx < hm_colsize) {
+    y_names <- c(hm_names[1:col_idx-1], oh_new_names, hm_names[(col_idx+1):hm_colsize])
+  } else{
+    y_names <- c(hm_names[1:col_idx-1], oh_new_names)
+  }
+  SparkR::colnames(Y) <- y_names
+  data <- as.hydrar.matrix(as.hydrar.frame(Y))
+  metadata <- new.env(parent=emptyenv())
+  assign(colname, oh_new_names, envir=metadata)
+  
+  list(data=data, metadata=metadata)
+}
+
+#' @name hydrar.onehot
+#' @title Onehot encode the value that has been previously onehot encoded.
+#' @description Specified recoded columns will be 
+#'  mapped into onehot encoding. For example, if a column (c1) has values 
+#'  then one hot columsn will be c1_1 == c(0,0,1); c1_2 == c(0, 1, 0) and 
+#'  c1_3== c(0,0,1), 
+#' @param hm a hydrar matrix
+#' @param ... list of columns to be onehot encoded. If no columns are given
+#'  all are the columns are onehot encoded
+#' @details The transformed dataset will be returned as a \code{hydrar.matrix}
+#'  object.
+#'  The transform meta-info is also returned. This is helpful to keep track 
+#'  of what is the new onehot encoded column name.
+#'  The structure of the metadata is the nested env
+#'    
+#' @export
+#'      
+#' @examples \dontrun{
+#'  hf <- as.hydrar.frame(as.data.frame(iris))
+#'  hf_rec = hydrar.recode(hf, c("Species"))
+#'
+#'  # make sure that recoded value is right
+#'  rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
+#'  rhf_data <- rhf_rec$data # recoded hydrar.frame
+#'  as.hydrar.matrix(rhf_data)
+#'  hf_oh_db <- hydrar.onehot(hm)
+#'  hf_oh <- hf_oh_db$data
+#'  showDF(hf_oh)
+#' }
+#'
+hydrar.onehot <- function(hm, ... ) {
+  args <- list(...)
+  if (length(args) <= 0) return(hm)
+  # check if it is list
+  colnames <- args
+  if (length(args) == 1 && class(args[1]) == "list") {
+    colnames <- args[[1]]
+  }
+  
+  hm_list <- list(hm)
+  md_list <- list()
+  out_hm <- hm
+  for (i in 1:length(colnames)) {
+    colname <- colnames[[i]]
+    inp_hm <- hm_list[[length(hm_list)]] # last element
+    oh_db <- hydrar.onehot.column(inp_hm, colname)
+    hm_list[[length(hm_list)+1]] <- oh_db$data
+    md_list[[length(md_list)+1]] <- oh_db$metadata
+  }
+  data <- hm_list[[length(hm_list)]]
+  metadata <- as.environment(sapply(md_list, as.list)) # combine the environ
+  list(data=data, metadata=metadata)
+}
 
 
 
