@@ -76,6 +76,32 @@ setMethod("$", signature(x = "hydrar.frame"),
           })
 
 
+#' Convert the various  data.frame into the hydraR data frame.
+#'
+#' This is the convenient method of converting the hydrar.vector into the SparkR::Column
+#'
+#' @name as.sparkr.column
+#' @param object hydrar.vector
+#' @return SparkR::Column
+#' @export
+#' @examples \dontrun{
+#'    iris_hf <- as.hydrar.frame(iris)
+#'    pl_mean <- mean(as.sparkr.column(hf1$Petal_Length))
+#'    mval <- agg(iris_hf, pl_mean)
+#'    mval
+#' }
+#'    
+setGeneric("as.sparkr.column", function(hv, ...) {
+  standardGeneric("as.sparkr.column")
+})
+
+setMethod("as.sparkr.column",
+          signature(hv = "hydrar.vector"),
+          function(hv, ...) {
+            SparkR:::column(hv@jc)
+          }
+)
+
 #########################
 # Clone existing methods
 #########################

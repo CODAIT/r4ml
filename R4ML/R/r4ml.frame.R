@@ -286,4 +286,129 @@ setMethod("hydrar.recode",
   }
 )
 
+#' @name hydrar.normalize
+#' @title Normalize the scale value by shifting and scaling
+#' @description Specified scale columns will be 
+#'  shifting by mean and divided by it's sample standard deviation. In case, 
+#'  we do only the shifting by mean. 
+#'  @param ... list of columns to be normalized. If no columns are given all 
+#'      the columns are recoded
+#' @details The transformed dataset will be returned as a \code{hydrar.frame}
+#'  object. The transform meta-info is also returned. This is helpful to keep
+#'  track of which transformations were performed as well as to apply the same
+#'  set of transformations to a different dataset.The structure of the metadata
+#'  is the nested env
+#' @export
+#'      
+#' @examples \dontrun{
+#'  hf <- as.hydrar.frame(as.data.frame(iris))
+#'  hf_norm_info = hydrar.normalize(hf, c("Sepal_Width", "Petal_Length"))
+#'
+#'  # make sure that recoded value is right
+#'  hf_norm <- hf_norm_info$data
+#'  hf_md <- hf_norm_info$metadata # metadata associated with the normalization
+#'  show(hf_norm)
+#'  ls.str(hf_md) # check the metadata corresponding to norm ops
+#' }
+#'
+setGeneric("hydrar.normalize", function(hf, ...) {
+  standardGeneric("hydrar.normalize")
+})
+
+setMethod("hydrar.normalize",
+  signature(hf = "hydrar.frame"),
+  function(hf, ...) {
+    
+    hfnames <- SparkR::colnames(hf)
+    hftypes <- SparkR::coltypes(hf)
+    
+    args <- list(...)
+    if (length(args) == 0) {
+      args <- hfnames
+    }
+    
+    inames <- args
+    if (length(args) == 1 && class(args[1]) == "list") {
+      inames <- args[[1]]
+    }
+    
+    # check that all inputs to be imputed is in the class
+    uinames <- inames[which(is.na(match(inames, hfnames)))]
+    if (length(uinames) != 0) {
+      stop(paste(unames, "columns not found in the input data"))
+    }
+    
+    itypes <- hftypes[match(inames, hfnames)]
+    
+    #browser()
+    
+    # check that the data types of the imputed cols are of numeric
+    # we have the constant string so take care of it
+    binames <- inames[which(sapply(itypes, function(e) !e %in% c("numeric", "integer", "double")))]
+    if (length(binames) >= 1) {
+      stop(paste(binames, " input columns are not numeric and can't be imputed"))
+    }
+    
+    # dynamically create command to be executed later
+    rstr <- "SparkR::agg(hf"
+    for (iname in inames) {
+      
+      mean_str <- paste("SparkR::", "mean" , "(as.sparkr.column(hf$", iname, "))", sep="")
+      ndfname <- paste("mean_", iname, sep="")
+      rstr <- paste(rstr, ", ", ndfname, " = ", mean_str, sep="")
+      
+      sd_str <- paste("SparkR::", "sd" , "(as.sparkr.column(hf$", iname, "))", sep="")
+      ndfname <- paste("stddev_", iname, sep="")
+      rstr <- paste(rstr, ", ", ndfname, " = ", sd_str, sep="")
+      
+    }
+    
+    rstr = paste(rstr, ")", sep="")
+    #browser()
+    
+    
+    # calc the mean of all the columns
+    rhfstats <- eval(parse(text=rstr))
+    hfstats <- SparkR::as.data.frame(rhfstats)
+    
+    mstr <- "SparkR::mutate(hf"
+    for (iname in inames) {
+      new_col <- "new_" %++% iname
+      mean <- hfstats[['mean_' %++% iname]]
+      sd <- hfstats[['stddev_' %++% iname]]
+      if (sd == 0.0) {
+        # meaning that all the values are equal and hence substracting
+        # it with zero will give 0 vector and div by 0 will give inf. so we will not
+        # divide by zero. instead have the default 1.0
+        sd <- 1
+      }
+      mstr <- mstr %++% sprintf(", %s = (as.sparkr.column(hf$%s)-%s)/(2*%s)", new_col, iname, mean, sd)
+    }
+    mstr <- mstr %++% ")"
+    
+    mhf <- eval(parse(text=mstr))
+    lu=setNames(sapply(inames, function (e) "new_" %++% e), inames)
+    new_cols <- sapply(hfnames,
+                       function(e) ifelse(e %in% inames, lu[[e]], e) )
+    new_hf <- select(mhf, new_cols)
+    SparkR::colnames(new_hf) <- hfnames
+    
+    # now create the metadata
+    metadata <- new.env(parent=emptyenv())
+    for (iname in inames) {
+      
+      mean <- hfstats[['mean_' %++% iname]]
+      sd <- hfstats[['stddev_' %++% iname]]
+      if (sd == 0.0) {
+        # meaning that all the values are equal and hence substracting
+        # it with zero will give 0 vector and div by 0 will give inf. so we will not
+        # divide by zero. instead have the default 1.0
+        sd <- 1
+      }
+      col_info <- list("mean" = mean, "stddev" = sd)
+      assign(iname, col_info, metadata)
+    }
+    list(data=new_hf, metadata=metadata)
+  }
+)          
 

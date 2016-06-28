@@ -126,4 +126,39 @@ test_that("hydrar.recode all columns recoded", {
 })
 #end hydrar.recode testing
 
-
+#begin hydrar.normalize aka hydrar.scale (scale and shift)
+test_that("hydrar.normalize all columns recoded", {
+  #skip("skip for now")
+  require(SparkR)
+  require(HydraR)
+  idata <- data.frame(c1=c(10, 10, 10, 10, 10),
+                      c2=c(1, 2, 3, 4, 5),
+                      c3=c(100, 200, 300, 400, 500))
+  
+  exp_rec_data <- data.frame(c1=c(0,0,0,0,0),
+                             c2=c(-0.6324555320336758,-0.3162277660168379,0,0.3162277660168379,0.6324555320336758),
+                             c3=c(100, 200,300,400,500))
+  
+  exp_metadata <- list(
+    c1 = list("mean" = 10, "stddev" = 1),
+    c2 = list("mean" = 3, "stddev" = 1.581139)
+  )
+  
+  hf <- as.hydrar.frame(as.data.frame(idata))
+  #hf_rec = hydrar.normalize(hf, "c1", "c2")
+  col2norm <- list("c1", "c2")
+   hf_rec = hydrar.normalize(hf, col2norm)
+  
+  # make sure that normalize value is right
+  rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
+  
+  expect_true(all.equal(rhf_rec, exp_rec_data))
+  
+  # make sure that meta data is mapped correctly
+  md <- hf_rec$metadata
+  # check that one normalize metadata is right
+  norm_md <- as.list(md)
+  expect_equal(capture.output(norm_md), capture.output(exp_metadata))
+  
+})
+#end hydrar.normalize aka hydrar.scale (scale and shift)
