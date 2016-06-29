@@ -152,8 +152,11 @@ extra_model_params[1,1] = positive_label
 extra_model_params[2,1] = negative_label
 extra_model_params[3,1] = intercept
 extra_model_params[4,1] = dimensions
-
+weights = w
 w = t(append(t(w), t(extra_model_params)))
 write(w, $model, format=cmdLine_fmt)
+
+write(extra_model_params, "", format=cmdLine_fmt)
+write(weights, "", format=cmdLine_fmt)
 
 write(debug_str, $Log)

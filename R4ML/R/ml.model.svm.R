@@ -1,3 +1,7 @@
+# Class hydrar.svm
+#
+# This class represents a learned SVM model for classification.
+
 #
 # (C) Copyright IBM Corp. 2015, 2016
 #
@@ -16,6 +20,7 @@
 # Class hydrar.svm
 #
 # This class represents a learned SVM model for classification.
+
 
 setClass("hydrar.svm",
   slots = c(
@@ -62,8 +67,16 @@ setMethod("initialize", "hydrar.svm",
     #@TODO do we need to read the modelPath from the path or can we ignore  
     classes <- if(is.binary.class) 2 else length(names(dmlOuts$w))
     coltypes <- if(is.binary.class) "numeric" else rep("numeric", classes)
-    
+   
     d <- SparkR:::as.data.frame(dmlOuts[['w']])
+    dmlOutNames <- names(dmlOuts)
+    if (!any(is.na(match(c("extra_model_params", "weights"), dmlOutNames)))) {
+      w <- SparkR:::as.data.frame(dmlOuts[['weights']])
+      e <- SparkR:::as.data.frame(dmlOuts[['extra_model_params']])
+      e <- setNames(e, names(w))
+      d <- rbind(w, e)
+    }
+   
     .Object@dmlOuts <- dmlOuts
     .Object@coefficients <- as.data.frame(d[1:length(featureNames),])
             
@@ -249,6 +262,8 @@ hydrar.svm <- function (
                Y = trainset_y, 
                icpt = if(intercept) 1 else 0,
                model, # output
+               "extra_model_params",
+               "weights",
                Log = debugOutputPath,
                fmt = hydrar.env$CSV)
   
@@ -332,7 +347,7 @@ setMethod(f = "show", signature = "hydrar.svm", definition =
 #' @return If the testing dataset is not labeled, the result will be a hydrar.matrix with per-class probabilities for each row. 
 #' Otherwise, the result will be a list with (1) a hydrar.matrix with per-class probabilities for each row (\code{$probabilities}),
 #' (2) the overall accuracy (\code{$accuracy}), and (3) the confusion matrix (\code{$ctable})
-#' @export
+
 #' @examples \dontrun{
 #' 
 #' # Load the Iris dataset to HDFS 
@@ -364,6 +379,7 @@ setMethod(f = "show", signature = "hydrar.svm", definition =
 #' preds$accuracy
 #' }
 #' 
+#' @export
 #' @seealso \link{hydrar.svm}
 predict.hydrar.svm <- function(object, data, returnScores=T) {
   logSource <- "predict.hydrar.svm"
@@ -390,6 +406,17 @@ predict.hydrar.svm <- function(object, data, returnScores=T) {
   augmentArgs <- function(args) {
     args <- c(args, icpt = if(object@intercept) 1 else 0)
     coef_hf <- as.hydrar.matrix(as.hydrar.frame(object@dmlOuts[['w']]))
+    #ALOK BEGIN bugfix
+    dmlOutNames <- names(object@dmlOuts)
+    if (!any(is.na(match(c("extra_model_params", "weights"), dmlOutNames)))) {
+      w <- SparkR:::as.data.frame(object@dmlOuts[['weights']])
+      e <- SparkR:::as.data.frame(object@dmlOuts[['extra_model_params']])
+      e <- setNames(e, names(w))
+      d <- rbind(w, e)
+      coef_hf <- as.hydrar.matrix(as.hydrar.frame(as.DataFrame(sqlContext, d)))
+    }
+    #ALOK BEGIN bugfix
+    
     args <- c(args, W = coef_hf)
   
     if (returnScores) {
