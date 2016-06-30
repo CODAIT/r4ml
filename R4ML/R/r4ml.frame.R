@@ -148,6 +148,23 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
             }
 )
 
+#' @export
+# NOTE: add the more specific arguement to ...
+# NOTE: output must contain atleast same or more columns as input
+setGeneric("hydrar.impute", function(hf, ...) {
+  standardGeneric("hydrar.impute")
+})
+
+setMethod("hydrar.impute",
+  signature(hf = "hydrar.frame"),
+  function(hf, ...) {
+    res_hf <- hf; # change it in future
+    meta_db <- list()
+    warning("**WARNING** hydrar.impute is not implemented yet")    
+    list(data=res_hf, metadata=meta_db)
+  }
+)
+
 
 #' @name hydrar.recode
 #' @title Recode the categorical value into the nominal values
@@ -340,7 +357,6 @@ setMethod("hydrar.normalize",
     
     itypes <- hftypes[match(inames, hfnames)]
     
-    #browser()
     
     # check that the data types of the imputed cols are of numeric
     # we have the constant string so take care of it
@@ -364,7 +380,6 @@ setMethod("hydrar.normalize",
     }
     
     rstr = paste(rstr, ")", sep="")
-    #browser()
     
     
     # calc the mean of all the columns
@@ -390,9 +405,10 @@ setMethod("hydrar.normalize",
     lu=setNames(sapply(inames, function (e) "new_" %++% e), inames)
     new_cols <- sapply(hfnames,
                        function(e) ifelse(e %in% inames, lu[[e]], e) )
-    new_hf <- select(mhf, new_cols)
+    new_df <- SparkR::select(mhf, new_cols)
+    new_hf <- as.hydrar.frame(new_df)
     SparkR::colnames(new_hf) <- hfnames
-    
+
     # now create the metadata
     metadata <- new.env(parent=emptyenv())
     for (iname in inames) {
@@ -408,7 +424,24 @@ setMethod("hydrar.normalize",
       col_info <- list("mean" = mean, "stddev" = sd)
       assign(iname, col_info, metadata)
     }
-    list(data=new_hf, metadata=metadata)
+    list(data=as.hydrar.frame(new_hf), metadata=metadata)
   }
 )          
 
+#' @export
+# NOTE: add the more specific arguement to ...
+# NOTE: output must contain atleast same or more columns as input
+setGeneric("hydrar.binning", function(hf, ...) {
+  standardGeneric("hydrar.binning")
+})
+
+setMethod("hydrar.binning",
+  signature(hf = "hydrar.frame"),
+  function(hf, ...) {
+    res_hf = hf; # change it in future
+    meta_db <- list()
+    warning("**WARNING** hydrar.binning is not implemented yet")
+    res_hf
+    list(data=res_hf, metadata=meta_db)
+  }
+)
