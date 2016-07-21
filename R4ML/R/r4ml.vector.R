@@ -269,7 +269,6 @@ setMethod("mean",
   }
   cat("\n", length(methodNames), "HydraR methods were created from SparkR.")
 
-
 setGeneric("ifelse")
 setMethod("ifelse", signature(test = "hydrar.vector", yes = "ANY", no = "ANY"),
   function(test, yes, no) {
@@ -283,4 +282,12 @@ setMethod("ifelse", signature(test = "hydrar.vector", yes = "ANY", no = "ANY"),
           )
     result <- new("hydrar.vector", jc, hf)
     result
+})
+
+setMethod("str",
+  signature(object = "hydrar.vector"),
+  function(object) {
+    cat("'hydrar.vector'\n")
+    out <- capture.output(str(select(object@hf, object)))
+    cat(out[2] %++% "\n")
 })

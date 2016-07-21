@@ -73,3 +73,10 @@ test_that("ifelse", {
 test_that("countDistinct", {
   expect_equal(collect(countDistinct(hf$Species)), 3)
 })
+
+test_that("str", {
+  hf <- as.hydrar.frame(iris)
+  out <- capture.output(str(hf$Species))
+  expect_equal(out[1], "'hydrar.vector'")
+  expect_equal(out[2], ' $ Species: chr "setosa" "setosa" "setosa" "setosa" "setosa" "setosa"')
+})
