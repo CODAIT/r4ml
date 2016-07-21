@@ -106,100 +106,181 @@ setMethod("as.sparkr.column",
 # Clone existing methods
 #########################
 
-fnames <- ls("package:SparkR", all.names=T)
+# Method mean is not defined as a generic in SparkR. Therefore, we must redefine it here
+setGeneric("mean")
+setMethod("mean",
+          signature(x = "Column"),
+          function(x) {
+            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "mean", x@jc)
+            column(jc)
+          })
 
-# Generic methods appear with an extra .__T__ at the beginning. The code below is to remove that prefix:
-fnames <- sapply(fnames, function(name) {
-  x <- if (substring(name, 1, 3) == ".__") {
-    substring(
-      strsplit(name, ":")[[1]][1],
-      7,
-      nchar(name) + 1)
-  } else {
-    name
-  }
-  x
-})
+# The following code needs to be run in the top level environment. Otherwise dynamically
+# created methods will not be part of the HydraR environment
 
-# Remove duplicates
-fnames <- unique(fnames)
-
-names(fnames) <- NULL
-
-# Only methods with Column arguments
-methodNames <- sapply(fnames, function(x) {
-  methods <- findMethods(x, classes=c("Column"))
-  if (length(methods) == 0) {
-    NA
-  } else {
+  fnames <- ls("package:SparkR", all.names=T)
+  
+  # Generic methods appear with an extra .__T__ at the beginning. The code below is to remove that prefix:
+  fnames <- sapply(fnames, function(name) {
+    x <- if (substring(name, 1, 3) == ".__") {
+      substring(
+        strsplit(name, ":")[[1]][1],
+        7,
+        nchar(name) + 1)
+    } else {
+      name
+    }
     x
+  })
+  
+  # Remove duplicates
+  fnames <- unique(fnames)
+  
+  names(fnames) <- NULL
+  
+  # Only methods with Column arguments
+  methodNames <- sapply(fnames, function(x) {
+    methods <- findMethods(x, classes=c("Column"))
+    if (length(methods) == 0) {
+      NA
+    } else {
+      x
+    }
+  })
+  
+  # Filter not needed methods
+  methodNames <- methodNames[!is.na(methodNames)]
+  names(methodNames) <- NULL
+  
+  # Remove certain methods that may cause conflicts
+  methodNames <- methodNames[-which(methodNames %in% c("length", "show", "head", "collect",
+                                                       "select", "withColumn", "ifelse"))]
+  
+  createHydraRColumnMethod <- function(funName) {
+    
+    # Get the method with the given name
+    method <- findMethods(funName, classes="Column")
+    
+    # Get argument names and types
+    argNames <- method@arguments
+
+    ###############################################
+    # Get all argnames from the function definition, not the generic. This is since signatures
+    # don't expose all arguments in the method.
+    
+    f <- method[[1]]@.Data
+    
+    # Get the declaration from third line of the function, if available.
+    declaration <- deparse(f)[3]
+    
+    # Check if the first line has parameter '...'. If so, declaration is in the third line
+    if (length(strsplit(declaration, "<- function")[[1]]) <= 1) {
+      declaration <- deparse(f)[1]
+    }
+    
+    # Use string split to get the parameter names
+    argsString <- strsplit(declaration, "function")[[1]][2]
+    argsString <- strsplit(argsString, "\\(|\\)")[[1]][2]
+    funArgNames <- strsplit(argsString, ", ")[[1]]
+    ###############################################
+    
+    #print(funName)
+    #show(funArgNames)
+    
+    argTypes <- strsplit(method@names, "#")[[1]]
+    
+    # Fill argTypes with ANY for parameters not defined in the signature
+    argTypes <- c(argTypes, rep("ANY", length(argNames) - length(argTypes)))
+    
+    # Build signature
+    signature <- argTypes
+    names(signature) <- argNames
+    signature <- ifelse(signature == "Column", "hydrar.vector", signature)
+    {
+      if (hydrar.env$VERBOSE) {
+        cat("Cloning function", funName, "(", paste(argNames, collapse=", "), ") into HydraR...")
+        cat("\n\n\n")
+        cat(" OK\n")
+      }
+      
+      # Note function arguments are anonymous, e.g, e2 is not referenced as e2.
+      # Solution: use match.call to create variables with the same names as the parameters and assign
+      # values passed by the user
+      
+      functionCode <- 
+        paste(paste0("function(", paste(funArgNames, collapse=", "), ") {"),
+
+              # Get the list of arguments that were passed to the function
+              '  passedArgNames <- names(as.list(match.call(call=match.call())))',
+              # 'browser()',
+              # Get which ones are of class hydrar.vector
+              '  colArgNames <- passedArgNames[which(unlist(lapply(passedArgNames, function(X123jsd8Abcs81) { class(eval(parse(text=X123jsd8Abcs81))) } )) == "hydrar.vector")]',
+              #'  colArgNames <- names(signature[which(signature == "hydrar.vector")])',
+
+              # Get hf from hydrar.vector arguments
+              '  eval(parse(text="hf <- " %++% colArgNames[1] %++% "@hf"))',
+
+              # Cast all hydrar.vector parameters to Column so that parent methods can handle them
+              '  for (i in 1:length(colArgNames)) {',
+              '    eval(parse(text=colArgNames[i] %++% "<- as.sparkr.column(" %++% colArgNames[i] %++% ")"))',
+              '  }',
+
+              # Invoke parent method. Since there's a bug in R 3.1 (fixed in 3.2), instead of calling
+              # callNextMethod(), we'll directly call the method with the cast parameters. Note quotes
+              # are added to the function name to handle functions such as "["
+              #'  value <- callNextMethod()',
+              #'  
+              #'  browser()', 
+              'argsString <- "(" %++% paste(passedArgNames[-1], collapse=", ") %++% ")"',
+              paste0('  callString <- "\'', funName, '\'" %++% argsString'),
+              #' print(callString)',
+              '  value <-  eval(parse(text=callString))',
+
+              # If the result is a Column object, cast it back to hydrar.vector
+              '  if (class(value) == "Column") {',
+              #'    args <- as.list(match.call())',
+              #'    colArg <- eval(args[[colArgNames]])',
+              '    return(new("hydrar.vector", jc=value@jc, hf=hf))',
+              '  }',
+              '  return(value)',
+              "}",
+              sep="\n")
+      #print(signature)
+      #cat("\n")
+      #cat(functionCode)
+      #cat("\n\n\n")
+      #browser()
+      return(list(functionCode, funName, signature))
+    }
   }
+  
+  # Create all methods
+  for (name in methodNames) {
+    args <- createHydraRColumnMethod(name)
+    if (length(args) > 0) {
+      functionCode <- args[[1]]
+      funName <- args[[2]]
+      signature <- args[[3]]
+      fun <- eval(parse(text=functionCode))
+      setMethod(funName, 
+                signature,
+                fun)
+    }
+  }
+  cat("\n", length(methodNames), "HydraR methods were created from SparkR.")
+
+
+setGeneric("ifelse")
+setMethod("ifelse", signature(test = "hydrar.vector", yes = "ANY", no = "ANY"),
+  function(test, yes, no) {
+    hf <- test@hf
+    test <- test@jc
+    yes <- if (inherits(yes, "Column")) { yes@jc } else { yes }
+    no <- if (inherits(no, "Column")) { no@jc } else { no }
+    jc <- SparkR:::callJMethod(
+            SparkR:::callJStatic("org.apache.spark.sql.functions", "when", test, yes),
+            "otherwise", no
+          )
+    result <- new("hydrar.vector", jc, hf)
+    result
 })
-
-# Filter not needed methods
-methodNames <- methodNames[!is.na(methodNames)]
-names(methodNames) <- NULL
-
-# Remove certain methods that may cause conflicts
-methodNames <- methodNames[-which(methodNames %in% c("length", "show", "head", "collect", "select", "withColumn"))]
-
-createHydraRColumnMethod <- function(funName) {
-  
-  # Get the method with the given name
-  method <- findMethods(funName, classes="Column")
-  
-  # Get argument names and types
-  argNames <- method@arguments
-  argTypes <- strsplit(method@names, "#")[[1]]
-  
-  # Fill argTypes with ANY for parameters not defined in the signature
-  argTypes <- c(argTypes, rep("ANY", length(argNames) - length(argTypes)))
-  
-  # Build signature
-  signature <- argTypes
-  names(signature) <- argNames
-  signature <- ifelse(signature == "Column", "hydrar.vector", signature)
-  
-  # Special case for operators: Second operator needs to be casted to Column if it was a hydrar.vector
-  if (argNames[1] == "e1" & any(argTypes == "Column") & argNames[2] == "e2" & length(argNames) == 2) {
-    cat("Creating HydraR operator", funName, "...")
-    setMethod(funName, 
-              signature,
-              function(e1, e2) {
-                if (class(e2) == "hydrar.vector") {
-                  e2 <- new("Column", jc=e2@jc)
-                }
-                value <- callNextMethod()
-                if (class(value) == "Column") {
-                  return(new("hydrar.vector", jc=value@jc, hf=e1@hf))
-                }
-                return(value)
-              })
-    cat(" OK\n")
-  } else {
-    cat("Cloning function", funName, "(", paste(argNames, collapse=", "), ") into HydraR...")
-    
-    functionCode <- 
-      paste(paste0("function(", paste(argNames, collapse=", "), ") {"),
-            'value <- callNextMethod()',
-            'if (class(value) == "Column") {',
-            'colArgName <- names(signature[which(signature == "hydrar.vector")])',
-            'args <- as.list(match.call())',
-            'colArg <- eval(args[[colArgName]])',
-            'return(new("hydrar.vector", jc=value@jc, hf=colArg@hf))',
-            '}',
-            'return(value)}',
-            sep="\n")
-    
-    setMethod(funName, 
-              signature,
-              eval(parse(text=functionCode)))
-    cat(" OK\n")
-  }
-}
-
-# Create all methods
-for (name in methodNames) {
-  createHydraRColumnMethod(name)
-}
-cat("\n", length(methodNames), "methods were created.")

@@ -43,7 +43,7 @@ test_that("hydrar.step.lm predict", {
   test <- as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
   iris_step_lm <- hydrar.step.lm(Sepal_Length~ . , data = train)
   output <- predict(iris_step_lm, test)
-  expect_true( mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) < 5)
+  expect_true( base::mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) < 5)
 })
 
 test_that("hydrar.step.lm predict_scoring", {

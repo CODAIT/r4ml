@@ -57,3 +57,19 @@ test_that("Arithmetic functions", {
   
   expect_equal(class(rand()) == "Column", T)
 })
+
+hf <- as.hydrar.frame(iris)
+
+test_that("corr", {
+  expect_equal(round(collect(corr(hf$Sepal_Length, hf$Sepal_Width)) * 100000),
+               round(cor(iris$Sepal.Length, iris$Sepal.Width) * 100000))
+})
+
+test_that("ifelse", {
+  expect_equal(all(collect(ifelse(hf$Species == "Setosa", hf$Sepal_Length, hf$Sepal_Width)) ==
+                         ifelse(iris$Species == "Setosa", iris$Sepal.Length, iris$Sepal.Width)), TRUE)
+})
+
+test_that("countDistinct", {
+  expect_equal(collect(countDistinct(hf$Species)), 3)
+})

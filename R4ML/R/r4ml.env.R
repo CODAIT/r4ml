@@ -32,6 +32,8 @@ with(hydrar.env, {
   DEFAULT_LOG_LEVEL <- ERR_LOG_LEVEL + WARN_LOG_LEVEL
   LOG_LEVEL <- DEFAULT_LOG_LEVEL
 
+  VERBOSE <- FALSE # for the more verbose output from HydraR
+
   # hadoop fs
   HYDRAR_DEFAULT_FS <- ""
 
