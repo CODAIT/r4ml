@@ -292,7 +292,7 @@ hydrar.model.getFeatureVector <- function(data) {
 
 # Given a call (which could come from ...), this method retrieves
 # the list of arguments passed to the parent function
-# TODO: If an undefined variable is passed as parameter value, missing ends up
+# @TODO: If an undefined variable is passed as parameter value, missing ends up
 # being true. For example, if data=irisBM, but irisBM is not defined, the error
 # message will be: "Both formula and data must be specified"
 hydrar.getFunctionArguments <- function(call, env) {

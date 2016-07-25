@@ -428,7 +428,24 @@ setMethod("hydrar.normalize",
   }
 )          
 
+#' @name hydrar.binning
+#' @title Binning
 #' @export
+#' @description Takes a column and a number of bins and returns a new column with the average value of the bin each value has been placed into.
+#' @param df (hydrar.frame) The hydrar.frame to bin columns for.
+#' @param columns (list) List of column names to create bins with.
+#' @param number (numeric) Number of bins to create.
+#' 
+#' @examples \dontrun{
+#' # Setup Data
+#' df <- iris
+#' df$Species <- (as.numeric(df$Species))
+#' iris_df <- as.hydrar.frame(df)
+#' 
+#' binned_df = hydrar.binning(iris_df, "Sepal_Width", 20)
+#' head(binned_df$data)
+#' }
+#'
 # NOTE: add the more specific arguement to ...
 # NOTE: output must contain atleast same or more columns as input
 setGeneric("hydrar.binning", function(hf, ...) {
@@ -437,11 +454,57 @@ setGeneric("hydrar.binning", function(hf, ...) {
 
 setMethod("hydrar.binning",
   signature(hf = "hydrar.frame"),
-  function(hf, ...) {
-    res_hf = hf; # change it in future
-    meta_db <- list()
-    warning("**WARNING** hydrar.binning is not implemented yet")
-    res_hf
-    list(data=res_hf, metadata=meta_db)
+  function(hf, columns, number){
+    metadata <- new.env(parent=emptyenv())
+    for(name in as.list(columns)){
+      column = hf[[name]]
+      
+      if(!is.hydrar.numeric(as.hydrar.frame(SparkR::select(hf, name)))){
+        hydrar.err(logSource, "Must provide numeric columns.")
+      }
+      
+      icolumn <- column
+      # Convert for hydrar vector to SparkR column to access aggregation functions
+      if (class(column) == "hydrar.vector") {
+        icolumn <- SparkR:::column(column@jc)
+      } else {}
+      
+      # Grab min/max, collect will be fine since this will only return min max
+      minmax = SparkR:::collect(SparkR::agg(hf, min(icolumn), max(icolumn)))
+      minimum = minmax[1][[1]]
+      maximum = minmax[2][[1]]
+      range = ((maximum-minimum)/number) 
+      
+      # We can compute the nth bin of each value by basing list at 0 and dividing by range
+      # Add epsilon to avoid new bin for largest value
+      # @TODO Find more elegant way to compute this
+      int_bins = floor(((icolumn-minimum)/(maximum-minimum+.00001))*number)
+      # Re-add the minimum to get the floor of binned values, add range/2 to get average
+      avg_bins = ((int_bins*range+minimum) + range/2)
+      # Grab initial colnames for eventual rearrange
+      hf_colnames = SparkR::colnames(hf)
+
+      # Create original column name
+      new_name <- paste0(name, "_new")
+      while(new_name %in% hf_colnames){
+        new_name <- paste0(new_name, "_new")
+      }
+      
+      # Establish outputs
+      hf = SparkR:::withColumn(hf, new_name, avg_bins)
+      # Delete Original Column
+      eval(parse(text=paste0("hf$", name, " <- NULL")))
+      # Rename new column
+      hf = SparkR:::withColumnRenamed(hf, existingCol=new_name, newCol=name)
+      
+      # Rearrange columns
+      hf = as.hydrar.frame(SparkR::select(hf, hf_colnames))
+      metadata[[name]] = list(featureName=name,
+                              minValue=minimum,
+                              maxValue=maximum,
+                              binWidth=range,
+                              numBins=number)
+    }
+    list(data=hf, metadata=metadata)
   }
 )

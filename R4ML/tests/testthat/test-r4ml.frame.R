@@ -162,3 +162,26 @@ test_that("hydrar.normalize all columns recoded", {
   
 })
 #end hydrar.normalize aka hydrar.scale (scale and shift)
+
+test_that("hydrar.binning", {
+  require(SparkR)
+  require(HydraR)
+  df <- iris
+  df$Species <- (as.numeric(df$Species))
+  iris_df <- as.hydrar.frame(df)
+  num_bins = 4
+  col_names = list("Sepal_Width", "Petal_Length")
+  binned_df = hydrar.binning(iris_df, col_names, num_bins)
+  results = SparkR::collect(binned_df$data)
+  expect_equal(results[[2]][1], 3.5, tolerance=1e-2)
+  expect_equal(results[[3]][2], 1.7375, tolerance=1e-2)
+  expect_equal(results[[2]][3], 2.9, tolerance=1e-2)
+  expect_equal(as.numeric(binned_df$metadata[["Sepal_Width"]]["minValue"]), 2, tolerance=1e-2)
+  expect_equal(as.numeric(binned_df$metadata[["Sepal_Width"]]["maxValue"]), 4.4, tolerance=1e-2)
+  expect_equal(as.numeric(binned_df$metadata[["Sepal_Width"]]["binWidth"]), 0.6, tolerance=1e-2)
+  expect_equal(as.numeric(binned_df$metadata[["Sepal_Width"]]["numBins"]), 4, tolerance=1e-2)
+  expect_equal(as.numeric(binned_df$metadata[["Petal_Length"]]["minValue"]), 1, tolerance=1e-2)
+  expect_equal(as.numeric(binned_df$metadata[["Petal_Length"]]["maxValue"]), 6.9, tolerance=1e-2)
+  expect_equal(as.numeric(binned_df$metadata[["Petal_Length"]]["binWidth"]), 1.475, tolerance=1e-2)
+  expect_equal(as.numeric(binned_df$metadata[["Petal_Length"]]["numBins"]), 4, tolerance=1e-2)
+})

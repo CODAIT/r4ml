@@ -102,7 +102,7 @@
 #'                      \tab\emph{/Bin}\tab binning metadata\cr
 #'                      \tab\emph{/Scale}\tab scaling metadata\cr
 #'  }
-#' # TODO implement the na find func @seealso link{hydrar.which.na.cols}
+# @TODO implement the na find func @seealso link{hydrar.which.na.cols}
 #' @export
 #' @examples \dontrun{
 #' 
@@ -213,7 +213,7 @@ hydrar.ml.preprocess <- function(
   #    omit.na <- setdiff (colnames(hf), missingAttrs)
   #}
   
-  #TODO create the meta for output
+  # @TODO create the meta for output
   #writeBigFrameMtdFile(bf)
   #colnamesFilePath <- writeColnames(hf)
   
