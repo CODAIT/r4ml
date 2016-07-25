@@ -275,7 +275,7 @@ hydrar.ml.preprocess <- function(
     rhf <- hf
     rmd <- NULL
     if (length(missingAttrs) > 0) {
-      iargs <- list(hf)
+      iargs <- list()
       #iargs <- hf1
       for (idx in 1:length(missingAttrs)) {
         missingAttr <- missingAttrs[[idx]]
@@ -288,7 +288,7 @@ hydrar.ml.preprocess <- function(
           stop("unknown method")
         }
       }
-      hf_info <- do.call("hydrar.impute", iargs)
+      hf_info <- do.call("hydrar.impute", list(hf, iargs))
       #hf_info <- hydrar.impute(unlist(iargs))
       rhf <- hf_info$data
       rmd <- hf_info$metadata
@@ -589,6 +589,3 @@ isAnyAttrOfType <- function(hm, attrs, type) {
   allColumnTypes <- SparkR:::coltypes(hm)
   return(any(allColumnTypes[allColumnNames %in% attrs] == type))
 }
-
-
-

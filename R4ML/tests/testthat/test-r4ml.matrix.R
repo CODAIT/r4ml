@@ -65,3 +65,11 @@ test_that("hydrar.onehot generic case 1", {
 })
 
 # end one hot encoding
+
+test_that("hydrar.impute", {
+  require(SparkR)
+  require(HydraR)
+  df <- as.hydrar.matrix(as.hydrar.frame(airquality))
+  ml.coltypes(df) <- c("scale", "scale", "scale", "scale", "nominal", "nominal")
+  new_df <- hydrar.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
+})

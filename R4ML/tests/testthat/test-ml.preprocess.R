@@ -20,13 +20,13 @@ context("Testing hydrar.pre.processing\n")
 
 
 test_that("hydrar.impute", {
-  skip("skip for now")
+  # skip("skip for now")
   require(SparkR)
   require(HydraR)
   data("airquality")
   airq_hf <- as.hydrar.frame(as.data.frame(airquality))
   airq_hm <- as.hydrar.matrix(airq_hf)
-  airq_hm_n <- impute(airq_hm, method="mean")
+  airq_hm_n <- hydrar.impute(airq_hm, list("Ozone"="mean"))
 })
 
 # begin hydrar.ml.preprocess

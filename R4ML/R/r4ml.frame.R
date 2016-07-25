@@ -148,7 +148,36 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
             }
 )
 
+#' @name hydrar.impute
+#' @title Missing Value Imputation
 #' @export
+#' @discription Imputes a missing value with either the mean of the feature or a user supplied constant.
+#' @details List parameter takes a named list with columns to impute for as the names and either "mean", empty (in which case mean will be assumed), or a constant to impute as the values
+#' 
+#' @param hf (hydrar.frame) A hydrar.frame to be inpute values with.
+#' @param df_columns (list) A named list with names that represent the columns to be fitted, values are imputed.
+#' 
+#'@examples /dontrun{
+#'  # Load Dataset
+#'  df <- as.DataFrame(sqlContext, airquality)
+#'  head(df)
+#'  
+#'  # Example with "mean" value in list.
+#'  new_df <- hydrar.impute(df, list("Ozone"="mean"))
+#'  head(new_df$data)
+#'  
+#'  # Example with no arguments - mean imputation is used as the default
+#'  new_df <- hydrar.impute(df, list("Ozone", "Solar_R"))
+#'  head(new_df$data)
+#'  
+#'  # Example of constant imputation.
+#'  new_df <- hydrar.impute(df, list("Ozone"=4000, "Solar_R"=-5))
+#'  head(new_df$data)
+#'  
+#'  # Constant and mean imputation can be combined.
+#'  new_df <- hydrar.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
+#'  head(new_df$data)
+#'}
 # NOTE: add the more specific arguement to ...
 # NOTE: output must contain atleast same or more columns as input
 setGeneric("hydrar.impute", function(hf, ...) {
@@ -157,11 +186,70 @@ setGeneric("hydrar.impute", function(hf, ...) {
 
 setMethod("hydrar.impute",
   signature(hf = "hydrar.frame"),
-  function(hf, ...) {
-    res_hf <- hf; # change it in future
-    meta_db <- list()
-    warning("**WARNING** hydrar.impute is not implemented yet")    
-    list(data=res_hf, metadata=meta_db)
+  function(hf, df_columns){
+    strings <- list()
+    df_columns <- as.list(df_columns)
+    name <- names(df_columns)
+    column_names <- list()
+    constants <- list()
+    constant_names <- list()
+    
+    for(col in names(df_columns)){
+      if(!is.hydrar.numeric(as.hydrar.frame(SparkR::select(hf, col)))){
+        hydrar.err(logSource, "Column for imputation must be numeric")
+      }
+    }
+    
+    # If no names in list, default to mean imputation
+    if (is.null(name)){
+      column_names <- df_columns
+      for(i in df_columns){
+        strings <- c(strings, (paste0("SparkR::mean(hf$", i, ")")))
+      }
+      # If there are names in named list, parse list to determine mean vs. constant as well as column names
+    } else {
+      for(i in 1:length(df_columns)){
+        # If the name is empty, use the mean
+        if(name[i] == "" ){
+          column_names <- c(column_names, df_columns[i])
+          strings <- c(strings, (paste0("SparkR::mean(hf$", name[i], ")")))
+          # If the list element is "mean", use mean imputation
+        } else if(df_columns[i] == "mean") {
+          column_names <- c(column_names, name[i])
+          strings <- c(strings, (paste0("SparkR::mean(hf$", name[i], ")")))
+          # If the list element is a constant, don't make call to mean
+        } else if (as.logical(lapply(df_columns[i], is.numeric))[1]){
+          constant_names <- c(constant_names, name[i])
+          constants <- c(constants, (df_columns[i]))
+          # Default to mean imputation otherwise
+        } else {
+          column_names <- c(column_names, i)
+          strings <- c(strings, (paste0("SparkR::mean(hf$", name[i], ")")))
+        } 
+      }
+    }
+    
+    values <- list()
+    # If there are means to collect from workers, parallelize mean calls with aggregate
+    if(length(strings) > 0){
+      for_call = list(hf)
+      for (i in strings){
+        # Use eval to convert the strings into function calls
+        for_call <- c(for_call, SparkR:::column(eval(parse(text=i))@jc))
+      }
+      values <- as.list(SparkR::collect(do.call(agg, for_call)))
+      names(values) <- column_names
+    }
+    names(constants) <- constant_names
+    
+    # Combine the constants and means into a single list
+    values <- as.list(c(values, constants))
+    
+    # Convert values list to metadata
+    metadata <- list2env(values, parent=emptyenv())
+    return_df = as.hydrar.frame(SparkR::fillna(x=hf, value=values))
+    
+    return(list(data=return_df, metadata=metadata))
   }
 )
 

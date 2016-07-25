@@ -185,3 +185,15 @@ test_that("hydrar.binning", {
   expect_equal(as.numeric(binned_df$metadata[["Petal_Length"]]["binWidth"]), 1.475, tolerance=1e-2)
   expect_equal(as.numeric(binned_df$metadata[["Petal_Length"]]["numBins"]), 4, tolerance=1e-2)
 })
+
+test_that("hydrar.impute all columns imputed", {
+  require(SparkR)
+  require(HydraR)
+  df <- as.hydrar.frame(airquality)
+  new_df <- hydrar.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
+  result = SparkR::collect(new_df$data)
+  expect_equal(result[[1]][5], 4000, tolerance=1e-2)
+  expect_equal(result[[2]][5], 185, tolerance=1e-2)
+  expect_equal(new_df$metadata[["Ozone"]], 4000, tolerance=1e-2)
+  expect_equal(new_df$metadata[["Solar_R"]], 185, tolerance=1e-2)
+})
