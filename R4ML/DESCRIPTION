@@ -34,6 +34,7 @@ Collate:
     'util.commons.R'
     'ml.model.base.R'
     'ml.model.glm.R'
+    'ml.model.km.R'
     'ml.model.lm.R'
     'ml.model.mlogit.R'
     'ml.model.pca.R'

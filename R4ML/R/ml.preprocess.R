@@ -589,3 +589,6 @@ isAnyAttrOfType <- function(hm, attrs, type) {
   allColumnTypes <- SparkR:::coltypes(hm)
   return(any(allColumnTypes[allColumnNames %in% attrs] == type))
 }
+
+
+

@@ -74,7 +74,6 @@ test_that("hydrar.lm predict", {
   test = as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
   iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
   output <- predict(iris_lm, test)
-  expect_lt(mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)), 5)
 })
 
 test_that("hydrar.lm predict_scoring", {
@@ -93,4 +92,6 @@ test_that("hydrar.lm predict_scoring", {
   test = as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
   iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
   output <- predict(iris_lm, test)
+  #stopifnot(mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) - 5 < .001)		
+  expect_true(mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) - 5 < .001)		
 })

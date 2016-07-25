@@ -30,7 +30,9 @@ test_that("hydrar.mlogit", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
   
 test_that("hydrar.mlogit_labelnames", {   
@@ -45,7 +47,9 @@ test_that("hydrar.mlogit_labelnames", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, labelNames=labels)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
   
 test_that("hydrar.mlogit_intercept", { 
@@ -59,7 +63,9 @@ test_that("hydrar.mlogit_intercept", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, intercept=T)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==5, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==5, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==5)
+  expect_true(ncol(coef(iris_log_reg))==2)
   # As the coefficients are calculated in an n-dimensional bowl, we 
   # check a few of the extreme points to ensure we're at the minimum
   expect_equal(coef(iris_log_reg)[[1]][1], 12.999295, tolerance=1e-2) 
@@ -78,7 +84,9 @@ test_that("hydrar.mlogit_shiftAndRescale", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, shiftAndRescale=T, intercept=T)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==5, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==5, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==5)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
   
 test_that("hydrar.mlogit_inner.iter", {   
@@ -92,7 +100,9 @@ test_that("hydrar.mlogit_inner.iter", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, inner.iter.max=2)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
   
 test_that("hydrar.mlogit_outer.iter", {
@@ -106,7 +116,9 @@ test_that("hydrar.mlogit_outer.iter", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, outer.iter.max=2)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
   
 test_that("hydrar.mlogit_inner+outer", {   
@@ -120,7 +132,9 @@ test_that("hydrar.mlogit_inner+outer", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, inner.iter.max=2, outer.iter.max=2)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
   
 test_that("hydrar.mlogit_lambda2.5", {   
@@ -134,7 +148,9 @@ test_that("hydrar.mlogit_lambda2.5", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, lambda=2.5)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
   
 test_that("hydrar.mlogit_lambda0", {   
@@ -148,7 +164,9 @@ test_that("hydrar.mlogit_lambda0", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, lambda=0)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
 
 test_that("hydrar.mlogit_lambda500", {   
@@ -162,8 +180,11 @@ test_that("hydrar.mlogit_lambda500", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, lambda=500)
   show(iris_log_reg)
   coef(iris_log_reg)
-  expect_lt(abs(coef(iris_log_reg)[[1]][1]), 1)
-  stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  #stopifnot(abs(coef(iris_log_reg)[[1]][1]) - 1 <.001)
+  expect_true(abs(coef(iris_log_reg)[[1]][1]) - 1 <.001)
+  #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
 
 test_that("hydrar.mlogit_tolerance", { 
@@ -177,7 +198,9 @@ test_that("hydrar.mlogit_tolerance", {
   iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, tolerance=10)
   show(iris_log_reg)
   coef(iris_log_reg)
-  stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
+  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(ncol(coef(iris_log_reg))==2)
 })
 
 test_that("scoring", {   

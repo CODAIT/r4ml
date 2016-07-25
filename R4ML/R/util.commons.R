@@ -282,5 +282,151 @@ hydrar.ml.checkModelFeaturesMatchData <- function (modelMatrix, dataMatrix, inte
   return(testing)
 }
   
+
+# This function returns the leaves of a formula tree in a preorder fashion
+.hydrar.tree.traversal <- function(root) {    
+  if (!is.null(root)) {
+    # If the current node has children
+    if (length(root) > 1) {        
+      for (i in 1:length(root)) {                
+        .hydrar.tree.traversal(root[[i]])
+      }
+      # Only add the current node to the list if it has no children    
+    } else {
+      hydrar.env$leaves[[length(hydrar.env$leaves) + 1]] <- as.character(root)
+    }
+  }
+  hydrar.env$leaves
+}
+
+# checks if x is a valid column name based on a regex
+.hydrar.validColname <- function(x) {
+  if (class(x) != "character") {
+    return(FALSE)
+  }
+  regexans <- gregexpr("[,;+$]",x,perl=FALSE)
+  matches <- regexans[[1]][1] > -1
   
+  return (!matches)
+}
+
+# Extracts a list of column ids using input formula tree: root
+# It uses .bigr.tree.traversal to traverse over nodes of the input tree
+# Afterwards it identifies the column-nodes and maps them to the corresponding ids
+# This method returns a vector of column-ids
+hydrar.extractColsFromFormulaTree  <- function(root, dataset=NULL, delimiter){
+  logSource <- "parseFormula"
+  # Repeat the same process for formula[[2]]
+  hydrar.env$leaves <- list()
+  leaves <- .hydrar.tree.traversal(root)
+  
+  # Output list of group-ids
+  columnIds <- list()
+  # Output list index
+  columnIdx <- 1
+  
+  # Input list index
+  i <- 1
+  
+  # The hydrar.frame name (optional)
+  bfmName <- NULL
+  while (i <= length(leaves)) {
+    # The column name which an aggregate function will be applied to
+    col <- NULL
+    
+    # If a column name is specified
+    if (.hydrar.validColname(leaves[[i]])) {
+      col <- leaves[[i]]
+      i <- i + 1
+      
+      # If a dollar symbol was found, the next token should be the dataset name and
+      # the next one should be the column name                
+    } else if (leaves[[i]] == "$") {
+      if (i >= length(leaves) - 1) {
+        hydrar.err(logSource, "Invalid formula. A column name must be specified after the $ operator")
+      }
+      col <- leaves[[i + 2]]
+      if (is.null(bfmName)) {
+        bfmName <- leaves[[i + 1]]
+      } else if (bfmName != leaves[[i + 1]]) {
+        hydrar.err(logSource, "All columns specified in the formula must belong to the same bigr.frame or bigr.matrix.")
+      } else {
+        bfmName <- leaves[[i + 1]]
+      }
+      i <- i + 3
+    } else if (leaves[[i]] == delimiter) {
+      # Do nothing
+      i <- i + 1
+    } else {
+      hydrar.err(logSource, "Invalid symbol in the formula: '" %++% leaves[[i]] %++% "'")
+    }
+    
+    # If current symbol is not +, there is something to do
+    if (!is.null(col)) {
+      # If a hydrar.frame was specified in the formula
+      if (!is.null(bfmName)) {
+        # Check that datasets are consistent
+        if (is.null(dataset)) {
+          dataset <- get(bfmName)
+        } 
+      } else if (is.null(dataset)) {
+        hydrar.err(logSource, "A hydrar.frame or hydrar.matrix must be specified in the formula.")
+      }
+      colid <- match(col, SparkR::colnames(dataset))
+      if (.hydrar.isNullOrEmpty(colid)) {
+        hydrar.err(logSource, "2. Invalid column: '" %++% col %++% "'" )
+      }
+      columnIds[columnIdx] <- colid
+      columnIdx <- columnIdx + 1
+    }
+  }
+  return (columnIds)
+}
+
+# Parses survival formula and store them in 2 different frames
+# One of those frames stores event and status ids and the other one stores the feature-ids
+hydrar.parseSurvivalArgsFromFormulaTree <- function(formula, dataset, directory){
+  logSource <- "parseFormula"
+  
+  # Validate formula
+  if (class(formula) != "formula") {
+    return(NULL)
+  }
+  
+  # A formula must have three elements: 1. ~, 2. Surv(time,event), 3. col1+col2 + ... colN 
+  if (length(formula) != 3) {
+    hydrar.err(logSource, "Incomplete formula...")
+    return(NULL)
+  }
+  
+  if (formula[[1]] != "~") {
+    return(NULL)
+  }
+  
+  left <- formula[[2]]
+  right <- formula[[3]]
+  
+  # Parsing the left side of the formula
+  if (length(left) != 3) {
+    hydrar.err(logSource, "Incomplete left side of the formula. The left side has to have the following format: Surv(event, status)")
+  }
+  
+  if (left[[1]] != "Surv"){
+    hydrar.err(logSource, "Incomplete left side of the formula. The left side has to have the following format: Surv(event, status)")
+  }
+  
+  # The list of time and status
+  timeAndStatusIds <- hydrar.extractColsFromFormulaTree(list(left[[2]],left[[3]]), dataset,",")
+  survTSFList <- list(unlist(timeAndStatusIds))
+  # Parsing the right side of the formula
+  if (formula[[3]] != "1") {
+    # Using common tree.traversal function
+    featureIds <- hydrar.extractColsFromFormulaTree(formula[[3]], dataset, "+")
+    # flatten list in case we had dummy-ids
+    featureIds <- unlist(featureIds)
+    survTSFList[[2]] <- featureIds
+  }
+  return(survTSFList)
+}
+
 
