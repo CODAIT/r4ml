@@ -120,38 +120,38 @@ setMethod("as.hydrar.frame",
 #'    show(hf1)
 #' }
 setMethod(f = "show", signature = "hydrar.frame", definition = 
-            function(object) {
-              logSource <- "hydrar.frame.show"
-              # Get the query result as a data.frame
-              df <- as.data.frame(
-                if (hydrar.env$DEFAULT_SHOW_ROWS > 0) {
-                  SparkR:::head(object, hydrar.env$DEFAULT_SHOW_ROWS)
-                } else {
-                  object                
-                }
-              )
+  function(object) {
+    logSource <- "hydrar.frame.show"
+    # Get the query result as a data.frame
+    df <- as.data.frame(
+      if (hydrar.env$DEFAULT_SHOW_ROWS > 0) {
+        SparkR:::head(object, hydrar.env$DEFAULT_SHOW_ROWS)
+      } else {
+        object                
+      }
+    )
 
-              if (.hydrar.isNullOrEmpty(df)) {
-                df <- data.frame()
-              }            
-              if (ncol(object) == 0) {
-                cat("hydrar.frame with 0 columns\n")
-              } else if (nrow(df) == 0) {
-                cat(paste(colnames(object), collapse="    "))
-                cat("\n<0 rows>\n")
-              } else {
-                # Show the contents of the hydra.frame as a data.frame
-                show(df)
-                cat("... " %++% " showing first " %++% hydrar.env$DEFAULT_SHOW_ROWS %++% " rows only.\n")
-              }
-              invisible(NULL);
-            }
+    if (.hydrar.isNullOrEmpty(df)) {
+      df <- data.frame()
+    }            
+    if (ncol(object) == 0) {
+      cat("hydrar.frame with 0 columns\n")
+    } else if (nrow(df) == 0) {
+      cat(paste(colnames(object), collapse="    "))
+      cat("\n<0 rows>\n")
+    } else {
+      # Show the contents of the hydra.frame as a data.frame
+      show(df)
+      cat("... " %++% " showing first " %++% hydrar.env$DEFAULT_SHOW_ROWS %++% " rows only.\n")
+    }
+    invisible(NULL);
+  }
 )
 
 #' @name hydrar.impute
 #' @title Missing Value Imputation
 #' @export
-#' @discription Imputes a missing value with either the mean of the feature or a user supplied constant.
+#' @description Imputes a missing value with either the mean of the feature or a user supplied constant.
 #' @details List parameter takes a named list with columns to impute for as the names and either "mean", empty (in which case mean will be assumed), or a constant to impute as the values
 #' 
 #' @param hf (hydrar.frame) A hydrar.frame to be inpute values with.
