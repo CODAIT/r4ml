@@ -17,7 +17,6 @@
 &nbsp;&nbsp;&nbsp;&nbsp;-[HydraR usages](#hydrar-usages)
 
 
-
 ## How to install
 
 ### Install Dependencies
@@ -42,16 +41,28 @@
     Rscript -e "paste(.libPaths(), collapse=':')"
    ```
    
-   3)Add the following lines in $HOME/.Renviron (note: replace <OUTPUT_FROM_PREVIOUS_CODE> appropriately
+   3) Add the following lines in `$HOME/.Renviron` (note: replace `<OUTPUT_FROM_PREVIOUS_CODE>` appropriately
    ```
    R_LIBS=<OUTPUT_FROM_PREVIOUS_CODE>:<HOME>/apache/spark/R/lib:$R_LIBS
    ```
-    
 
    4) set the spark home environment in the `$HOME/.Renviron` file by adding the following line
-
    ```
    SPARK_HOME=$HOME/apache/spark
+   ```
+   5) Define `SPARKR_SUBMIT_ARGS` and `HYDRAR_CLIENT` in you R enviroment
+   
+   5.1) If you a running in local modeter also add the following to `$HOME/.Renviron` 
+   ```
+   SPARKR_SUBMIT_ARGS="--packages com.databricks:spark-csv_2.10:1.4.0 sparkr-shell"
+   # 
+   HYDRAR_CLIENT="local[*]" # optional
+   ```
+   
+  5.2) if you a running on a cluster also add the following to `$HOME/.Renviron` (replace `<num_exe>` with the number of executors in your cluster)
+   ```
+   SPARKR_SUBMIT_ARGS="--packages com.databricks:spark-csv_2.10:1.4.0 --master yarn-client --num-executors <num_exe> spark-shell"
+   HYDRAR_CLIENT="yarn-client"
    ```
 
 #### R packages

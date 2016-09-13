@@ -69,6 +69,13 @@ hydrar.reload.SparkR <- function() {
   hydrar.load.SparkR()
 }
 
+if (nchar(Sys.getenv("HYDRAR_CLIENT")) >= 1) {
+  hydrar_client = Sys.getenv("HYDRAR_CLIENT") 
+} else {
+  warning("HYDRAR_CLIENT not defined in the .Renviron file. Defaulting to local[*]")
+  hydrar_client = "local[*]"
+}
+
 #load and initialize SparkR
 hydrar.load.SparkR <- function() {
   # try to see if user has set the SPARK_HOME
@@ -94,8 +101,9 @@ hydrar.load.SparkR <- function() {
   if (!file.exists(sysml_jars)) {
     stop("ERROR: can't find the SystemML.jar for initialization")
   }
+  
   sc <- SparkR::sparkR.init(
-    master = "local[*]", #@TODO make it to use cluster in future
+    master = hydrar_client,
     sparkEnvir = list(spark.driver.memory="2g"),
     sparkJars = sysml_jars
   )
@@ -141,15 +149,11 @@ hydrar.unload.SparkR <- function() {
 #' @export
 detach_package <- function(pkg, character.only = FALSE)
 {
-  if(!character.only)
-  {
+  if(!character.only) {
     pkg <- deparse(substitute(pkg))
   }
   search_item <- paste("package", pkg, sep = ":")
-  while(search_item %in% search())
-  {
+  while(search_item %in% search()) {
     detach(search_item, unload = TRUE, character.only = TRUE)
   }
 }
-
-

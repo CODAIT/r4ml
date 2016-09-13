@@ -80,3 +80,59 @@ hydrar.infoShow <- function(source, message) {
     cat("\n")
   }
 }
+
+hydrar.fs <- function() {
+  if (hydrar_client == "yarn-client") {
+    return("cluster")
+  }
+  if (substr(hydrar_client, 1, 8) == "spark://") {
+    return("cluster")
+  }
+  if (substr(hydrar_client, 1, 5) == "local") {
+    return("local")
+  }
+  
+  # if the input is not one of the above it is most liklely some other kind of spark cluster
+  warning("Unable to determine file system. Assuming cluster mode.")
+  return("cluster")
+}
+
+hydrar.fs.local <- function() {
+  return (ifelse(hydrar.fs()=="local", TRUE, FALSE))
+}
+
+hydrar.fs.cluster <- function() {
+  return (ifelse(hydrar.fs()=="cluster", TRUE, FALSE))
+}
+
+hydrar.hdfs.exist <- function(file) {
+  if(hydrar.fs.local()) {
+    warning("Not in cluster mode!") 
+    return(FALSE)
+  }
+  
+  # hdfs commands can take a few seconds to return a result. try to avoid calling this function if possible
+  exists <- (length(as.character(system(paste0("(hdfs dfs -test -e \"", file, "\") || echo \"fail\""), intern=TRUE)))==0)
+  
+  return(exists)
+}
+
+hydrar.read.csv <- function(file, header = FALSE, stringsAsFactors = FALSE, inferSchema = FALSE, ...){
+  if(hydrar.fs.local()) {
+    df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors)
+    return(df)
+  }
+  
+  # we need to pass in these arguments as strings
+  header_val <- ifelse(header, "true", "false")
+  stringsAsFactors_val <- ifelse(stringsAsFactors, "true", "false")
+  inferSchema <- ifelse(inferSchema_val, "true", "false")
+
+  df <- SparkR::read.df(sqlContext,
+                        file,
+                        source = "com.databricks.spark.csv",
+                        header = header_val,
+                        stringsAsFactors = stringsAsFactors_val,
+                        inferSchema = inferSchema_val)
+  return(df)
+}

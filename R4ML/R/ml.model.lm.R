@@ -202,8 +202,8 @@ setMethod("hydrar.model.postTraining", signature="hydrar.lm", def =
     #DEBUG browser()
     #stats calculation
     statsPath <- model@dmlArgs$O
-    statsCsv <- as.data.frame(read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
-    stats <- statsCsv[, 2, drop=F]
+    statsCsv <- SparkR:::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+    stats <- statsCsv[, 2, drop=FALSE]
     row.names(stats) <- statsCsv[, 1]
     colnames(stats) <- "value"
     model@dmlOuts$stats = stats
@@ -317,12 +317,13 @@ predict.hydrar.lm <- function(object, data) {
         testset_y <- xAndY$Y   
         args = list(X = testset_x, Y = testset_y)
         args <- c(args, O = statsPath)
-        args <- c(args)
+        args <- c(args, scoring_only = "no")
     }
     # accumulate argument if no label data is present to make predictions
     else {
         # scoring
         args = list(X = data)
+        args <- c(args, scoring_only = "yes")
     }
     # add arguments that are general across testing/scoring
     args <- c(args, dfam = 1)
@@ -338,7 +339,7 @@ predict.hydrar.lm <- function(object, data) {
 
     # orgainze result for presentation to user
     if (testing) {
-      stats <- as.data.frame(read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+      stats <- SparkR:::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
       return(list("predictions"=preds, "statistics"=stats))
     }
     else {

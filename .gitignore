@@ -19,3 +19,4 @@ target/
 .checkstyle
 .fbExcludeFilterFile
 .Rproj.user
+log4j.spark.log*
