@@ -1,63 +1,81 @@
 ## How to contribute 
 
-### Creating the fork of the HydraR
+### Create a fork of HydraR
 
-1) fork the master https://github.com/SparkTC/spark-hydrar at my own repo https://github.com/aloknsingh/spark-hydrar
-2) created the git clone as per https://github.com/aloknsingh/spark-hydrar#hydrar-development-and_usages
-3) add the upstream command as follows
+1) Fork the master https://github.com/SparkTC/spark-hydrar to your own repo (ex: https://github.com/aloknsingh/spark-hydrar)
+
+2) Clone the resipatory using git clone. (See https://github.com/SparkTC/spark-hydrar#hydrar-development-and-usages)
+
+3) Add the upstream
   ```
-    git remote  add upstream https://github.com/SparkTC/spark-hydrar
+    git remote add upstream https://github.com/SparkTC/spark-hydrar
   ```
   
-### Code Devopment in the laptop 
+### Local development 
 
-1) lets say you decide decide to work on the jira says REQS-117 so create the branch
-2) git checkout -b <USER_ID>_REQS-117<_OPTIONAL_ANY_STRING> i.e git checkout -b aloknsingh_REQS-117
-3) I do my development as needed and checkin in the local repo
+1) Create a branch for the JIRA you are working on
+```
+git checkout -b <GITHUB_USER_ID>_<JIRA_ID><OPTIONAL_STRING>
+```
+For example:
+```
+git checkout -b aloknsingh_REQS-117
+```
+2) Make the necessary changes to the source code
+
+3) Check-in the files you modified
 
   ```
-  git add <new_files>
+  git add <MODIFIED_FILES>
+  ```
+
+4) Test your changes
+  ```
   ./bin/install-all.sh | tee install.log
   egrep -i "error" install.log
+  ```
+5) Resolve any errors and re-run the test again as needed. Once everything looks good commit your changes to your local branch.
+  ```
   git commit
   ```
 
-### Before pushing your changes to upstream.
+### Merge your branch
 
-1) Now we are ready to create the PR. make sure your branch is unto date with the latest in the upstream
+1) Make sure your branch is upto date
 
 ```
 git pull --rebase upstream master
-git status # run the status
+git status
 ```
 
-if (merge conflicts) { # merge conflicts will be with << and >>
- look the pattern <<  and >> and fix merge conflicts manually using editor
+2) If there are any merge conflicts fix them manually by editing the source code (hint: look for "<<<<<<<" and ">>>>>>>"). Once you have resolved the conflicts re-add the files using `git add -A`
 
+3) Once you are done fixing conflicts run the following:
 ```
-git add -A # add the code}
-git rebase --continue # finish the rebase process after adding fixing conflicts
+git rebase --continue
 ```
 
 ### Test the code before pushing to upstream
 
 ```
-#run the test case
 ./bin/install-all.sh | tee install.log
 egrep -i "error" install.log
 ```
 
-### Push to upstream branch
+### If everything looks good push to upstream branch
 
 ```
-git push --set-upstream origin aloknsingh_REQS-117
+git push --set-upstream origin <GITHUB_USER_ID>_<JIRA_ID>
 ```
 
-### To keep your repo  also upto date with the latest changes
+### Update your local repository
 
 ```
 git push
 ```
 
-### Create the Pull Request 
-Go to your own repo at  https://github.com/aloknsingh/spark-hydrar and create the PR
+### Create a Pull Request
+1) Login to github.com, go to your local branch, select the branch you worked on and click "Compare & pull request". 
+
+2) Make sure everything looks good then click "Create pull request"
+

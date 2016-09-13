@@ -37,6 +37,7 @@ Collate:
     'ml.model.lm.R'
     'ml.model.mlogit.R'
     'ml.model.pca.R'
+    'ml.model.step.lm.R'
     'ml.model.svm.R'
     'ml.preprocess.R'
     'sparkr.bridge.R'
