@@ -69,12 +69,6 @@ hydrar.reload.SparkR <- function() {
   hydrar.load.SparkR()
 }
 
-if (nchar(Sys.getenv("HYDRAR_CLIENT")) >= 1) {
-  hydrar_client = Sys.getenv("HYDRAR_CLIENT") 
-} else {
-  warning("HYDRAR_CLIENT not defined in the .Renviron file. Defaulting to local[*]")
-  hydrar_client = "local[*]"
-}
 
 #load and initialize SparkR
 hydrar.load.SparkR <- function() {
@@ -100,6 +94,13 @@ hydrar.load.SparkR <- function() {
   }
   if (!file.exists(sysml_jars)) {
     stop("ERROR: can't find the SystemML.jar for initialization")
+  }
+  
+  if (nchar(Sys.getenv("HYDRAR_CLIENT")) >= 1) {
+    hydrar_client <- Sys.getenv("HYDRAR_CLIENT")
+  } else {
+    warning("HYDRAR_CLIENT not defined in the .Renviron file. Defaulting to local[*]")
+    hydrar_client <- "local[*]"
   }
   
   sc <- SparkR::sparkR.init(

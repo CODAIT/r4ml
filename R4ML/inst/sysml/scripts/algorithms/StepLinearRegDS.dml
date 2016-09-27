@@ -133,7 +133,7 @@ if (dir == "forward") {
   parfor (i in 1:m_orig, check = 0) {
     columns_fixed_ordered_1 = matrix(i, rows=1, cols=1);
 
-    [AIC_1, beta_out_i] = linear_regression (X_orig[, i], y, m_orig, columns_fixed_ordered_1, " ");
+    [AIC_1, beta_out_i] = linear_regression (X_orig[, i], y, m_orig, columns_fixed_ordered_1, " ", 0.0);
 
     AICs[1, i] = AIC_1;
 
@@ -190,7 +190,7 @@ if (dir == "forward") {
         tmp = matrix(0, rows=1, cols=1);
         tmp[1, 1] = i;
         columns_fixed_ordered_2 = append(columns_fixed_ordered, tmp )
-        [AIC_2, beta_out_i] = linear_regression (X, y, m_orig, columns_fixed_ordered_2, " ");
+        [AIC_2, beta_out_i] = linear_regression (X, y, m_orig, columns_fixed_ordered_2, " ", 0.0);
         beta_out_all_2[, (i - 1) * y_ncol + 1 : i * y_ncol] = beta_out_i[,1:1];
 
         AICs[1, i] = AIC_2;
@@ -229,7 +229,7 @@ if (dir == "forward") {
 
   # run linear regression with selected set of features
   print ("Running linear regression with selected features...");
-  [AIC, beta_out] = linear_regression (X_global, y, m_orig, columns_fixed_ordered, fileB);
+  [AIC, beta_out] = linear_regression (X_global, y, m_orig, columns_fixed_ordered, fileB, 1.0);
   
   Selected = columns_fixed_ordered;
 
@@ -245,7 +245,7 @@ if (dir == "forward") {
 # Computes linear regression using a direct solver for (X^T X) beta = X^T y.
 # It also outputs the AIC of the computed model.
 
-linear_regression = function (Matrix[Double] X, Matrix[Double] y, Double m_orig, Matrix[Double] Selected, String fileB)
+linear_regression = function (Matrix[Double] X, Matrix[Double] y, Double m_orig, Matrix[Double] Selected, String fileB, Double writeStats)
   return (Double AIC, Matrix[Double] beta_out) {
 
     intercept_status = ifdef ($icpt, 0);
@@ -359,10 +359,11 @@ linear_regression = function (Matrix[Double] X, Matrix[Double] y, Double m_orig,
         str = append (str, "ADJUSTED_R2_VS_0," + adjusted_R2_vs_0);    #  Adjusted R^2 of residual with bias included vs. zero constant
       }
       
-      if (fileO != " ") {
+      if (fileO != " " & writeStats != 0.0) {
         write(str, fileO);
       } else {
         print (str);
+        print ("");
       }
 
       # Prepare the output matrix

@@ -101,22 +101,22 @@ with(hydrar.env, {
 
   # The default column types if none specified
   DEFAULT_COLTYPES <- c("character")
-  DEFAULT_NBINS = 10
+  DEFAULT_NBINS <- 10
 
   # Aggregate functions for numeric columns
-  ALL_AGGREGATE_FUNCTIONS = c("count", "countNA", "countnonNA", "min", "max", "sum", "avg", "mean", "sd", "var")
-  RESERVED_WORDS = c(ALL_AGGREGATE_FUNCTIONS)
-  ALL_NOMINAL_AGGREGATE_FUNCTIONS = c("count", "countNA", "countnonNA", "min", "max")
+  ALL_AGGREGATE_FUNCTIONS <- c("count", "countNA", "countnonNA", "min", "max", "sum", "avg", "mean", "sd", "var")
+  RESERVED_WORDS <- c(ALL_AGGREGATE_FUNCTIONS)
+  ALL_NOMINAL_AGGREGATE_FUNCTIONS <- c("count", "countNA", "countnonNA", "min", "max")
 
   # Default aggregate functions for numeric columns
-  DEFAULT_NUMERIC_AGGREGATE_FUNCTIONS = c("countnonNA", "min", "max", "sum", "mean")
+  DEFAULT_NUMERIC_AGGREGATE_FUNCTIONS <- c("countnonNA", "min", "max", "sum", "mean")
 
   # Aggregate functions for nominal columns
-  DEFAULT_NOMINAL_AGGREGATE_FUNCTIONS = c("countnonNA", "min", "max")
+  DEFAULT_NOMINAL_AGGREGATE_FUNCTIONS <- c("countnonNA", "min", "max")
 
   # The list of aggregate functions which always return a numeric value
-  NUMERIC_TYPE_AGGREGATE_FUNCTIONS = c("count", "sum", "mean", "countNA", "countnonNA")
-  ALL_COLUMNS = "."
+  NUMERIC_TYPE_AGGREGATE_FUNCTIONS <- c("count", "sum", "mean", "countNA", "countnonNA")
+  ALL_COLUMNS <- "."
 
   # hydrar.function constants
   REGISTERED_FUNCTIONS <- list()
@@ -176,8 +176,8 @@ with(hydrar.env, {
   DML_KM_SCRIPT <- "KM.dml"
   DML_COX_SCRIPT <- "Cox.dml"
   DML_COX_PREDICT_SCRIPT <- "Cox-predict.dml"
-  DML_SCALE_TYPE = 1
-  DML_NOMINAL_TYPE = 2
+  DML_SCALE_TYPE <- 1
+  DML_NOMINAL_TYPE <- 2
   DML_UNIVARIATE_STATS_LIST <- c("Min.", "Max.", "Range", "Mean", "Var", "SD", "SEM", "CoV",
                                  "Skewness", "Kurtosis", "SES", "SEK", "Median", "IQM", "# cat.", "Mode", "# modes")
   DML_BIVARIATE_STATS_NN <- c("Chi_sq", "DF", "P_value", "Cramer's_V")
@@ -265,9 +265,22 @@ with(hydrar.env, {
     return (path)
   }
 
+  
+  HYDRAR_CLIENT <- function() {
+    if (nchar(Sys.getenv("HYDRAR_CLIENT")) >= 1) {
+      return(Sys.getenv("HYDRAR_CLIENT"))
+    } else {
+      warning("HYDRAR_CLIENT not defined in the .Renviron file. Defaulting to local[*]")
+      return("local[*]")
+    }
+  }
+  
   FS_ROOT <- function() {
     if(hydrar.fs.cluster()) {
-      return ("/user/$USER")
+      if (is.null(Sys.getenv("USER")) || Sys.getenv("USER") == "") {
+        stop("environmental variable USER not defined")
+      }
+      return (file.path("", "user", Sys.getenv("USER")))
     }
     if(hydrar.fs.local()) {
       if (is.null(Sys.getenv("HOME")) || Sys.getenv("HOME") == "") {
@@ -283,8 +296,8 @@ with(hydrar.env, {
       workspace <- file.path(FS_ROOT(), PACKAGE_NAME, "scratch_workspace", subdir)
       if (!file.exists(workspace)) {
         if(hydrar.fs.cluster()) {
-          system(paste("hdfs dfs -mkdir", workspace))
-        } else if(hydrar.fs.cluster()) {
+          system(paste("hdfs dfs -mkdir -p", workspace))
+        } else if(hydrar.fs.local()) {
           system(paste("mkdir -p", workspace))
         }
       }

@@ -274,7 +274,7 @@ setMethod(
     function(model) {
       outputs <- model@dmlOuts$sysml.execute
       statsPath <- model@dmlArgs$O
-      statsCsv <- SparkR::as.data.frame(read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+      statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
       if (model@dispersion == 0) {
         model@dispersion <- statsCsv[8, 2]
       }
@@ -643,7 +643,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
   
   # Add stats
   if (testing) {
-    statsCsv <- SparkR::as.data.frame(read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+    statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header = FALSE, stringsAsFactors = FALSE))
   }
   else {
     statsCsv <- data.frame()

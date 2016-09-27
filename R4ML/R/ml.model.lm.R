@@ -202,7 +202,7 @@ setMethod("hydrar.model.postTraining", signature="hydrar.lm", def =
     #DEBUG browser()
     #stats calculation
     statsPath <- model@dmlArgs$O
-    statsCsv <- SparkR:::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+    statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header = FALSE, stringsAsFactors = FALSE))
     stats <- statsCsv[, 2, drop=FALSE]
     row.names(stats) <- statsCsv[, 1]
     colnames(stats) <- "value"
@@ -335,11 +335,11 @@ predict.hydrar.lm <- function(object, data) {
     # call the predict DML script
     dmlOuts <- do.call("sysml.execute", args)
     preds <- dmlOuts[['means']]
-    SparkR:::colnames(preds) <- c("preds")
+    SparkR::colnames(preds) <- c("preds")
 
     # orgainze result for presentation to user
     if (testing) {
-      stats <- SparkR:::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+      stats <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
       return(list("predictions"=preds, "statistics"=stats))
     }
     else {

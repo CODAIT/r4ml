@@ -91,7 +91,7 @@ setClass("hydrar.mlogit",
 #' }
 #'
 
-hydrar.mlogit <- function(formula, data, intercept=F, shiftAndRescale=F, tolerance,
+hydrar.mlogit <- function(formula, data, intercept = FALSE, shiftAndRescale = FALSE, tolerance,
                                outer.iter.max, inner.iter.max, lambda, labelNames=character(0)) {
   new("hydrar.mlogit", modelType="classification", formula=formula, data = data, 
     intercept = intercept, shiftAndRescale=shiftAndRescale, tolerance=tolerance,
@@ -100,18 +100,18 @@ hydrar.mlogit <- function(formula, data, intercept=F, shiftAndRescale=F, toleran
 }
 
 # check the training parameters of the model
-setMethod("hydrar.model.validateTrainingParameters", signature="hydrar.mlogit", def =
+setMethod("hydrar.model.validateTrainingParameters", signature = "hydrar.mlogit", def =
   function(model, args) {
     logSource <- "hydrar.model.validateTrainingParameters"
     with(args, {
       # Convert labelNames into a transform object later
       .hydrar.checkParameter(logSource, intercept, "logical", c(TRUE, FALSE))
       .hydrar.checkParameter(logSource, shiftAndRescale, "logical", c(TRUE, FALSE))
-      .hydrar.checkParameter(logSource, tolerance, "numeric", isOptional = T)
-      .hydrar.checkParameter(logSource, outer.iter.max, "numeric", isOptional=T)
-      .hydrar.checkParameter(logSource, inner.iter.max, "numeric", isOptional=T)
-      .hydrar.checkParameter(logSource, lambda, "numeric", isOptional=T)
-      .hydrar.checkParameter(logSource, labelNames, "character", isOptional=T, isSingleton=F)
+      .hydrar.checkParameter(logSource, tolerance, "numeric", isOptional = TRUE)
+      .hydrar.checkParameter(logSource, outer.iter.max, "numeric", isOptional = TRUE)
+      .hydrar.checkParameter(logSource, inner.iter.max, "numeric", isOptional = TRUE)
+      .hydrar.checkParameter(logSource, lambda, "numeric", isOptional = TRUE)
+      .hydrar.checkParameter(logSource, labelNames, "character", isOptional = TRUE, isSingleton = FALSE)
       if (missing(data)) {
         hydrar.err(logSource, "Must provide data.")
       }
@@ -134,7 +134,7 @@ setMethod("hydrar.model.validateTrainingParameters", signature="hydrar.mlogit", 
 
 
 # Organize arguments for the Multinomial Logistic Regression dml script
-setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.mlogit", def =
+setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.mlogit", def =
   function(model, args) {
     with(args, {
       model@labelNames <- labelNames
@@ -196,9 +196,9 @@ setMethod("hydrar.model.postTraining", signature = "hydrar.mlogit", def =
       colnames(model@beta) <- model@labelNames[1 : length(model@labelNames)-1]
     }
     rownames(model@beta) <- model@featureNames
-    slot(model, "yIdx") = model@yColId
-    slot(model, "modelPath") = ""
-    slot(model, "classes") = (dim(SparkR::as.data.frame(model@dmlOuts[["B_out"]]))[2]+1)
+    slot(model, "yIdx") <- model@yColId
+    slot(model, "modelPath") <- ""
+    slot(model, "classes") <- (dim(SparkR::as.data.frame(model@dmlOuts[["B_out"]]))[2]+1)
     return(model)
   }
 )
@@ -218,7 +218,7 @@ setMethod(f = "show", signature = "hydrar.mlogit", definition =
 
 setMethod("coef", signature="hydrar.mlogit", def =
   function(object) {
-    SparkR:::as.data.frame(object@beta)
+    SparkR::as.data.frame(object@beta)
   }
 )
 
@@ -274,12 +274,12 @@ predict.hydrar.mlogit <- function(object, data) {
   statsPath <- file.path(hydrar.env$WORKSPACE_ROOT("hydrar.mlogit"), "stats_predict.csv")
 
   # Generate arguments to pass to SystemML script
-  args <- list(dml=file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_GLM_TEST_SCRIPT),
+  args <- list(dml = file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_GLM_TEST_SCRIPT),
                B_full = as.hydrar.matrix(as.hydrar.frame(coef(object))),
                "means", # this is output $M
-               O=statsPath,
-               dfam=3, # dfam = 3 gives us Multinomial in GLM_Predict script.
-               fmt="csv"
+               O = statsPath,
+               dfam = 3, # dfam = 3 gives us Multinomial in GLM_Predict script.
+               fmt = "csv"
   )
 
   # Check the input test data for a labels/outputs column. If it already exists, score the model predictions against this column.
@@ -292,14 +292,14 @@ predict.hydrar.mlogit <- function(object, data) {
     testset_x <- XY$X
     testset_y <- XY$Y
     args <- c(args, 
-              X=testset_x,
-              Y=testset_y)
-    args <- c(args, scoring_only="no")
+              X = testset_x,
+              Y = testset_y)
+    args <- c(args, scoring_only = "no")
 
     dmlOuts <- do.call("sysml.execute", args)  
   } else { #only scoring (no Y is passed)
-    args <- c(args, X=data)
-    args <- c(args, scoring_only="yes")
+    args <- c(args, X = data)
+    args <- c(args, scoring_only = "yes")
     dmlOuts <- do.call("sysml.execute", args)
   }
   
@@ -310,11 +310,11 @@ predict.hydrar.mlogit <- function(object, data) {
   preds <- as.hydrar.matrix(as.hydrar.frame(dmlOuts[['means']]))
 
   # Output probabilities/predictions accordingly
-  output <- list("probabilities" = SparkR:::as.data.frame(preds))
+  output <- list("probabilities" = base::as.data.frame(SparkR::as.data.frame(preds)))
   
   # Add stats
   if (testing) {
-    statsCsv <- SparkR::as.data.frame(read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+    statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header = FALSE, stringsAsFactors = FALSE))
     output <- c(output, list("statistics"=statsCsv))
     colnames(output$statistics) <- c("Name", "Y-column", "Scaled", "Value")
   }

@@ -488,8 +488,8 @@ packagePredictSvmOutput <- function(outputDir, predictDmlOut, svm, scores, testi
   sc <- NULL
   if(testing) {
     suppressWarnings(
-      acc <- read.csv(file.path(outputDir, "accuracy.csv"), header=FALSE, 
-                      stringsAsFactors=FALSE, sep=" ")[1,3]
+      acc <- hydrar.read.csv(file.path(outputDir, "accuracy.csv"), header=FALSE, 
+                      stringsAsFactors=FALSE, sep=" ")[1, 3]
     )
     coltypes <- if(svm@classes==2) "numeric" else as.vector(rep("numeric", svm@classes))
     

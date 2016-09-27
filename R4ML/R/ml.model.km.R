@@ -205,7 +205,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.kaplan.meier", def
       
       if (!missing(test) && test == 1) {
         dmlArgs <- c(dmlArgs, T=TESTS)
-        model@testPath <- TESTS;
+        model@testPath <- TESTS
         if (!missing(rho)) {
           dmlArgs <- c(dmlArgs, ttype=rho)
         }else{
@@ -225,7 +225,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.kaplan.meier", def
       if (!missing(conf.type)) {
         dmlArgs <- c(dmlArgs, ctype=conf.type)
       }
-      model@dmlArgs <- dmlArgs;
+      model@dmlArgs <- dmlArgs
       return (model)
     })
   }                  
@@ -253,7 +253,7 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 
     cat("\n\nSurvival Median\n")
     # colnames=median_colnames
-    median <- as.hydrar.frame(read.csv(file.path(object@medianPath)))
+    median <- as.hydrar.frame(hydrar.read.csv(file.path(object@medianPath)))
     SparkR::colnames(median) <- median_colnames
     print(SparkR::take(median, 50))
   }
@@ -298,26 +298,26 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 #' @seealso \link{hydrar.kaplan.meier.test}
 summary.hydrar.kaplan.meier <- function(object) {
   logSource <- "hydrar.kaplan.meier"
-  transPath <- object@transformPath;
-  dataColNames <- object@dataColNames;
-  start <- 1;
+  transPath <- object@transformPath
+  dataColNames <- object@dataColNames
+  start <- 1
   if (!is.na(object@strataNames) || !is.na(object@groupNames)) {
-    temp <- read.csv(file.path(object@medianPath),
+    temp <- hydrar.read.csv(file.path(object@medianPath),
                             header=FALSE)
     values <- SparkR::as.data.frame(temp)
   }
   if (!is.na(object@groupNames) && length(object@groupNames) > 0) {
     groupHeaders_n = length(object@groupNames)
-    groupValues <- values[,1:groupHeaders_n];
+    groupValues <- values[, 1:groupHeaders_n]
     if (groupHeaders_n == 1) {
       groupValues <- SparkR::as.data.frame(groupValues)
     }
-    start <- groupHeaders_n+1;
+    start <- groupHeaders_n + 1
   }
   if (!is.na(object@strataNames) && length(object@strataNames) > 0) {
     strataHeaders_n = length(object@strataNames)
-    end <- start+strataHeaders_n-1;
-    strataValues <- values[,start:end];
+    end <- start+strataHeaders_n-1
+    strataValues <- values[, start:end]
     if (strataHeaders_n == 1) {
       strataValues <- SparkR::as.data.frame(strataValues)
     }
@@ -325,45 +325,45 @@ summary.hydrar.kaplan.meier <- function(object) {
 
   km_colnames <- c("time", "n.risk", "n.event", "survival", "std.err", (1-object@conf.int) %++% "%LCL", (1-object@conf.int) %++%"%UCL")
   km_full <- SparkR::as.data.frame(object@dmlOuts$sysml.execute$KM)
-  i <- 1;
-  list_ind <- 1;
+  i <- 1
+  list_ind <- 1
   km_summary_list <- list()
   while (i < ncol(km_full)) {
-    j <- i+6;
-    km7 <- km_full[,i:j];
-    SparkR::colnames(km7) <- km_colnames;
+    j <- i + 6
+    km7 <- km_full[, i:j]
+    SparkR::colnames(km7) <- km_colnames
     # Adding caption for groups
-    start <- 1;
+    start <- 1
     km7_caption <- c()
     if (!is.na(object@groupNames) && length(object@groupNames) > 0) {
       groupValuesRow <- SparkR::as.data.frame(groupValues[list_ind,])
       groupValuesRow_n <- ncol(groupValuesRow)
       for (i2 in start:groupValuesRow_n) {
-        grp_colname <- object@groupNames[i2];
+        grp_colname <- object@groupNames[i2]
         str <- grp_colname %++% "=" %++% as.character(groupValuesRow[1,i2])
         km7_caption <- paste(km7_caption, str, sep=" ")
       }
       # updating the starting point for strata
-      start <- groupValuesRow_n + 1;
+      start <- groupValuesRow_n + 1
     }
     #Adding caption for stratum
     if (!is.na(object@strataNames) && length(object@strataNames) > 0) {
       strataValuesRow <- SparkR::as.data.frame(strataValues[list_ind,])
       for (i2 in 1:ncol(strataValuesRow)) {
-        str_colname <- object@strataNames[i2];
+        str_colname <- object@strataNames[i2]
         str_colabel <- substr(str_colname,8,nchar(str_colname)-1)
         str <- str_colname %++% "=" %++% as.character(strataValuesRow[1,i2])
         km7_caption <- paste(km7_caption, str, sep=" ")
       }
-      start <- 1;
+      start <- 1
     }
     if (is.na(object@groupNames) && is.na(object@strataNames)) {
       km_summary_list[list_ind] <-  km7
     } else {
-      km_summary_list[km7_caption] <-  km7;
+      km_summary_list[km7_caption] <-  km7
     }
-    i <- i + 7;
-    list_ind <- list_ind + 1;
+    i <- i + 7
+    list_ind <- list_ind + 1
   }
   return (km_summary_list)
 }
@@ -412,7 +412,7 @@ hydrar.kaplan.meier.test <- function(object) {
 
   # generating header for tests
   test_colnames <- c()
-  dataColNames <- object@dataColNames;
+  dataColNames <- object@dataColNames
 
   if (!is.na(object@groupNames) && length(object@groupNames) > 0) {
     test_colnames <- c(test_colnames, object@groupNames)
@@ -425,12 +425,12 @@ hydrar.kaplan.meier.test <- function(object) {
 
   km_test_colnames <- c(test_colnames, km_test_colnames)
   ### end generating header
-  km_test_full <- as.hydrar.frame(read.csv(file.path(object@testPath),header=FALSE))
-  SparkR::colnames(km_test_full) <- km_test_colnames;
+  km_test_full <- as.hydrar.frame(hydrar.read.csv(file.path(object@testPath), header=FALSE))
+  SparkR::colnames(km_test_full) <- km_test_colnames
 
-  km_test_chsqr_path <- object@testPath %++% hydrar.env$DML_KM_TESTS_GRPS_OE_SUFFIX;
-  km_test_chsqr <- as.hydrar.frame(read.csv(file.path(km_test_chsqr_path),header=FALSE))
-  SparkR::colnames(km_test_chsqr) <- km_test_chsqr_colnames;
+  km_test_chsqr_path <- object@testPath %++% hydrar.env$DML_KM_TESTS_GRPS_OE_SUFFIX
+  km_test_chsqr <- as.hydrar.frame(hydrar.read.csv(file.path(km_test_chsqr_path), header=FALSE))
+  SparkR::colnames(km_test_chsqr) <- km_test_chsqr_colnames
 
   #chisqr <- "Chisq=" %++% km_test_chsqr[,3] %++% " on " %++% as.character(km_test_chsqr[,2]) %++% " degrees of freedom, p= " %++% as.character(km_test_chsqr[,4])
   #  Chisq= 4.4  on 5 degrees of freedom, p= 0.499

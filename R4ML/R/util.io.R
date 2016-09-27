@@ -82,6 +82,7 @@ hydrar.infoShow <- function(source, message) {
 }
 
 hydrar.fs <- function() {
+  hydrar_client <- hydrar.env$HYDRAR_CLIENT()
   if (hydrar_client == "yarn-client") {
     return("cluster")
   }
@@ -117,16 +118,24 @@ hydrar.hdfs.exist <- function(file) {
   return(exists)
 }
 
-hydrar.read.csv <- function(file, header = FALSE, stringsAsFactors = FALSE, inferSchema = FALSE, ...){
+#' hydrar.read.csv
+#' @description Returns a R data.frame in local mode or a SparkR DataFrame in cluster mode.
+#' @param file path to the input file
+#' @param header logical
+#' @param stringsAsFactors logical
+#' @param inferSchema logical
+#' @param sep field separator character, supported in local mode
+#' @export
+hydrar.read.csv <- function(file, header = FALSE, stringsAsFactors = FALSE, inferSchema = FALSE, sep = ",", ...){
   if(hydrar.fs.local()) {
-    df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors)
+    df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors, sep = sep)
     return(df)
   }
   
   # we need to pass in these arguments as strings
   header_val <- ifelse(header, "true", "false")
   stringsAsFactors_val <- ifelse(stringsAsFactors, "true", "false")
-  inferSchema <- ifelse(inferSchema_val, "true", "false")
+  inferSchema_val <- ifelse(inferSchema, "true", "false")
 
   df <- SparkR::read.df(sqlContext,
                         file,
