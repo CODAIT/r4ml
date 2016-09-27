@@ -78,7 +78,7 @@ setMethod("initialize", "hydrar.svm",
     }
    
     .Object@dmlOuts <- dmlOuts
-    .Object@coefficients <- as.data.frame(d[1:length(featureNames),])
+    .Object@coefficients <- SparkR:::as.data.frame(d[1:length(featureNames),])
             
     if (!is.null(labelNames)) {
       if (l2svm) {

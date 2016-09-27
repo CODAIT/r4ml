@@ -310,11 +310,11 @@ predict.hydrar.mlogit <- function(object, data) {
   preds <- as.hydrar.matrix(as.hydrar.frame(dmlOuts[['means']]))
 
   # Output probabilities/predictions accordingly
-  output <- list("probabilities" = as.data.frame(SparkR:::as.data.frame(preds)))
+  output <- list("probabilities" = SparkR:::as.data.frame(preds))
   
   # Add stats
   if (testing) {
-    statsCsv <- as.data.frame(read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+    statsCsv <- SparkR::as.data.frame(read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
     output <- c(output, list("statistics"=statsCsv))
     colnames(output$statistics) <- c("Name", "Y-column", "Scaled", "Value")
   }

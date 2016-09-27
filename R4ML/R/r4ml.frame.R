@@ -123,7 +123,7 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
   function(object) {
     logSource <- "hydrar.frame.show"
     # Get the query result as a data.frame
-    df <- as.data.frame(
+    df <- SparkR::as.data.frame(
       if (hydrar.env$DEFAULT_SHOW_ROWS > 0) {
         SparkR:::head(object, hydrar.env$DEFAULT_SHOW_ROWS)
       } else {
@@ -318,7 +318,7 @@ setMethod("hydrar.recode",
       #make sure that we have defined order of the distinct i.e natural order.
       #note that distinct can give different order in sep run
       uicol_rdf <- setNames(
-        as.data.frame(uicol_rdf_tmp[order(uicol_rdf_tmp[icol]),]),
+        SparkR::as.data.frame(uicol_rdf_tmp[order(uicol_rdf_tmp[icol]),]),
         icol)
 
       # this is the recode mapping for column icol, which will be used later

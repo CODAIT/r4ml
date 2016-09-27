@@ -304,13 +304,13 @@ summary.hydrar.kaplan.meier <- function(object) {
   if (!is.na(object@strataNames) || !is.na(object@groupNames)) {
     temp <- read.csv(file.path(object@medianPath),
                             header=FALSE)
-    values <- as.data.frame(temp)
+    values <- SparkR::as.data.frame(temp)
   }
   if (!is.na(object@groupNames) && length(object@groupNames) > 0) {
     groupHeaders_n = length(object@groupNames)
     groupValues <- values[,1:groupHeaders_n];
     if (groupHeaders_n == 1) {
-      groupValues <- as.data.frame(groupValues)
+      groupValues <- SparkR::as.data.frame(groupValues)
     }
     start <- groupHeaders_n+1;
   }
@@ -319,7 +319,7 @@ summary.hydrar.kaplan.meier <- function(object) {
     end <- start+strataHeaders_n-1;
     strataValues <- values[,start:end];
     if (strataHeaders_n == 1) {
-      strataValues <- as.data.frame(strataValues)
+      strataValues <- SparkR::as.data.frame(strataValues)
     }
   }
 
@@ -336,7 +336,7 @@ summary.hydrar.kaplan.meier <- function(object) {
     start <- 1;
     km7_caption <- c()
     if (!is.na(object@groupNames) && length(object@groupNames) > 0) {
-      groupValuesRow <- as.data.frame(groupValues[list_ind,])
+      groupValuesRow <- SparkR::as.data.frame(groupValues[list_ind,])
       groupValuesRow_n <- ncol(groupValuesRow)
       for (i2 in start:groupValuesRow_n) {
         grp_colname <- object@groupNames[i2];
@@ -348,7 +348,7 @@ summary.hydrar.kaplan.meier <- function(object) {
     }
     #Adding caption for stratum
     if (!is.na(object@strataNames) && length(object@strataNames) > 0) {
-      strataValuesRow <- as.data.frame(strataValues[list_ind,])
+      strataValuesRow <- SparkR::as.data.frame(strataValues[list_ind,])
       for (i2 in 1:ncol(strataValuesRow)) {
         str_colname <- object@strataNames[i2];
         str_colabel <- substr(str_colname,8,nchar(str_colname)-1)
