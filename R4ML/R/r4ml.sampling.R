@@ -18,7 +18,7 @@ NULL
 
 ## note: implement all the sample algo later
 
-#' Generate random samples from a hydrar.frame or hydrar.matrix or spark DataFrame
+#' Generate random samples from a hydrar.frame or hydrar.matrix or spark SparkDataFrame
 #' 
 #' Two sampling methods are supported:
 #'
@@ -31,13 +31,13 @@ NULL
 #' @name hydrar.sample
 #' @title Random sampling
 #' @usage hydrar.sample(data, perc)
-#' @param data (hydrar.frame or hydrar.matrix or DataFrame) Dataset to sample from
+#' @param data (hydrar.frame or hydrar.matrix or SparkDataFrame) Dataset to sample from
 #' @param perc (numeric) For random sampling, an atomic value between (0, 1) 
 #'   that represents the sampling percentage. For partitioned sampling, a 
 #'   vector of numerics in the interval (0, 1), such that their sum is 
 #'   exactly 1.
-#' @return For random sampling, a single hydrar.frame/hydrar.matrix/DataFrame is returned. For
-#'   partitioned sampling, a list of hydrar.frames or hydrar.matrices or Spark DataFrame is returned, and each
+#' @return For random sampling, a single hydrar.frame/hydrar.matrix/SparkDataFrame is returned. For
+#'   partitioned sampling, a list of hydrar.frames or hydrar.matrices or Spark SparkDataFrame is returned, and each
 #'   element in the list represents a partition.
 #' @export
 #' @examples \dontrun{
@@ -76,8 +76,8 @@ hydrar.sample <- function(data, perc) {
     hydrar.err(logSource, "perc perc must be specified.")
   }
   
-  if (!inherits(data, "hydrar.frame") & !inherits(data, "hydrar.matrix") & !inherits(data, "DataFrame")) {
-    hydrar.err(logSource, "The specified dataset must be a hydrar.frame or hydrar.matrix or Spark DataFrame.")
+  if (!inherits(data, "hydrar.frame") & !inherits(data, "hydrar.matrix") & !inherits(data, "SparkDataFrame")) {
+    hydrar.err(logSource, "The specified dataset must be a hydrar.frame or hydrar.matrix or Spark SparkDataFrame.")
   }
 
   # functor to convert the output type to the relevant input type
@@ -89,7 +89,7 @@ hydrar.sample <- function(data, perc) {
         casted_df <- as.hydrar.frame(df)
       } else if (data_type == 'hydrar.matrix') {
         casted_df <- as.hydrar.matrix(as.hydrar.frame(df))
-      } else if (data_type == 'DataFrame') {
+      } else if (data_type == 'SparkDataFrame') {
         casted_df <- df
       } else {
         stop("Unsupported type " %++% data_type %++% " passed in")
@@ -107,7 +107,7 @@ hydrar.sample <- function(data, perc) {
     df1 <- SparkR::sample(data, FALSE, perc)
     return(outputType(df1))
   } else if (length(perc) == 2 && 
-      (class(data) %in% c('hydrar.frame', 'hydrar.matrix', 'DataFrame'))) {
+      (class(data) %in% c('hydrar.frame', 'hydrar.matrix', 'SparkDataFrame'))) {
     # this is probably slightly faster version of when length(perc)>2
     if (abs(sum(perc) - 1.0) >= 1e-6) {
       hydrar.err(logSource, "Random split must have the value sum to 1")

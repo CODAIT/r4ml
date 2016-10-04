@@ -66,6 +66,11 @@ egrep -i "error" install.log
 
 ```
 git push --set-upstream origin <GITHUB_USER_ID>_<JIRA_ID>
+# in case of above command not working
+# you can try using the force options
+# git push -f --set-upstream origin <GITHUB_USER_ID>_<JIRA_ID>
+# it is recommented you merge the changes before using the -f but above options shuold
+# be fine
 ```
 
 ### Update your local repository

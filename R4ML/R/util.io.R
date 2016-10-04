@@ -126,9 +126,15 @@ hydrar.hdfs.exist <- function(file) {
 #' @param inferSchema logical
 #' @param sep field separator character, supported in local mode
 #' @export
-hydrar.read.csv <- function(file, header = FALSE, stringsAsFactors = FALSE, inferSchema = FALSE, sep = ",", ...){
+hydrar.read.csv <- function(
+  file, header = FALSE, stringsAsFactors = FALSE, inferSchema = FALSE, sep = ",",
+   na.strings = "NA", schema = NULL, ...
+){
   if(hydrar.fs.local()) {
-    df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors, sep = sep)
+    if (!is.null(schema)) {
+      hydrar.err("Can't have the schema in the local mode")
+    }
+    df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors, sep = sep, na.strings = na.strings)
     return(df)
   }
   
@@ -136,12 +142,21 @@ hydrar.read.csv <- function(file, header = FALSE, stringsAsFactors = FALSE, infe
   header_val <- ifelse(header, "true", "false")
   stringsAsFactors_val <- ifelse(stringsAsFactors, "true", "false")
   inferSchema_val <- ifelse(inferSchema, "true", "false")
-
-  df <- SparkR::read.df(sqlContext,
-                        file,
-                        source = "com.databricks.spark.csv",
-                        header = header_val,
-                        stringsAsFactors = stringsAsFactors_val,
-                        inferSchema = inferSchema_val)
+  
+  # old way of reading using the external pacakge com.databricks.spark.csv
+  # df <- SparkR::read.df(sysmlSqlContext,
+  #                       file,
+  #                       source = "com.databricks.spark.csv",
+  #                       header = header_val,
+  #                       stringsAsFactors = stringsAsFactors_val,
+  #                       inferSchema = inferSchema_val)
+  source = "csv" # we always default to csv user can use read.df for other things
+  df <- SparkR::read.df(
+          file,
+          source = source,
+          header = header_val,
+          inferSchema = inferSchema_val,
+          na.strings = na.strings
+        )
   return(df)
 }

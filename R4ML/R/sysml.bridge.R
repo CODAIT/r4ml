@@ -79,10 +79,10 @@ sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
 sysml.MLContext <- setRefClass("sysml.MLContext",
   fields = list(env="environment"),
   methods = list(
-    initialize = function(sparkContext = sc) {
+    initialize = function(sparkContext = sysmlSparkContext) {
       env <<- new.env()
       if (missing(sparkContext)) {
-        sparkContext = get("sc", .GlobalEnv)
+        sparkContext = get("sysmlSparkContext", .GlobalEnv)
       }
       env$jref <<- SparkR:::newJObject("org.apache.sysml.api.MLContext", sparkContext)
     },
@@ -117,7 +117,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       # check rdd_or_df arg
       cls <- as.vector(class(rdd_or_df))
       jrdd <- NULL
-      if (cls == 'DataFrame') {
+      if (cls == 'SparkDataFrame') {
         jrdd <- SparkR:::toRDD(rdd_or_df)
       } else if  (cls == 'RDD' || cls == 'PipelinedRDD') {
         jrdd <- SparkR:::getJRDD(rdd_or_df)
@@ -159,8 +159,8 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       '
       stopifnot(class(dml_script) == "character")
       out_jref <- SparkR:::callJMethod(env$jref, "executeScript", dml_script)
-      #@TODO. get sqlContext from the ctor
-      outputs <- sysml.MLOutput$new(out_jref, sqlContext)
+      #@TODO. get sysmlSqlContext from the ctor
+      outputs <- sysml.MLOutput$new(out_jref, sysmlSqlContext)
     },
 
     executeScriptBase = function(dml_script, arg_keys, arg_vals, is.file) {
@@ -173,7 +173,6 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       \\tab dml_script \\tab string containing the dml script whose variables has been bound using registerInput and registerOut \\cr
       }
       '
-      #DEBUG browser()
       stopifnot(class(dml_script) == "character")
 
       is_namedargs = FALSE
@@ -229,8 +228,8 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
                       )
         }
       }
-      #@TODO. get sqlContext from the ctor
-      outputs <- sysml.MLOutput$new(out_jref, sqlContext)
+      #@TODO. get sysmlSqlContext from the ctor
+      outputs <- sysml.MLOutput$new(out_jref, sysmlSqlContext)
     },
 
     executeScript = function(dml_script, arg_keys, arg_vals) {
@@ -279,22 +278,23 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
 #'        along with java ref corresponding to jvm
 #' @export
 #' @examples \dontrun{
-#'    sc # the default spark context
+#'    sysmlSparkContext # the default spark context
 #'    mlCtx = sysml.MLOutput$new()
 #' }
 sysml.MLOutput <- setRefClass("sysml.MLOutput",
   fields = list(env="environment"),
   methods = list(
-    initialize = function(jref, sqlContext) {
-      if (missing(sqlContext)) {
-        sqlContext = get("sqlContext", .GlobalEnv)
+    initialize = function(jref, sysmlSqlContext) {
+      if (missing(sysmlSqlContext)) {
+        sysmlSqlContext = get("sysmlSqlContext", .GlobalEnv)
       }
+
       if (missing(jref)) {
         stop("Must have jref object in the ctor of MLOutput")
       }
       env <<- new.env()
       env$jref <<- jref
-      env$sqlContext <<- sqlContext
+      env$sysmlSqlContext <<- sysmlSqlContext
     },
 
     finalize = function() {
@@ -308,8 +308,8 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
       \\tab drop.id (default = TRUE) whether to drop internal columns ID\\cr
       }'
       stopifnot(class(colname) == "character")
-      df_jref <- SparkR:::callJMethod(env$jref, "getDF", env$sqlContext, colname)
-      df <- new("DataFrame", sdf=df_jref, isCached=FALSE)
+      df_jref <- SparkR:::callJMethod(env$jref, "getDF", env$sysmlSqlContext, colname)
+      df <- new("SparkDataFrame", sdf=df_jref, isCached=FALSE)
       # drop the id,
       # rename the remaining column to 'colname'
       oldnames <- SparkR:::colnames(df)
@@ -336,8 +336,8 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
 #' @export
 #' @examples
 #' \dontrun{
-#'    sc # the default spark context
-#'    air_dist <- createDataFrame(sqlContext, airrtd)
+#'    sysmlSparkContext # the default spark context
+#'    air_dist <- createDataFrame(sysmlSqlContext, airrtd)
 #'    x_cnt <- SparkR:::count(air_dist)
 #'    x_mc <- HydraR:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
 #'    rdd_utils <- HydraR:::sysml.RDDConverterUtils$new(sc)
@@ -349,7 +349,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
   methods = list(
     initialize = function(sparkContext) {
       if (missing(sparkContext)) {
-        sparkContext = get("sc", .GlobalEnv)
+        sparkContext = get("sysmlSparkContext", .GlobalEnv)
       }
       env <<- new.env()
       env$sparkContext <<- sparkContext
@@ -368,10 +368,10 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
              [[1.2,34.3, 1.2, 1.2]] or [1.2, 3.4] or [1.3 1.2]
 \\cr
       }'
-      stopifnot(class(df) == "DataFrame")
+      stopifnot(class(df) == "SparkDataFrame")
       fname <- "stringDataFrameToVectorDataFrame"
       vdf_jref<-SparkR:::callJStatic(env$jclass, fname, env$sparkContext, df@sdf)
-      vdf <- new ("DataFrame", vdf_jref, FALSE)
+      vdf <- new ("SparkDataFrame", vdf_jref, FALSE)
       vdf
     },
 
@@ -380,7 +380,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
       Description:\\tab \\cr
       \\tab convert the mllib.Vector dataframe to systemML binary block.\\cr
       }'
-      stopifnot(class(df) == "DataFrame",
+      stopifnot(class(df) == "SparkDataFrame",
                 class(mc) == "sysml.MatrixCharacteristics",
                 class(colname) == "character")
 

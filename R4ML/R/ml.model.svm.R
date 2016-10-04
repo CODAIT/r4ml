@@ -413,7 +413,7 @@ predict.hydrar.svm <- function(object, data, returnScores=T) {
       e <- SparkR:::as.data.frame(object@dmlOuts[['extra_model_params']])
       e <- setNames(e, names(w))
       d <- rbind(w, e)
-      coef_hf <- as.hydrar.matrix(as.hydrar.frame(as.DataFrame(sqlContext, d)))
+      coef_hf <- as.hydrar.matrix(as.hydrar.frame(as.DataFrame(sysmlSqlContext, d)))
     }
     #ALOK BEGIN bugfix
     

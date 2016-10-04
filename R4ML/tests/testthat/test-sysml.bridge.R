@@ -51,10 +51,10 @@ test_that("sysml.MLContext sample data",{
   
   mc <- HydraR:::sysml.MatrixCharacteristics$new(count(dv_df), 1, 10,1)
   rdd_utils<- HydraR:::sysml.RDDConverterUtils$new()
-  mlc = HydraR:::sysml.MLContext$new(sc)
+  mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
   mlc$reset()
   sysml_jrdd=rdd_utils$dataFrameToBinaryBlock(dv_df, mc)
-  mlc = HydraR:::sysml.MLContext$new(sc)
+  mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
   dml = '
   fileX = ""
   fileO = 1
@@ -81,7 +81,7 @@ test_that("sysml.MLContext sample data",{
 # test the Bridge to the SystemML MLContext . To be removed eventually
 test_that("sysml.MLContext Short data", {
   cat("testing sysml.MLContext...")
-  mlc = HydraR:::sysml.MLContext$new(sc)
+  mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
   dml = '
     fileX = ""
     fileO = ""
@@ -110,7 +110,7 @@ test_that("sysml.MLContext Short data", {
 test_that("sysml.MLContext Long", {
   if (exists("TESTTHAT_LONGTEST", hydrar.env) &&
       hydrar.env$TESTTHAT_LONGTEST == TRUE) {
-    mlc = HydraR:::sysml.MLContext$new(sc)
+    mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
     dml = '
     fileX = ""
     fileO = ""
@@ -122,7 +122,7 @@ test_that("sysml.MLContext Long", {
     airrt <- airr$Distance
     airrt[is.na(airrt)] <- 0
     airrtd <- as.data.frame(airrt)
-    air_dist <- createDataFrame(sqlContext, airrtd)
+    air_dist <- createDataFrame(sysmlSqlContext, airrtd)
 
     X_cnt <- SparkR:::count(air_dist)
     #X_rdd <- SparkR:::toRDD(air_dist)

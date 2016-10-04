@@ -26,7 +26,7 @@ setClass("hydrar.vector",
 setMethod("initialize", "hydrar.vector", function(.Object, jc, hf) {
   .Object@jc <- jc
   
-  # Some Column objects don't have any referencing DataFrame. In such case, hf will be NULL.
+  # Some Column objects don't have any referencing SparkDataFrame. In such case, hf will be NULL.
   if (missing(hf)) {
     hf <- NULL
   }

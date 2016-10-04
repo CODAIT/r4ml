@@ -18,7 +18,7 @@ library(testthat)
 
 context("Testing hydrar.vector\n")
 
-irisDF <- suppressWarnings(createDataFrame(sqlContext, iris))
+irisDF <- suppressWarnings(createDataFrame(sysmlSqlContext, iris))
 irisHDF <- as.hydrar.frame(irisDF)
 
 

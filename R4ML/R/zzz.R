@@ -72,49 +72,93 @@ hydrar.reload.SparkR <- function() {
 
 #load and initialize SparkR
 hydrar.load.SparkR <- function() {
-  # try to see if user has set the SPARK_HOME
-  if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
-    stop("Must have the SPARK_HOME env variable set or RLIBS in ~/.Renviron")
+
+  {
+    # check:begin SPARK_HOME
+    # try to see if user has set the SPARK_HOME
+    if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
+      stop("Must have the SPARK_HOME env variable set or RLIBS in ~/.Renviron")
+    }
+    # check:end SPARK_HOME
   }
 
-  if (!requireNamespace("SparkR")) {
-    warning("SparkR not found in the standard library or in the R_LIBS path. Consider rechecking your ~/.Renviron file")
-
-    lib_loc = file.path(Sys.getenv("SPARK_HOME"), "R", "lib")
-    .libPaths(c(lib_loc, .libPaths()))
-    #library(SparkR, lib.loc = c(lib_loc))
-    requireNameSpace("SparkR")
+  {
+    # check:begin SparkR loading
+    if (!requireNamespace("SparkR")) {
+      warning("SparkR not found in the standard library or in the R_LIBS path. Consider rechecking your ~/.Renviron file")
+  
+      lib_loc = file.path(Sys.getenv("SPARK_HOME"), "R", "lib")
+      .libPaths(c(lib_loc, .libPaths()))
+      #library(SparkR, lib.loc = c(lib_loc))
+      requireNameSpace("SparkR")
+    }
+    # check:end SparkR loading
   }
 
-  #start the SparkR shell and initialization
-  sysml_jars <- file.path(system.file(package="HydraR"), "lib", "SystemML.jar")
-  if (nchar(Sys.getenv("SYSML_HOME")) >= 1) {
-    # if user has set the env then we can use that jar
-    sysml_jars <- file.path(Sys.getenv("SYSML_HOME"), "target", "SystemML.jar")
-  }
-  if (!file.exists(sysml_jars)) {
-    stop("ERROR: can't find the SystemML.jar for initialization")
+  {
+    # check:begin SystemML jars
+    #start the SparkR shell and initialization default
+    sysml_jars <- file.path(system.file(package="HydraR"), "lib", "SystemML.jar")
+
+    if (nchar(Sys.getenv("SYSML_HOME")) >= 1) {
+      # if user has set the env then we can use that jar
+      sysml_jars <- file.path(Sys.getenv("SYSML_HOME"), "target", "SystemML.jar")
+    }
+
+    # highest priority given to HYDRAR_SYSML_JAR var set. (it might be used in future)
+    if (nchar(Sys.getenv("HYDRAR_SYSML_JAR")) >= 1) {
+      # if user has set the env then we can use that jar
+      sysml_jars <- Sys.getenv("HYDRAR_SYSML_JAR")
+    }
+
+    if (!file.exists(sysml_jars)) {
+      stop("ERROR: can't find the SystemML.jar for initialization")
+    }
+    # check:end SystemML jars
   }
   
-  if (nchar(Sys.getenv("HYDRAR_CLIENT")) >= 1) {
-    hydrar_client <- Sys.getenv("HYDRAR_CLIENT")
-  } else {
-    warning("HYDRAR_CLIENT not defined in the .Renviron file. Defaulting to local[*]")
-    hydrar_client <- "local[*]"
+  {
+    # check:begin HYDRAR_CLIENT
+    if (nchar(Sys.getenv("HYDRAR_CLIENT")) >= 1) {
+      hydrar_client <- Sys.getenv("HYDRAR_CLIENT")
+    } else {
+      warning("HYDRAR_CLIENT not defined in the .Renviron file. Defaulting to local[*]")
+      hydrar_client <- "local[*]"
+    }
+    # check:end HYDRAR_CLIENT
   }
   
-  sc <- SparkR::sparkR.init(
-    master = hydrar_client,
-    sparkEnvir = list(spark.driver.memory="2g"),
-    sparkJars = sysml_jars
-  )
+  {
+    # create: begin SparkSession
+    # note that the name is the misnomer and should be sparksession
+    sc <- SparkR::sparkR.session(
+      master = hydrar_client,
+      sparkConfig = list(spark.driver.memory="2g"),
+      sparkJars = sysml_jars,
+      enableHiveSupport = FALSE, # seems like it's mandatory for now as of spark2.0
+    )
 
-  #spark context
-  assign("sc", sc, envir = .GlobalEnv)
+    #spark context is now replace by sparkSession
+    assign("sc", sc, envir = .GlobalEnv)
+    # create: end SparkSession
+  }
 
-  #sql context
-  sqlContext <- SparkR::sparkRSQL.init(sc)
-  assign("sqlContext", sqlContext, .GlobalEnv)
+  {
+    # create: begin SysmlSparkContext
+    # we get the sparkContext as in the systemML most of the code uses the sparkContext
+    sysmlSparkContext <- SparkR:::callJMethod(sc, "sparkContext")
+    assign("sysmlSparkContext", sysmlSparkContext, .GlobalEnv)
+    # create: end SysmlSparkContext
+  }
+
+  {
+    # create: begin SysmlSqlContext
+    # since sysmlSqlContext is used for most of the systemML related
+    # code we need to have it.
+    sysmlSqlContext <- SparkR:::callJMethod(sc, "sqlContext")
+    assign("sysmlSqlContext", sysmlSqlContext, .GlobalEnv)
+    # create: end SysmlSqlContext
+  }
 
 }
 

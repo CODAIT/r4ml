@@ -41,16 +41,16 @@ test_that("as.hydrar.frame", {
 })
 
 
-# test as.hydrar.frame for SparkR DataFrame
+# test as.hydrar.frame for SparkR SparkDataFrame
 test_that("as.hydrar.frame", {
-  warning("test as.hydrar.frame from SparkR DataFrame is not implemented yet")
-  # test that we can convert from SparkR DataFrame
+  warning("test as.hydrar.frame from SparkR SparkDataFrame is not implemented yet")
+  # test that we can convert from SparkR SparkDataFrame
 })
 
 test_that("show", {
   irisHDF <- as.hydrar.frame(iris)
   expect_equal(all(capture.output(show(head(iris, 20)))[2:20] == capture.output(show(irisHDF))[2:20]), TRUE)
-    # test that we can convert from SparkR DataFrame
+    # test that we can convert from SparkR SparkDataFrame
 })
 
 

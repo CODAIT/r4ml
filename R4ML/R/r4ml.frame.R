@@ -15,25 +15,25 @@
 #' @include hydrar.vector.R
 requireNamespace("SparkR")
 #'
-#' hydrar.frame, An S4 class which is inherited from SparkR DataFrame
+#' hydrar.frame, An S4 class which is inherited from SparkR SparkDataFrame
 #'
 #' Ideally one shouldn't be calling it constructor and use as.hydrar.frame
 #' in case one has to call this see the examples
 #'
 #' @name hydrar.frame
-#' @slot same as SparkR::DataFrame
+#' @slot same as SparkR::SparkDataFrame
 #'
 #' @examples \dontrun{
 #'
-#'  spark_df <- SparkR::createDataFrame(sqlContext, iris)
+#'  spark_df <- SparkR::createDataFrame(sysmlSqlContext, iris)
 #'  hydra_frame <- new("hydrar.frame", sdf=spark_df@@sdf, isCached=spark_df@@env$isCached)
 #'
 #' }
 #'
 #' @export
 #'
-#' @seealso \link{as.hydrar.frame} and SparkR::DataFrame
-setClass("hydrar.frame", contains="DataFrame")
+#' @seealso \link{as.hydrar.frame} and SparkR::SparkDataFrame
+setClass("hydrar.frame", contains="SparkDataFrame")
 
 #' Check if hydrar.frame is numeric or not
 #'
@@ -77,12 +77,12 @@ setMethod("is.hydrar.numeric",
 #' This is the convenient method of converting the data in the distributed hydraR
 #'
 #' @name as.hydrar.frame
-#' @param object a R data.frame or SparkR::DataFrame
+#' @param object a R data.frame or SparkR::SparkDataFrame
 #' @return hdf a hydraR dataframe
 #' @export
 #' @examples \dontrun{
 #'    hf1 <- as.hydrar.frame(iris)
-#'    hf2 <- as.hydrar.frame(SparkR::createDataFrame(sqlContext, iris))
+#'    hf2 <- as.hydrar.frame(SparkR::createDataFrame(symlSqlContext, iris))
 #' }
 setGeneric("as.hydrar.frame", function(object, ...) {
   standardGeneric("as.hydrar.frame")
@@ -90,7 +90,7 @@ setGeneric("as.hydrar.frame", function(object, ...) {
 
 #' @export
 setMethod("as.hydrar.frame",
-  signature(object = "DataFrame"),
+  signature(object = "SparkDataFrame"),
   function(object, ...) {
     hydra_frame <- new("hydrar.frame", sdf=object@sdf, isCached=object@env$isCached)
     hydra_frame
@@ -101,7 +101,7 @@ setMethod("as.hydrar.frame",
 setMethod("as.hydrar.frame",
   signature(object = "data.frame"),
   function(object, ...) {
-    spark_df <- SparkR::createDataFrame(sqlContext, object)
+    spark_df <- SparkR::createDataFrame(sysmlSqlContext, object)
     as.hydrar.frame(spark_df)
   }
 )
@@ -159,7 +159,7 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
 #' 
 #'@examples /dontrun{
 #'  # Load Dataset
-#'  df <- as.DataFrame(sqlContext, airquality)
+#'  df <- as.DataFrame(sysmlSqlContext, airquality)
 #'  head(df)
 #'  
 #'  # Example with "mean" value in list.
@@ -385,7 +385,7 @@ setMethod("hydrar.recode",
       new_sf[[length(new_sf)+1]] <- new_sch_fld
     }
     new_row_rdd_sch <- do.call("structType", as.list(new_sf))
-    res_hf <- as.hydrar.frame(as.DataFrame(sqlContext, new_row_rdd, new_row_rdd_sch))
+    res_hf <- as.hydrar.frame(as.DataFrame(sysmlSqlContext, new_row_rdd, new_row_rdd_sch))
     meta_db <- icol2rec_env
     list(data=res_hf, metadata=meta_db)
   }

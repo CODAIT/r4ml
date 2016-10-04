@@ -28,8 +28,8 @@
    ```
    mkdir -p $HOME/apache
    pushd $HOME/apache
-   # 1.6 maintenance branch with stability fixes on top of Spark 1.6.1
-   git clone git://github.com/apache/spark.git -b branch-1.6
+   # 2.0 maintenance branch with stability fixes on top of Spark 2.0.0
+   git clone git://github.com/apache/spark.git -b branch-2.0
    cd spark
    mvn -DskipTests -Pnetlib-lgpl -Psparkr clean package
    cd ..
@@ -54,14 +54,14 @@
    
    5.1) If you a running in local modeter also add the following to `$HOME/.Renviron` 
    ```
-   SPARKR_SUBMIT_ARGS="--packages com.databricks:spark-csv_2.10:1.4.0 sparkr-shell"
+   SPARKR_SUBMIT_ARGS=" sparkr-shell"
    # 
    HYDRAR_CLIENT="local[*]" # optional
    ```
    
   5.2) if you a running on a cluster also add the following to `$HOME/.Renviron` (replace `<num_exe>` with the number of executors in your cluster)
    ```
-   SPARKR_SUBMIT_ARGS="--packages com.databricks:spark-csv_2.10:1.4.0 --master yarn-client --num-executors <num_exe> spark-shell"
+   SPARKR_SUBMIT_ARGS=" --master yarn-client --num-executors <num_exe> sparkr-shell"
    HYDRAR_CLIENT="yarn-client"
    ```
 
@@ -74,6 +74,7 @@
    ```
    cat HydraR/DESCRIPTION
    ```
+  
 
 ### Install HydraR
 One can follow one of the following instructions...
@@ -120,7 +121,7 @@ One can follow one of the following instructions...
     
 
 
-   2) github install (Currently not recommended)
+   2) github install (Currently not recommended as it will not install all the docs)
 
     Note that this will install in the standard R installation folder 
 
