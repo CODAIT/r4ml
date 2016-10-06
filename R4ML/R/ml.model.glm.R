@@ -276,7 +276,7 @@ setMethod(
       statsPath <- model@dmlArgs$O
       statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
       if (model@dispersion == 0) {
-        model@dispersion <- statsCsv[8, 2]
+        model@dispersion <- as.numeric(statsCsv[8, 2])
       }
       stats <- statsCsv[, 2, drop=F]
       row.names(stats) <- statsCsv[, 1]
@@ -296,7 +296,7 @@ setMethod(
 )
 
 .hydrar.glm.buildCoef <- function(object) {
-  df <- SparkR::as.data.frame(t(SparkR:::as.data.frame(object@dmlOuts[['beta_out']])))
+  df <- as.data.frame(t(SparkR:::as.data.frame(object@dmlOuts[['beta_out']])))
   if (object@shiftAndRescale) {
     row.names(df) <- c("no-shift-and-rescale", "shift-and-rescale")
   } else {
@@ -643,7 +643,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
   
   # Add stats
   if (testing) {
-    statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header = FALSE, stringsAsFactors = FALSE))
+    statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
   }
   else {
     statsCsv <- data.frame()
