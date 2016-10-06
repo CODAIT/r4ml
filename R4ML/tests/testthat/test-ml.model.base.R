@@ -20,4 +20,5 @@ context("Testing ml.model.base\n")
 ## note add more test cases
 test_that("ml.model.base", {
   warning("test ml.model.base is not implemented yet")
+  #@TODO
 })

@@ -80,7 +80,6 @@ setClass("hydrar.lm",
 #'                                 "Distance", "ArrDelay")]
 #'
 #' # Apply required transformations for Machine Learning
-#' hydrar transform is not implemented yet
 #' outData <- "/user/hydrar/examples/lm/airline.mtx"
 #' airlineMatrix <- hydrar.transform(airlineFiltered,
 #'                    outData=outData,

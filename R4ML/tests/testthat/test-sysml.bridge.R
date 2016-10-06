@@ -142,10 +142,12 @@ test_that("sysml.MLContext Long", {
 test_that("sysml.MLOutput",{
   cat("testing sysml.MLOutput...")
   warning("testing for sysml.MLOutput is not implemented yet")
+  #@TODO
 })
 
 # test the helper function for executing systemML dml via the hydrar.matrix
 test_that("sysml.execute", {
   cat("testing sysml.execute")
   warning("testing for sysml.execute is not implemented yet")
+  #@TODO
 })

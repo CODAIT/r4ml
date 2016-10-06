@@ -149,6 +149,7 @@ setMethod("initialize", "hydrar.model",
     if(isFeatureExtraction == TRUE) {
       hydrar.info(logSource, "Feature Extraction is true, assigning data as INPUT param...")
       # place holder for future feature-extraction specific code
+      #@TODO
     }
     # Automatically generate a directory path if not provided
     #if (missing(directory)) {

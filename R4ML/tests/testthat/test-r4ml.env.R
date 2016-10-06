@@ -20,5 +20,6 @@ context("Testing hydrar.env\n")
 
 test_that("hydrar.env", {
   warning("test construction of hydrar.env is not implemented yet")
+  #@TODO
 
 })

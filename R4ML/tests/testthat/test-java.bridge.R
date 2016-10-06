@@ -22,9 +22,11 @@ context("Testing Java Bridge\n")
 # test the java log4j.Logger
 test_that("log4j.Logger", {
   warning("test log4j.Logger is not implemented yet")
+  #@TODO
 })
 
 # test the java java.ArrayList
 test_that("java.Arraylist", {
   warning("test jav.ArrayList is not implemented yet")
+  #@TODO
 })

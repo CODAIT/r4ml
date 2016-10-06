@@ -128,12 +128,21 @@ hydrar.load.SparkR <- function() {
     # check:end HYDRAR_CLIENT
   }
   
+  
   {
+
+
     # create: begin SparkSession
     # note that the name is the misnomer and should be sparksession
+    if (nchar(Sys.getenv("HYDRAR_SPARK_DRIVER_MEMORY")) >= 1) {
+      spark_driver_memory <- Sys.getenv("HYDRAR_SPARK_DRIVER_MEMORY")
+      } else {
+        warning("HYDRAR_SPARK_DRIVER_MEMORY not defined in the .Renviron file. Defaulting to \"2g\"")
+        spark_driver_memory <- "2g"
+      }
     sc <- SparkR::sparkR.session(
       master = hydrar_client,
-      sparkConfig = list(spark.driver.memory="2g"),
+      sparkConfig = list(spark.driver.memory = spark_driver_memory),
       sparkJars = sysml_jars,
       enableHiveSupport = FALSE, # seems like it's mandatory for now as of spark2.0
     )

@@ -134,6 +134,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.step.lm", def =
 setMethod("hydrar.model.import", signature="hydrar.step.lm", definition = 
   function(emptyModelForDispatch, directory) {
     warning("hydrar.model.import is not implemented yet")
+    #@TODO
     #logSource <- "hydrar.model.import.hydrar.model.step.lm"
     #model <- callNextMethod()
     
