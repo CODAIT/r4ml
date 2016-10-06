@@ -274,7 +274,7 @@ setMethod(
     function(model) {
       outputs <- model@dmlOuts$sysml.execute
       statsPath <- model@dmlArgs$O
-      statsCsv <- as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+      statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
       if (model@dispersion == 0) {
         model@dispersion <- as.numeric(statsCsv[8, 2])
       }
@@ -296,7 +296,7 @@ setMethod(
 )
 
 .hydrar.glm.buildCoef <- function(object) {
-  df <- SparkR::as.data.frame(t(SparkR::as.data.frame(object@dmlOuts[['beta_out']])))
+  df <- as.data.frame(t(SparkR:::as.data.frame(object@dmlOuts[['beta_out']])))
   if (object@shiftAndRescale) {
     row.names(df) <- c("no-shift-and-rescale", "shift-and-rescale")
   } else {
@@ -458,7 +458,7 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
 #' invisible(hydrar.rmfs("/user/hydrar/examples/glm/*"))
 #'                                                                           
 #' # Project some relevant columns for modeling / statistical analysis
-#' airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
+#' airlineFiltered <- air[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
 #'                                 "Distance", "ArrDelay")]
 #' 
 #' # Find out which columns have missing values
@@ -528,7 +528,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
   coefcn <- colnames(glm@coefficients)
   
   # compare the column name vector with the data's
-  cn <- SparkR::colnames(data)
+  cn <- SparkR:::colnames(data)
   
   # Skip the very last coefficient if intecrept=TRUE
   if (glm@intercept == TRUE) {
