@@ -264,6 +264,7 @@ hydrar.ml.preprocess <- function(
   is.omit.na <- !missing(omit.na)
   
   proxy.omit.na <- function(hf) {
+    rhf = hf
     if (is.omit.na) {
       rhf = as.hydrar.frame(SparkR::dropna(hf))
     }

@@ -274,7 +274,7 @@ setMethod(
     function(model) {
       outputs <- model@dmlOuts$sysml.execute
       statsPath <- model@dmlArgs$O
-      statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+      statsCsv <- as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
       if (model@dispersion == 0) {
         model@dispersion <- as.numeric(statsCsv[8, 2])
       }

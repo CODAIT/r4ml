@@ -58,7 +58,7 @@ NULL
 #' iris_cv <- hydrar.sample(iris_hf, rep(0.1, 10))
 #' }
 
-hydrar.sample <- function(data, perc) {
+hydrar.sample <- function(data, perc, experimental=FALSE) {
   logSource <- "hydrar.sample"
   
   # Parameter validation
@@ -106,7 +106,7 @@ hydrar.sample <- function(data, perc) {
     }
     df1 <- SparkR::sample(data, FALSE, perc)
     return(outputType(df1))
-  } else if (length(perc) == 2 && 
+  } else if (length(perc) == 2 && experimental == TRUE && # this features doesn't always work on cluster
       (class(data) %in% c('hydrar.frame', 'hydrar.matrix', 'SparkDataFrame'))) {
     # this is probably slightly faster version of when length(perc)>2
     if (abs(sum(perc) - 1.0) >= 1e-6) {
@@ -119,7 +119,7 @@ hydrar.sample <- function(data, perc) {
     out <- c(df1, df2)
     out <- do.call(outputType, list(df1, df2))
     return (out)
-  } else if (length(perc) > 2) {
+  } else if (length(perc) >= 2) {
     if (abs(sum(perc) - 1.0) >= 1e-6) {
       stop("error must have the weights perc sum to 1")
     }
@@ -141,7 +141,7 @@ hydrar.sample <- function(data, perc) {
       cnames <- SparkR::colnames(aug_data)
       filter_data <- SparkR::select(filter_aug_data, 
                                     aug_data_cnames[aug_data_cnames != rcolname])
-      filter_data <- filter_aug_data
+      #filter_data <- filter_aug_data
       filter_data
     }
     perc_lbound <- cumsum(perc) - perc

@@ -39,7 +39,7 @@ test_that("hydrar.kaplan.meier tests", {
                             test=1, rho="wilcoxon")
   summary = summary.hydrar.kaplan.meier(km)
   test = hydrar.kaplan.meier.test(km)
-  stopifnot(head(test[[1]])[4][[1]][1] - 0.3333333 < .001, head(test[[1]])[5][[1]][2] - 0.04938272 < .001)
+  stopifnot(as.numeric(head(test[[1]])[4][[1]][1]) - 0.3333333 < .001, as.numeric(head(test[[1]])[5][[1]][2]) - 0.04938272 < .001)
 })
 
 
@@ -56,7 +56,7 @@ test_that("hydrar.kaplan.meier none", {
   summary = summary.hydrar.kaplan.meier(km)
   test = hydrar.kaplan.meier.test(km)
   stopifnot(summary[' Age=50'][[1]][1] == 1, summary[' Age=50'][[1]][2] == 8)
-  stopifnot(head(test[[1]])[4][[1]][1] - 0.3333333 < .001, head(test[[1]])[5][[1]][2] - 0.04938272 < .001)
+  stopifnot(as.numeric(head(test[[1]])[4][[1]][1]) - 0.3333333 < .001, as.numeric(head(test[[1]])[5][[1]][2]) - 0.04938272 < .001)
 })
 
 
@@ -72,7 +72,7 @@ test_that("hydrar.kaplan.meier log-rank", {
   summary = summary.hydrar.kaplan.meier(km)
   test = hydrar.kaplan.meier.test(km)
   stopifnot(summary[' Age=50'][[1]][1] == 1, summary[' Age=50'][[1]][2] == 8)
-  stopifnot(head(test[[1]])[4][[1]][1] - 0.4777778 < .001, head(test[[1]])[5][[1]][2] - 0.06188374 < .001)
+  stopifnot(as.numeric(head(test[[1]])[4][[1]][1]) - 0.4777778 < .001, as.numeric(head(test[[1]])[5][[1]][2]) - 0.06188374 < .001)
 })
 
 
