@@ -21,6 +21,8 @@ NULL
 #
 #
 read_airline_data <- function() {
+  #@TODO deprecate this function
+  warning("read_airline_data() has been deprecated. Use data(airline)")
   cat("Reading airline data set")
   fpath <- system.file("extdata", "airline.zip", package="HydraR")
   airt <- read.table(unz(fpath, "airline.csv"), sep=",", header=TRUE)
@@ -33,7 +35,7 @@ hydrar.err <- function(source, message) {
 }
 
 # Prints a warning message
-hydrar.warn <- function(source, message, immediate.=F) {
+hydrar.warn <- function(source, message, immediate.=FALSE) {
   if (missing(source)) {
     source <- ""
   }
@@ -42,7 +44,7 @@ hydrar.warn <- function(source, message, immediate.=F) {
   }
   warnBit <- trunc(hydrar.env$LOG_LEVEL / 2) %% 2
   if (warnBit == 1) {
-    warning("[" %++% source %++% "]: " %++% message, call. = F, immediate.=immediate.)
+    warning("[" %++% source %++% "]: " %++% message, call. = FALSE, immediate.=immediate.)
   }
 }
 
@@ -84,6 +86,9 @@ hydrar.infoShow <- function(source, message) {
 hydrar.fs <- function() {
   hydrar_client <- hydrar.env$HYDRAR_CLIENT()
   if (hydrar_client == "yarn-client") {
+    return("cluster")
+  }
+  if (hydrar_client == "yarn") {
     return("cluster")
   }
   if (substr(hydrar_client, 1, 8) == "spark://") {

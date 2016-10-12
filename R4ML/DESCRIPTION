@@ -22,6 +22,7 @@ License: file LICENSE
 Collate:
     'zzz.R'
     'HydraR.R'
+    'airline.R'
     'hydrar.env.R'
     'hydrar.vector.R'
     'hydrar.frame.R'
