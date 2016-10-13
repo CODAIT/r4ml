@@ -151,14 +151,28 @@ setMethod("initialize", "hydrar.svm",
 #' # Load the Iris dataset to HDFS 
 #' iris_hf <- as.hydrar.frame(iris)
 #' 
-#' # Create a hydrar.matrix from the Iris dataset
-#' iris_hm <- hydrar.transform(bf = iris_hm)
+#' # Do the preprocessing to recode the Species column
+#' iris_phf_info <- hydrar.ml.preprocess(iris_hf, transformPath = "/tmp", 
+#'                                   recodeAttrs = c("Species"))
+#' # extract the transformed hydrar.frame and corresponding metadata
+#' iris_phf <- iris_phf_info$data
+#' 
+#' corresponding metadata
+#' iris_pmd <- iris_phf_info$metadata
+#' # take a peek at the recoded Species value
+#' as.list(iris_pmd$proxy.recode$Species)
+#' 
+#' # convert to hydrar.matrix
+#' iris_hm <- as.hydrar.matrix(iris_phf)
 #' 
 #' # Split the data into 70% for training and 30% for testing
 #' samples <- hydrar.sample(iris_hm, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
 #' test <- samples[[2]]
-#'                          
+#' 
+#' # set the column types in the code
+#' ml.coltypes(train)<- c("scale", "scale", "scale", "scale", "nominal")  
+#'                    
 #' # Build a Support Vector Machine classifier using the training set
 #' svm <- hydrar.svm(Species~., data=train, intercept=TRUE)
 #' 
@@ -347,20 +361,34 @@ setMethod(f = "show", signature = "hydrar.svm", definition =
 #' @return If the testing dataset is not labeled, the result will be a hydrar.matrix with per-class probabilities for each row. 
 #' Otherwise, the result will be a list with (1) a hydrar.matrix with per-class probabilities for each row (\code{$probabilities}),
 #' (2) the overall accuracy (\code{$accuracy}), and (3) the confusion matrix (\code{$ctable})
-
+#'
 #' @examples \dontrun{
 #' 
 #' # Load the Iris dataset to HDFS 
 #' iris_hf <- as.hydrar.frame(iris)
 #' 
-#' # Create a hydrar.matrix from the Iris dataset
-#' iris_hm <- hydrar.transform(bf = iris_hm)
+#' # Do the preprocessing to recode the Species column
+#' iris_phf_info <- hydrar.ml.preprocess(iris_hf, transformPath = "/tmp", 
+#'                                   recodeAttrs = c("Species"))
+#' # extract the transformed hydrar.frame and corresponding metadata
+#' iris_phf <- iris_phf_info$data
+#' 
+#' corresponding metadata
+#' iris_pmd <- iris_phf_info$metadata
+#' # take a peek at the recoded Species value
+#' as.list(iris_pmd$proxy.recode$Species)
+#' 
+#' # convert to hydrar.matrix
+#' iris_hm <- as.hydrar.matrix(iris_phf)
 #' 
 #' # Split the data into 70% for training and 30% for testing
 #' samples <- hydrar.sample(iris_hm, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
 #' test <- samples[[2]]
-#'                          
+#' 
+#' # set the column types in the code
+#' ml.coltypes(train)<- c("scale", "scale", "scale", "scale", "nominal")  
+#'                    
 #' # Build a Support Vector Machine classifier using the training set
 #' svm <- hydrar.svm(Species~., data=train, intercept=TRUE)
 #' 

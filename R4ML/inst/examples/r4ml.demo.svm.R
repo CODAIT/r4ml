@@ -46,7 +46,9 @@ phf_info <- hydrar.ml.preprocess(
   ,omit.na = D_names
 )
 
+# actual data set
 phf <- phf_info$data
+# the corresponding metadata
 pmdb <- phf_info$metadata
 
 # sample the dataset into the train and test
