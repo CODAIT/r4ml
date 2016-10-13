@@ -18,10 +18,6 @@ library (HydraR)
 library(testthat)
 context("Testing util.io\n")
 
-test_that("read_airline_data", {
-  warning("test read_airline_data() is not implemented yet")
-})
-
 test_that("hydrar.fs", {
   require(SparkR)
   require(HydraR)

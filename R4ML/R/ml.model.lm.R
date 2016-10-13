@@ -73,21 +73,26 @@ setClass("hydrar.lm",
 #'
 #' @examples \dontrun{
 #'
+#'library(HydraR)
 #'
+#'# Project some relevant columns for modeling / statistical analysis
+#'airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
+#'                                "Distance", "ArrDelay")]
 #'
-#' # Project some relevant columns for modeling / statistical analysis
-#' airlineFiltered <- air[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
-#'                                 "Distance", "ArrDelay")]
+#' airlineFiltered <- as.hydrar.frame(airlineFiltered)
 #'
-#' # Apply required transformations for Machine Learning
-#' outData <- "/user/hydrar/examples/lm/airline.mtx"
-#' airlineMatrix <- hydrar.transform(airlineFiltered,
-#'                    outData=outData,
-#'                    dummycodeAttrs=c("DayOfWeek"),
-#'                    recodeAttrs=c("DayOfWeek"),
-#'                    missingAttrs=c("Distance", "ArrDelay"),
-#'                    imputationMethod=c("global_mode"),
-#'                    transformPath="/user/hydrar/examples/lm/airline.transform")
+#'airlineFiltered <- as.hydrar.frame(airlineFiltered)
+#'
+#'# Apply required transformations for Machine Learning
+#'airlineFiltered <- hydrar.ml.preprocess(
+#'  hf = airlineFiltered,
+#'  transformPath = "/tmp",
+#'  recodeAttrs = c("DayOfWeek"),
+#'  omit.na = c("Distance", "ArrDelay"),
+#'  dummycodeAttrs = c("DayOfWeek")
+#'  )
+#'
+#' airlineMatrix <- as.hydrar.matrix(airlineFiltered$data)
 #'
 #' # Split the data into 70% for training and 30% for testing
 #' samples <- hydrar.sample(airlineMatrix, perc=c(0.7, 0.3))
@@ -101,7 +106,9 @@ setClass("hydrar.lm",
 #' coef(lm)
 #'
 #' # Calculate predictions for the testing set
-#' pred <- predict(lm, test, "/user/hydrar/examples/lm/lm.preds")
+#' pred <- predict(lm, test)
+#'
+#' print(pred)
 #' }
 #'
 #' @seealso {predict.hydrar.lm} #NOTE add link after predict func
