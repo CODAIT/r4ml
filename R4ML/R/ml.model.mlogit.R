@@ -67,8 +67,12 @@ setClass("hydrar.mlogit",
 #' 
 #'  # Load Dataset
 #'  df <- iris
-# @TODO Replace with transform once it is avaliable
-#'  df$Species <- (as.numeric(df$Species))
+#'  
+#'  # Recode Species Column
+#'  df <- hydrar.ml.preprocess(as.hydrar.frame(df),
+#'   transformPath = "/tmp",
+#'  recodeAttrs="Species")$data
+#'  
 #'  iris_df <- as.hydrar.frame(df)
 #'  iris_mat <- as.hydrar.matrix(iris_df)
 #'  
@@ -239,12 +243,17 @@ setMethod("coef", signature="hydrar.mlogit", def =
 #' 
 #'  # Load Dataset
 #'  df <- iris
-# @TODO Replace with transform once it is avaliable
-#'  df$Species <- (as.numeric(df$Species))
+#'  
+#'  # Recode Species Column
+#'  df <- hydrar.ml.preprocess(as.hydrar.frame(df),
+#'   transformPath = "/tmp",
+#'  recodeAttrs="Species")$data
+#'  
+#'  # Convert to Hydrar.frame
 #'  iris_df <- as.hydrar.frame(df)
 #'  iris_mat <- as.hydrar.matrix(iris_df)
 #'  
-#'  Split data in to 80% train and 20% test
+#'  # Split data in to 80% train and 20% test
 #'  s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
 #'  test <- s[[1]]
 #'  train <- s[[2]]
