@@ -18,6 +18,36 @@ requireNamespace("SparkR")
 setOldClass("hydrar.frame")
 setClassUnion("hydrar.frame.OrNull", c("hydrar.frame", "NULL"))
 
+#############################################################################
+### hydrar.vector operations
+#############################################################################
+
+#' Unlike SparkR's Column objects, hydrar.vector objects can be collected, shown
+#' and manipulated similarly to R's vectors. Additionally, all functions available
+#' on SparkR Columns are also available for hydrar.vector objects. 
+#' 
+#' @name hydrar.vector operations
+#' @title hydrar.vector operations
+#' @rdname hydrar.vector_ops
+#' 
+#' #' @examples
+#'\dontrun{
+#' # Load the iris dataset as a hydrar.frame
+#' hf <- as.hydrar.frame(iris)
+#' 
+#' # Advanced nested arithmetic operations
+#' avgLength <- (hf$Sepal_Length + hf$Sepal_Width) / 2
+#' ones <- sin(avgLength) ^ 2 + cos(avgLength ^ 2)
+#' show(ones)
+#' 
+#' # Character operations
+#' lower(substr(hf$Species, 1, 3))
+#' 
+#' # Recoding columns
+#' hf$size <- ifelse(avgLength > 4, "large", "small")
+#' str(hf)
+#' }
+NULL
 #' @export
 setClass("hydrar.vector", 
          slots = list(hf = "hydrar.frame.OrNull"),
@@ -50,7 +80,19 @@ setMethod("show", signature = "hydrar.vector", definition = function(object) {
   }
 })
 
+#' Collects all the elements of a hydrar.vector and coerces them into an R vector.
+#'
+#' @param x A hydrar.vector
+#'
+#' @rdname collect
+#' @name collect
 #' @export
+#' @examples
+#'\dontrun{
+#' hf <- as.hydrar.frame(iris)
+#' collect(hf$Sepal_Lenght)
+#' hf$Species 
+#' }
 setMethod("collect", signature = "hydrar.vector", definition = function(x) {
   if (is.null(x@hf)) {
     character(0)
