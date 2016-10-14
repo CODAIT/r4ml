@@ -69,7 +69,9 @@ lm <- hydrar.lm(DepTime ~ ., train)
 # run the prediction
 test <- as.hydrar.matrix(test)
 pred <- predict(lm, test)
-pred
+# To print all outputs, just call pred
+head(pred$predictions)
+pred$statistics
 
 # exit R/HydraR
 quit("no")

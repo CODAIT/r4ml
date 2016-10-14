@@ -23,7 +23,7 @@ library(HydraR)
 # df <- HydraR:::hydrar.read.csv(path, inferSchema=TRUE, header=TRUE)
 
 # we would like to limit the dataset to a size so that we can run test faster
-# df_max_size <- 1000
+# df_max_size <- 100
 df_max_size <- 100000
 
 # set the predictors and response variables
@@ -69,7 +69,10 @@ logistic_regression = hydrar.mlogit(Cancelled ~ ., data=train)
 test <- as.hydrar.matrix(sampled_data[[2]])
 cache(test)
 pred <- predict(logistic_regression, test)
-pred
+# To print all outputs, just call pred
+pred$probabilities[1:10,]
+pred$statistics
+
 
 # exit R/HydraR
 quit("no")

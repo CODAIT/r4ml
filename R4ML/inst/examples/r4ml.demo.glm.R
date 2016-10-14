@@ -64,7 +64,9 @@ glm
 # run the prediction
 test_m <- as.hydrar.matrix(test)
 pred <- predict(glm, test_m)
-pred
+# To print all outputs, just call pred
+head(pred$predictions)
+pred$statistics
 
 # exit
 quit("no")

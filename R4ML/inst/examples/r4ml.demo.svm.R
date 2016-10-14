@@ -23,7 +23,7 @@ library(HydraR)
 
 
 # we would like to limit the dataset to a size so that we can run test faster
-#df_max_size <- 1000
+# df_max_size <- 1000
 df_max_size <- 100000
 
 # set the predictors and response variables
@@ -89,7 +89,8 @@ svm_m <- hydrar.svm(Cancelled ~ . , data = train_hm, is.binary.class = TRUE)
 # run the prediction
 cache(test_hm)
 preds <- predict(svm_m, test_hm)
-preds
+# To print all outputs, just call preds
+head(preds$scores)
 
 # exit R/HydraR
 quit("no")

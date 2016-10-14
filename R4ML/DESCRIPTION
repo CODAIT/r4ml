@@ -1,8 +1,8 @@
 Package: HydraR
 Type: Package
 Title: Distributed R based on the Apache SparkR and Apache SystemML
-Version: 0.1
-Date: 2016-03-27
+Version: 0.8.0
+Date: 2016-10-14
 Author: Apache Open Source
 Maintainer: Who to complain to <noreply@apache.org>
 Description: Distributed R based on the Apache SparkR and Apache SystemML.
