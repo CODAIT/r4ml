@@ -64,22 +64,25 @@ setClass(
 #' 
 #' @examples \dontrun{
 #' 
-#' # Remove files from previous executions (if any)
-#' invisible(hydrar.rmfs("/user/hydrar/examples/glm/*"))
+#' library(HydraR)
 #'                                                                           
 #' # Project some relevant columns for modeling / statistical analysis
 #' airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
 #'                                 "Distance", "ArrDelay")]
-#' 
-#' # Find out which columns have missing values
-#' hydrar.which.na.cols(airlineFiltered)
-#' 
-#' # Apply required transformations for Machine Learning
-#' airlineMatrix <- hydrar.transform(airlineFiltered, outData="/user/hydrar/examples/glm/airline.mtx", 
-#'                              dummycodeAttrs=c("DayOfWeek"), recodeAttrs=c("DayOfWeek"), 
-#'                              missingAttrs=c("Distance", "ArrDelay"), imputationMethod=c("global_mode"),
-#'                              transformPath="/user/hydrar/examples/glm/airline.transform") 
-#'                              
+#'
+#' airlineFiltered <- as.hydrar.frame(airlineFiltered)
+#'
+#'# Apply required transformations for Machine Learning
+#' airlineFiltered <- hydrar.ml.preprocess(
+#'   hf = airlineFiltered,
+#'   transformPath = "/tmp",
+#'   recodeAttrs = c("DayOfWeek"),
+#'   omit.na = c("Distance", "ArrDelay"),
+#'   dummycodeAttrs = c("DayOfWeek")
+#' )
+#'
+#' airlineMatrix <- as.hydrar.matrix(airlineFiltered$data)
+#'
 #' # Split the data into 70% for training and 30% for testing
 #' samples <- hydrar.sample(airlineMatrix, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
@@ -92,7 +95,8 @@ setClass(
 #' glm
 #' 
 #' # Calculate predictions for the testing set
-#' pred <- predict(glm, test, "/user/hydrar/examples/glm/preds")
+#' pred <- predict(glm, test)
+#' print(pred)
 #' }       
 #' 
 #' @seealso \link{predict.hydrar.glm}
@@ -454,22 +458,25 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
 #' 
 #' @examples \dontrun{
 #' 
-#' # Remove files from previous executions (if any)
-#' invisible(hydrar.rmfs("/user/hydrar/examples/glm/*"))
+#' library(HydraR)
 #'                                                                           
 #' # Project some relevant columns for modeling / statistical analysis
-#' airlineFiltered <- air[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
+#' airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
 #'                                 "Distance", "ArrDelay")]
-#' 
-#' # Find out which columns have missing values
-#' hydrar.which.na.cols(airlineFiltered)
-#' 
-#' # Apply required transformations for Machine Learning
-#' airlineMatrix <- hydrar.transform(airlineFiltered, outData="/user/hydrar/examples/glm/airline.mtx", 
-#'                              dummycodeAttrs=c("DayOfWeek"), recodeAttrs=c("DayOfWeek"), 
-#'                              missingAttrs=c("Distance", "ArrDelay"), imputationMethod=c("global_mode"),
-#'                              transformPath="/user/hydrar/examples/glm/airline.transform") 
-#'                              
+#'
+#' airlineFiltered <- as.hydrar.frame(airlineFiltered)
+#'
+#'# Apply required transformations for Machine Learning
+#' airlineFiltered <- hydrar.ml.preprocess(
+#'   hf = airlineFiltered,
+#'   transformPath = "/tmp",
+#'   recodeAttrs = c("DayOfWeek"),
+#'   omit.na = c("Distance", "ArrDelay"),
+#'   dummycodeAttrs = c("DayOfWeek")
+#' )
+#'
+#' airlineMatrix <- as.hydrar.matrix(airlineFiltered$data)
+#'
 #' # Split the data into 70% for training and 30% for testing
 #' samples <- hydrar.sample(airlineMatrix, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
@@ -483,6 +490,7 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
 #' 
 #' # Calculate predictions for the testing set
 #' pred <- predict(glm, test)
+#' print(pred)
 #' }       
 #' 
 #' @seealso \link{hydrar.glm}
