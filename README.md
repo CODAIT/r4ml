@@ -133,7 +133,7 @@ One can follow one of the following instructions...
     ```
 
 
-## How to install
+## How to Use HydraR
 
    1) We have the comprehensive examples at [examples folder](./HydraR/inst/examples)
 
