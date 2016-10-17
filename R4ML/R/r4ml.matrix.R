@@ -90,7 +90,7 @@ setMethod("as.hydrar.matrix",
 setGeneric("ml.coltypes<-",
   function(x, value) standardGeneric("ml.coltypes<-"))
 
-# @describeIn ml.coltypes
+#' @rdname ml.coltypes
 #' @export
 #' @seealso \link{ml.coltypes}
 setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
@@ -117,8 +117,10 @@ setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
 )
 
 
-#' @name ml.coltypes, ml.coltypes<-
+#' @name ml.coltypes
+##' @name ml.coltypes, ml.coltypes<-
 #' @title Set and get column types of a hydrar.matrix
+#' @export
 #' @description
 #'
 #' With this pair of methods, one can get and set column types of
@@ -135,7 +137,7 @@ setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
 #'
 #' - If no transform metadata are available, \code{ml.coltypes} is set to "scale" for all attributes.
 #'
-#' TODO: The following has not been done yet
+## @TODO: The following has not been done yet
 #' - If transform metadata are available, \code{ml.coltypes} is set to "nominal" for such attributes that
 #' have been binned or recoded. All other attributes are considered as "scale".
 

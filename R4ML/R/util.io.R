@@ -20,14 +20,6 @@ NULL
 # accross the project
 #
 #
-read_airline_data <- function() {
-  #@TODO deprecate this function
-  warning("read_airline_data() has been deprecated. Use data(airline)")
-  cat("Reading airline data set")
-  fpath <- system.file("extdata", "airline.zip", package="HydraR")
-  airt <- read.table(unz(fpath, "airline.csv"), sep=",", header=TRUE)
-
-}
 
 ##logging info
 hydrar.err <- function(source, message) {

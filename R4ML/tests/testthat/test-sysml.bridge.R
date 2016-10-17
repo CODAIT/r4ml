@@ -118,7 +118,7 @@ test_that("sysml.MLContext Long", {
     O = X*2
     write(O, fileO)
     '
-    airr <- read_airline_data()
+    airr <- HydraR::airline
     airrt <- airr$Distance
     airrt[is.na(airrt)] <- 0
     airrtd <- as.data.frame(airrt)
