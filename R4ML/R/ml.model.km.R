@@ -262,7 +262,6 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 
 #' @title Kaplan-Meier Summary
 #' @description Computes different survival estimates for a given hydrar.kaplan.meier model. 
-#' @export
 #' @param object An S4 object of class \code{hydrar.kaplan.meier}
 #' @return A list of hydrar.matrix objects with seven columns and as many rows as the input dataset. There
 #' will be one hydrar.matrix per group/strata combination. Each matrix will have the following structure:
@@ -294,6 +293,7 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 #' hydrar.kaplan.meier.test(km)
 #'}
 #'
+#' @export summary.hydrar.kaplan.meier
 #' @seealso \link{hydrar.kaplan.meier}
 #' @seealso \link{hydrar.kaplan.meier.test}
 summary.hydrar.kaplan.meier <- function(object) {
