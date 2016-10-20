@@ -16,6 +16,7 @@
 
 #load the hydrar 
 library(HydraR)
+hydrar.session()
 
 # these are the different dataset we will analysis
 # path <- "/user/data-scientist/airline/1987.csv"
@@ -64,3 +65,6 @@ head(ifelse(al_hf$ArrDelay > 15, "Delayed", "Early"), 1000)
  
 # Count distinct
 countDistinct(al_hf$UniqueCarrier)
+
+hydrar.session.stop()
+q("no")

@@ -16,6 +16,7 @@
 
 # load library HydraR
 library(HydraR)
+hydrar.session()
 
 # example paths for custom dataset
 # path = "/user/data-scientist/airline/1987.csv"
@@ -74,6 +75,5 @@ head(pred$predictions)
 pred$statistics
 
 # exit R/HydraR
+hydrar.session.stop()
 quit("no")
-
-

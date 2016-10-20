@@ -48,25 +48,6 @@
    R_LIBS=<OUTPUT_FROM_PREVIOUS_CODE>:<HOME>/apache/spark/R/lib:$R_LIBS
    ```
 
-   4) set the spark home environment in the `$HOME/.Renviron` file by adding the following line
-   ```
-   SPARK_HOME=$HOME/apache/spark
-   ```
-   5) Define `SPARKR_SUBMIT_ARGS` and `HYDRAR_CLIENT` in you R enviroment
-   
-   5.1) If you a running in local modeter also add the following to `$HOME/.Renviron` 
-   ```
-   SPARKR_SUBMIT_ARGS=" sparkr-shell"
-   # 
-   HYDRAR_CLIENT="local[*]" # optional
-   ```
-   
-  5.2) if you a running on a cluster also add the following to `$HOME/.Renviron` (replace `<num_exe>` with the number of executors in your cluster)
-   ```
-   SPARKR_SUBMIT_ARGS=" --master yarn-client --num-executors <num_exe> sparkr-shell"
-   HYDRAR_CLIENT="yarn-client"
-   ```
-
 #### R packages
 
    Install all the package which have dependencies and suggestion in the DESCRIPTION file using the 
@@ -142,6 +123,8 @@ One can follow one of the following instructions...
    ```
     # load HydraR library
     library(HydraR)
+    
+    sparkR.session(master = "local[*]", sparkHome = "/path/to/apache/spark")
 
     # data cleanup and pre-processing
     df <- iris
@@ -166,6 +149,8 @@ One can follow one of the following instructions...
     # check for the model accuracy by predicting on the test data set
     preds <- predict(iris_lm, test)
     preds
+    
+    sparkR.session.stop()
    ```
 
   

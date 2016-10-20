@@ -16,6 +16,7 @@
 
 #load the hydrar 
 library(HydraR)
+hydrar.session()
 
 # we would like to limit the dataset to a size so that we can run test faster
 #df_max_size <- 1000
@@ -69,5 +70,6 @@ pca_m <- hydrar.pca(hm, center=T, scale=T, projData=T, k = 2)
 pca_m
 
 # exit R/HydraR
+hydrar.session.stop()
 quit("no")
 

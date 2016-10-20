@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 
+library(HydraR)
+hydrar.session()
+
 # Choose dataset size
 
 df_max_size = 90000
@@ -49,4 +52,5 @@ summary = summary.hydrar.kaplan.meier(km)
 test = hydrar.kaplan.meier.test(km)
 
 # exit R/HydraR
+hydrar.session.stop()
 quit("no")

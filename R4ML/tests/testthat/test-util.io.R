@@ -41,6 +41,7 @@ test_that("hydrar.hdfs.exist", {
     require(HydraR)
   
     warning("test hydrar.fs.cluster() is not implemented yet")
+    #@TODO
   }
 
 })

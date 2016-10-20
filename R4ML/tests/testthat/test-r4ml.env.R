@@ -14,12 +14,33 @@
 # limitations under the License.
 #
 
-library (HydraR)
+library(HydraR)
 library(testthat)
 context("Testing hydrar.env\n")
 
-test_that("hydrar.env", {
-  warning("test construction of hydrar.env is not implemented yet")
-  #@TODO
+test_that("hydrar.session", {
+  
+  # clean up any previous tests
+  if (hydrar.env$HYDRAR_SESSION_EXISTS) { hydrar.session.stop()}
 
+  expect_false(hydrar.env$HYDRAR_SESSION_EXISTS)
+  
+  hydrar.session()
+  
+  expect_true(hydrar.env$HYDRAR_SESSION_EXISTS)
+  expect_true("logger" %in% ls(.GlobalEnv))
+  expect_true("sc" %in% ls(.GlobalEnv))
+  expect_true("sysml.RDDUtils" %in% ls(.GlobalEnv))
+  expect_true("sysmlSparkContext" %in% ls(.GlobalEnv))
+  expect_true("sysmlSqlContext" %in% ls(.GlobalEnv))
+  expect_true(hydrar.env$HYDRAR_SESSION_EXISTS)
+  
+  hydrar.session.stop()
+
+  expect_false("logger" %in% ls(.GlobalEnv))
+  expect_false("sc" %in% ls(.GlobalEnv))
+  expect_false("sysml.RDDUtils" %in% ls(.GlobalEnv))
+  expect_false("sysmlSparkContext" %in% ls(.GlobalEnv))
+  expect_false("sysmlSqlContext" %in% ls(.GlobalEnv))
+  expect_false(hydrar.env$HYDRAR_SESSION_EXISTS)
 })

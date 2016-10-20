@@ -33,6 +33,8 @@ with(hydrar.env, {
   LOG_LEVEL <- DEFAULT_LOG_LEVEL
 
   VERBOSE <- FALSE # for the more verbose output from HydraR
+  
+  HYDRAR_SESSION_EXISTS <- FALSE
 
   # hadoop fs
   HYDRAR_DEFAULT_FS <- ""
@@ -261,16 +263,25 @@ with(hydrar.env, {
     }
     return (path)
   }
-
   
-  HYDRAR_CLIENT <- function() {
-    if (nchar(Sys.getenv("HYDRAR_CLIENT")) >= 1) {
-      return(Sys.getenv("HYDRAR_CLIENT"))
-    } else {
-      warning("environment variable HYDRAR_CLIENT not defined. Defaulting to local[*]")
-      return("local[*]")
+  SYSML_JARS <- function() {
+    sysml_jars <- file.path(system.file(package="HydraR"), "lib", "SystemML.jar")
+    
+    if (nchar(Sys.getenv("SYSML_HOME")) >= 1) {
+      sysml_jars <- file.path(Sys.getenv("SYSML_HOME"), "target", "SystemML.jar")
     }
-  }
+
+    if (nchar(Sys.getenv("HYDRAR_SYSML_JAR")) >= 1) {
+      sysml_jars <- Sys.getenv("HYDRAR_SYSML_JAR")
+    }
+
+    if (!file.exists(sysml_jars)) {
+      stop("Unable to locate SystemML.jar. Set the location via environmental varible HYDRAR_SYSML_JAR")
+    }
+  
+    return(sysml_jars)
+}
+
   
   FS_ROOT <- function() {
     if(hydrar.fs.cluster()) {

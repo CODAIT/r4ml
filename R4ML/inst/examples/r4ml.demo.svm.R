@@ -16,6 +16,7 @@
 
 #load the hydrar 
 library(HydraR)
+hydrar.session()
 
 # these are the different dataset we will analysis
 # path <- "/user/data-scientist/airline/1987.csv"
@@ -93,4 +94,5 @@ preds <- predict(svm_m, test_hm)
 head(preds$scores)
 
 # exit R/HydraR
+hydrar.session.stop()
 quit("no")

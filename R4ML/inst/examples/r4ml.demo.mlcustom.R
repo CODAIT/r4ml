@@ -16,6 +16,7 @@
 
 # load the library
 library(HydraR)
+hydrar.session()
 
 # lets create function to do the one hot encoding using the systemML dml .
 # the basic steps are 
@@ -116,4 +117,5 @@ showDF(al_onehot_hm)
 
 ## END airline dataset
 
-
+hydrar.session.stop()
+q("no")

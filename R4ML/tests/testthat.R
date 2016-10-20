@@ -16,4 +16,5 @@
 library(testthat)
 library(HydraR)
 
+hydrar.session()
 test_check("HydraR")

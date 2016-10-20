@@ -15,12 +15,16 @@
 #
 library (HydraR)
 library(testthat)
+
+hydrar.session()
+
 context("Testing hydrar.frame\n")
 
 # test hydra c'tor
 #
 test_that("hydrar.frame", {
   warning("test construction of hydrar.frame is not implemented yet")
+  #@TODO
   # test creation from SparkR dataframe
 
 })
@@ -28,6 +32,7 @@ test_that("hydrar.frame", {
 # test is.hydrar.numeric
 test_that("is.hydrar.numeric", {
   warning("test is.hydrar.numeric is not implemented yet")
+  #@TODO
   # test that it return true for numeric hydrar.frame
 
   # test that it returns false for non numeric hydrar.frame
@@ -37,6 +42,7 @@ test_that("is.hydrar.numeric", {
 # test as.hydrar.frame for R dataframe
 test_that("as.hydrar.frame", {
   warning("test as.hydrar.frame from R data.frame is not implemented yet")
+  #@TODO
   # test that we can convert from data frame from R data.frame
 })
 
@@ -44,6 +50,7 @@ test_that("as.hydrar.frame", {
 # test as.hydrar.frame for SparkR SparkDataFrame
 test_that("as.hydrar.frame", {
   warning("test as.hydrar.frame from SparkR SparkDataFrame is not implemented yet")
+  #@TODO
   # test that we can convert from SparkR SparkDataFrame
 })
 
