@@ -14,6 +14,54 @@
 # limitations under the License.
 #
 
+print_hydrar_ascii <- function() {
+  
+  #' Big by Glenn Chappell 4/93 -- based on Standard
+  #' Includes ISO Latin-1
+  #' Greek characters by Bruce Jakeway <pbjakeway@neumann.uwaterloo.ca>
+  #' figlet release 2.2 -- November 1996
+  #' Permission is hereby given to modify this font, as long as the
+  #' modifier's name is placed on a comment line.
+  #'
+  #' Modified by Paul Burton  12/96 to include new parameter
+  #' supported by FIGlet and FIGWin.  May also be slightly modified for better use
+  #' of new full-width/kern/smush alternatives, but default output is NOT changed.
+  
+    cat("\n")
+    cat("  _    _           _           _____\n")
+    cat(" | |  | |         | |         |  __ \\\n") 
+    cat(" | |__| |_   _  __| |_ __ __ _| |__) |\n")
+    cat(" |  __  | | | |/ _` | '__/ _` |  _  /\n")
+    cat(" | |  | | |_| | (_| | | | (_| | | \\ \\\n")
+    cat(" |_|  |_|\\__, |\\__,_|_|  \\__,_|_|  \\_\\\n")
+    cat("          __/ |\n")
+    cat("         |___/\n")
+}
+
+print_systemml_ascii <- function() {
+  
+  #' Big by Glenn Chappell 4/93 -- based on Standard
+  #' Includes ISO Latin-1
+  #' Greek characters by Bruce Jakeway <pbjakeway@neumann.uwaterloo.ca>
+  #' figlet release 2.2 -- November 1996
+  #' Permission is hereby given to modify this font, as long as the
+  #' modifier's name is placed on a comment line.
+  #'
+  #' Modified by Paul Burton  12/96 to include new parameter
+  #' supported by FIGlet and FIGWin.  May also be slightly modified for better use
+  #' of new full-width/kern/smush alternatives, but default output is NOT changed.
+
+  cat("\n")
+  cat("   _____           _                 __  __ _\n")
+  cat("  / ____|         | |               |  \\/  | |\n")
+  cat(" | (___  _   _ ___| |_ ___ _ __ ___ | \\  / | |\n")
+  cat("  \\___ \\| | | / __| __/ _ \\ '_ ` _ \\| |\\/| | |\n")
+  cat("  ____) | |_| \\__ \\ ||  __/ | | | | | |  | | |____\n")
+  cat(" |_____/ \\__, |___/\\__\\___|_| |_| |_|_|  |_|______|\n")
+  cat("          __/ |\n")
+  cat("         |___/\n")
+}
+
 # this will be called at the library loading time.
 # it first check if the sparkR packages is loaded?
 #   (which one must before using HydraR)
@@ -32,7 +80,11 @@
     }
   }
 
-
+  print_hydrar_ascii()
+  
+  desc <- packageDescription(pkg = pkgname, lib.loc = libname)
+  cat(paste0("version ", desc$Version, "\n"))
+  
   hydrar.init()
 }
 
