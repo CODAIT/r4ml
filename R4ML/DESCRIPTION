@@ -23,6 +23,7 @@ Collate:
     'zzz.R'
     'HydraR.R'
     'airline.R'
+    'hydrar.data.gen.km.R'
     'hydrar.env.R'
     'hydrar.vector.R'
     'hydrar.frame.R'
