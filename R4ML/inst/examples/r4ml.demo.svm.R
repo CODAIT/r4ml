@@ -45,11 +45,11 @@ df <- as.hydrar.frame(airline)
 
 # limit the number of rows so that we can control the size
 df <- limit(df, df_max_size)
-cache(df) # very important step otherwise the partition gets screw up
+ignore <- cache(df) # very important step otherwise the partition gets screw up
 
 # convert to the hydrar frame
 df <- SparkR::select(df, D_names)
-cache(df)
+ignore <- cache(df)
 hf = as.hydrar.frame(df)
 # do the preprocess of the data set
 phf_info <- hydrar.ml.preprocess(
@@ -69,12 +69,12 @@ pmdb <- phf_info$metadata
 
 # sample the dataset into the train and test
 hm <- as.hydrar.matrix(phf)
-cache(hm)
+ignore <- cache(hm)
 rsplit <- hydrar.sample(hm, c(0.7, 0.3))
 
 train_hm <- rsplit[[1]]
 test_hm <- rsplit[[2]]
-cache(train_hm)
+ignore <- cache(train_hm)
 
 # create the support vector machine model
 # since one hot encoding will generate many columns we have account for it as
@@ -87,7 +87,7 @@ svm_m <- hydrar.svm(Cancelled ~ . , data = train_hm, is.binary.class = TRUE)
 #svm_m <- hydrar.svm(Cancelled ~ . , data = train_hm)
 
 # run the prediction
-cache(test_hm)
+ignore <- cache(test_hm)
 preds <- predict(svm_m, test_hm)
 # To print all outputs, just call preds
 head(preds$scores)

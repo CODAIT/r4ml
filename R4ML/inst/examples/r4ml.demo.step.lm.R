@@ -63,8 +63,8 @@ metadata <- airline_transform$metadata
 
 train <- as.hydrar.matrix(sampled_data[[1]])
 test <- as.hydrar.matrix(sampled_data[[2]])
-cache(train)
-cache(test)
+ignore <- cache(train)
+ignore <- cache(test)
 
 # change coltypes to scale
 ml.coltypes(train) <- rep("scale", ncol(train))

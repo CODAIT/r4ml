@@ -60,8 +60,8 @@ metadata <- airline_transform$metadata
 
 train <- as.hydrar.matrix(sampled_data[[1]])
 test <- as.hydrar.matrix(sampled_data[[2]])
-cache(train)
-cache(test)
+ignore <- cache(train)
+ignore <- cache(test)
 
 # train the lm model
 lm <- hydrar.lm(DepTime ~ ., train)

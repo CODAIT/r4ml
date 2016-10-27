@@ -36,12 +36,12 @@ airline_hf = as.hydrar.frame(airline)
 
 # limit the number of rows so that we can control the size
 airline_hf <- limit(airline_hf, df_max_size)
-cache(airline_hf)
+ignore <- cache(airline_hf)
 
 #convert to hydrar frame
 airline_hf <- SparkR::select(airline_hf, D_names)
 airline_hf <- as.hydrar.frame(airline_hf)
-cache(airline_hf)
+ignore <- cache(airline_hf)
 
 # preprocessing
 airline_transform <- hydrar.ml.preprocess(
@@ -59,7 +59,7 @@ sampled_data <- hydrar.sample(airline_transform$data, perc=c(0.7, 0.3))
 # collect metadata
 metadata <- airline_transform$metadata
 train <- as.hydrar.matrix(sampled_data[[1]])
-cache(train)
+ignore <- cache(train)
 
 # create logistic regression model
 ml.coltypes(train) <- c(rep("scale", length(names(train))-1), "nominal")
@@ -67,7 +67,7 @@ logistic_regression = hydrar.mlogit(Cancelled ~ ., data=train)
 
 # compute predictions on new data
 test <- as.hydrar.matrix(sampled_data[[2]])
-cache(test)
+ignore <- cache(test)
 pred <- predict(logistic_regression, test)
 # To print all outputs, just call pred
 pred$probabilities[1:10,]

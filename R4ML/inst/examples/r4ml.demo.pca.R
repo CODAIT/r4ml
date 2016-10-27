@@ -17,17 +17,18 @@
 #load the hydrar 
 library(HydraR)
 
-# these are the different dataset we will analysis
+# we would like to limit the dataset to a size so that we can run test faster
+#df_max_size <- 1000
+df_max_size <- 100000
+
+# set the data to be used for pca
+D_names <- c("ActualElapsedTime", "DayofMonth", "DayOfWeek",
+                "DepDelay", "Distance", "ArrDelay"
+               )
+
+# use the following for the custom dataset
 # path <- "/user/data-scientist/airline/1987.csv"
 # path <- "/user/data-scientist/airline/*.csv"
-
-
-# we would like to limit the dataset to a size so that we can run test faster
-df_max_size <- 1000
-#df_max_size <- 100000
-
-## use the following for the custom dataset
-# path <- "/user/data-scientist/airline/1987.csv"
 # df <- HydraR:::hydrar.read.csv(path, inferSchema=TRUE, header=TRUE)
 
 # this example use the airline dataset shipped with HydraR
@@ -38,29 +39,35 @@ df <- limit(df, df_max_size)
 ignore <- cache(df) # very important step otherwise the partition gets screw up
 
 # convert to the hydrar frame
-al_hf = as.hydrar.frame(df)
+df <- SparkR::select(df, D_names)
+ignore <- cache(df)
+hf = as.hydrar.frame(df)
 
-# Let air be the airline dataset
- 
-# Show/head
-show(al_hf$ArrDelay)
-head(al_hf$ArrDelay, 500)
-x <- al_hf$ArrDelay
- 
-# Arithmetic operations
-y <- sin(x)
-z <- y ^ 2 + (cos(x) ^ 2)
-head(z, 20)
-as.integer(head(z, 20)) == 1
- 
-# Lit
-round(z * lit('100')) == 100
- 
-# Correlation
-corr(al_hf$ArrDelay, al_hf$DepDelay)
- 
-# IfElse
-head(ifelse(al_hf$ArrDelay > 15, "Delayed", "Early"), 1000)
- 
-# Count distinct
-countDistinct(al_hf$UniqueCarrier)
+# do the preprocess of the data set
+phf_info <- hydrar.ml.preprocess(
+  hf
+  ,transformPath = "/tmp"
+  ,recodeAttrs=D_names
+  ,dummycodeAttrs = c("DayOfWeek")
+  ,binningAttrs = c(), numBins=4
+  ,omit.na = D_names
+)
+
+# dataset after transform
+phf <- phf_info$data
+
+# metadata for the transform
+pmdb <- phf_info$metadata
+
+# hydrar matrix as the input
+hm <- as.hydrar.matrix(phf)
+ignore <- cache(hm)
+
+pca_m <- hydrar.pca(hm, center=T, scale=T, projData=T, k = 2)
+
+# look at the dataset after the transform
+pca_m
+
+# exit R/HydraR
+quit("no")
+

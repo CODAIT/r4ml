@@ -82,8 +82,11 @@ print_systemml_ascii <- function() {
 
   print_hydrar_ascii()
   
-  desc <- packageDescription(pkg = pkgname, lib.loc = libname)
-  cat(paste0("version ", desc$Version, "\n"))
+  if(nchar(libname) > 0 & nchar(pkgname) > 0) { 
+    # in some envirments libname and pkgname may not be passed
+    desc <- packageDescription(pkg = pkgname, lib.loc = libname)
+    cat(paste0("version ", desc$Version, "\n"))
+  }
   
   hydrar.init()
 }

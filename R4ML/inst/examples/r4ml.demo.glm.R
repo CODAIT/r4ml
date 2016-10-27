@@ -38,7 +38,7 @@ df_max_size <- 100000
 
 # limit the number of rows so that we can control the size
 df <- limit(df, df_max_size) # results in a SparkDataFrame
-cache(df)  # very important step otherwise the partition gets screw up
+ignore <- cache(df)  # very important step otherwise the partition gets screw up
 
 # convert to hydrar.frame again
 df <- as.hydrar.frame(df)
@@ -52,9 +52,9 @@ df_trans <- hydrar.ml.preprocess(
 # sample the dataset into the train and test
 samples <- hydrar.sample(df_trans$data, perc=c(0.7, 0.3))
 train <- samples[[1]]
-cache(train)
+ignore <- cache(train)
 test <- samples[[2]]
-cache(test)
+ignore <- cache(test)
 
 # train the glm model by default it is the binomial
 train_m <- as.hydrar.matrix(train)

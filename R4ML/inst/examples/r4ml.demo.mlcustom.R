@@ -102,11 +102,11 @@ al_df <- as.hydrar.frame(airline)
 
 # limit the number of rows so that we can control the size
 al_df <- limit(al_df, df_max_size)
-cache(al_df) # very important step otherwise the partition gets screw up
+ignore <- cache(al_df) # very important step otherwise the partition gets screw up
 
 # convert to the hydrar frame
 al_df <- SparkR::select(al_df, attr2process)
-cache(al_df)
+ignore <- cache(al_df)
 al_hm = as.hydrar.matrix(as.hydrar.frame(al_df))
 
 al_onehot_hm <- udf_onehot(al_hm)
