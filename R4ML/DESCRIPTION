@@ -13,7 +13,8 @@ Depends:
     SparkR(>= 2.0.0),
     readr
 Imports:
-    readr
+    readr,
+    survival
 Suggests:
     testthat,
     knitr,
@@ -33,6 +34,7 @@ Collate:
     'java.bridge.R'
     'util.commons.R'
     'ml.model.base.R'
+    'ml.model.cox.R'
     'ml.model.glm.R'
     'ml.model.km.R'
     'ml.model.lm.R'

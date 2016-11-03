@@ -52,7 +52,7 @@ setGeneric("hydrar.model.validateTrainingParameters", def =
 # ----------------------------------------------
 # This method must be overloaded by every subclass of hydrar.model. In here, each model
 # constructs the list of arguments that will be passed along to the DML script through
-# hydrar.execute().
+# sysml.execute().
 setGeneric("hydrar.model.buildTrainingArgs", def =
   hydrar.model.buildTrainingArgs <- function(model, args) {
     hydrar.err("hydrar.model.buildTrainingArgs", "Class " %++% class(model) %++%
@@ -63,7 +63,7 @@ setGeneric("hydrar.model.buildTrainingArgs", def =
 # Abstract method: hydrar.model.postTraining
 # ----------------------------------------------
 # This method must be overloaded by every subclass of hydrar.model. In here, each model
-# process, the output information created by dml scripts by calling hydrar.execute()
+# process, the output information created by dml scripts by calling sysml.execute()
 setGeneric("hydrar.model.postTraining", def =
       hydrar.model.postTraining <- function(model) {
         hydrar.err("hydrar.model.postTraining", "Class " %++% class(model) %++%
