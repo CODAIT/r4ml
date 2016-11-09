@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-cat("Attaching...")
+message("Creating HydraR environment")
 
 # set the global environment to be used along with other codes
 #' @export
@@ -91,13 +91,13 @@ with(hydrar.env, {
   # If no rows are returned by a query
   #EMPTY_DATA <- data.frame()
 
-    # hydrar.vector constants
+  # hydrar.vector constants
 
   # hydrar.frame constants
 
   # The default column names if none specified
   DEFAULT_COLNAMES <- c("V1")
-  UNKNOWN_COLNAMES <-1
+  UNKNOWN_COLNAMES <- 1
 
   # The default column types if none specified
   DEFAULT_COLTYPES <- c("character")
@@ -130,7 +130,7 @@ with(hydrar.env, {
   LOGCOLTYPE <- c()
   LOGCOLNAME <- c()
 
-  # Random numbers / RNG support
+  # RNG support
   #DEFAULT_RNG <- "hydrar.default.rng"
 
   # A list of temporary files to be removed by the finalizers
@@ -139,11 +139,8 @@ with(hydrar.env, {
   # A list of temporary files to be removed when the exit from hydrar.err
   DELETE_ON_ERROR_FILES <- list()
 
-  # Default local R temp directory
-  DEFAULT_R_TMP_DIR <- "/tmp/hydrar"
-
   # default DML path
-  DML_ALGORITHMS_PATH <- "algorithms/"
+  DML_ALGORITHMS_PATH <- file.path("algorithms", "")
   DML_DATA_TYPES <- c("scale", "nominal", "ordinal", "dummy")
 
   # DML script names
@@ -171,7 +168,7 @@ with(hydrar.env, {
   DML_RANDOM_FOREST_TEST_SCRIPT <- "random-forest-predict.dml"
   DML_ALS_SCRIPT <- "ALS.dml"
   DML_ALS_PREDICT_SCRIPT <- "ALS_predict.dml"
-  DML_WRITE_CSV2BIN <- "./utils/csv2bin.dml"
+  DML_WRITE_CSV2BIN <- "./utils/csv2bin.dml" #@TODO make this file path work on Windows
   DML_ALS_TOP_PREDICT_SCRIPT <- "ALS_topk_predict.dml"
   DML_KM_SCRIPT <- "KM.dml"
   DML_COX_SCRIPT <- "Cox.dml"
@@ -193,48 +190,48 @@ with(hydrar.env, {
   ALS_PAIR <- "pair"
   ALS_TOPK <- "topk"
   FBP_SUFFIX <- ".factorization.based.predict"
-  DML_KM_MODEL <- "/km.model"
-  DML_KM_MODEL_OFFSET <- "/km.model.offset"
-  DML_KM_MEDIANCONFINTERVAL <- "/km.median.conf.intervals"
-  DML_KM_TESTS <- "/km.tests"
+  DML_KM_MODEL <- file.path("", "km.model")
+  DML_KM_MODEL_OFFSET <- file.path("", "km.model.offset")
+  DML_KM_MEDIANCONFINTERVAL <- file.path("", "km.median.conf.intervals")
+  DML_KM_TESTS <- file.path("", "km.tests")
   DML_KM_TESTS_GRPS_OE_SUFFIX <- ".groups.oe"
-  DML_KM_GROUPS <- "/km.groups"
-  DML_KM_STRATUM <- "/km.stratum"
+  DML_KM_GROUPS <- file.path("", "km.groups")
+  DML_KM_STRATUM <- file.path("", "km.stratum")
   DML_TRANSFORM_SCRIPT <- "transform_old.dml"
   DML_APPLY_TRANSFORM_SCRIPT <- "apply-transform_old.dml"
   DML_MATRIX_FORMAT_BINARY <- "binary"
   DML_MATRIX_FORMAT_CSV <- "csv"
-  SPLIT_DUMMYCODE_MAPS <- "/splitDummyCodeMaps.csv"
-  TRANSFORM_INFO <- "/transform.info"
+  SPLIT_DUMMYCODE_MAPS <- file.path("", "splitDummyCodeMaps.csv")
+  TRANSFORM_INFO <- file.path("", "transform.info")
   DOT_MAP <- ".map"
   DOT_BIN <- ".bin"
   X_MTX <- "x.mtx"
   Y_MTX <- "y.mtx"
-  ACCURACY <- "/accuracy.csv"
-  MODEL_METADATA <- "/model.json"
-  DEBUG_LOG <- "/debug.log"
+  ACCURACY <- file.path("", "accuracy.csv")
+  MODEL_METADATA <- file.path("", "model.json")
+  DEBUG_LOG <- file.path("", "debug.log")
 
   #SVM specific constants
-  COEFFICIENTS <- "/coefficients.csv"
-  SUPPORT_VECTORS <- "support_vectors.csv"
-  RECODE_MAPS <- "/recode_maps"
-  PREDICTIONS <- "/predictions.csv"
-  CONFUSION <- "/confusion.csv"
-  SCORES <- "/scores.csv"
+  COEFFICIENTS <- file.path("", "coefficients.csv")
+  SUPPORT_VECTORS <- file.path("", "support_vectors.csv")
+  RECODE_MAPS <- file.path("", "recode_maps")
+  PREDICTIONS <- file.path("", "predictions.csv")
+  CONFUSION <- file.path("", "confusion.csv")
+  SCORES <- file.path("", "scores.csv")
   INTERCEPT <- "(Intercept)"
   DEFAULT_LAPLACE_CORRECTION <- 1
-  PRIOR <- "/prior.csv"
-  CONDITIONALS <- "/conditionals.csv"
+  PRIOR <- file.path("", "prior.csv")
+  CONDITIONALS <- file.path("", "conditionals.csv")
   CSV <- "csv"
-  DECISIONTREE <- "/decisiontree.csv"
-  RANDOMFOREST <- "/randomforest.csv"
-  RANDOM_FOREST_COUNT <- "/counts.csv"
-  RANDOM_FOREST_OOB <- "/OOB.csv"
-  PROBABILITIES <- "/probabilities.csv"
+  DECISIONTREE <- file.path("", "decisiontree.csv")
+  RANDOMFOREST <- file.path("", "randomforest.csv")
+  RANDOM_FOREST_COUNT <- file.path("", "counts.csv")
+  RANDOM_FOREST_OOB <- file.path("", "OOB.csv")
+  PROBABILITIES <- file.path("", "probabilities.csv")
 
   #Logistic Regression specific constants
-  BETA <- "/beta.csv"
-  STATISTICS <- "/statistics.csv"
+  BETA <- file.path("", "beta.csv")
+  STATISTICS <- file.path("", "statistics.csv")
 
 }) # End with
 
@@ -251,7 +248,7 @@ with(hydrar.env, {
     }
     spath <- file.path(root, "scripts")
     if (!file.exists(spath)) {
-      stop("Can't find the systemML scripts")
+      stop("Unable to locate SystemML scripts. (hint: set environment variable SYSML_HOME)")
     }
     spath
   }
@@ -260,7 +257,7 @@ with(hydrar.env, {
   SYSML_ALGO_ROOT <- function() {
     path <- file.path(SYSML_SCRIPT_ROOT(), "algorithms")
     if (!file.exists(path)) {
-      stop("Can't find the systemML algorithm scripts")
+      stop("Unable to locate SystemML DML scripts")
     }
     return (path)
   }
@@ -270,7 +267,7 @@ with(hydrar.env, {
     if (nchar(Sys.getenv("HYDRAR_CLIENT")) >= 1) {
       return(Sys.getenv("HYDRAR_CLIENT"))
     } else {
-      warning("HYDRAR_CLIENT not defined in the .Renviron file. Defaulting to local[*]")
+      warning("environment variable HYDRAR_CLIENT not defined. Defaulting to local[*]")
       return("local[*]")
     }
   }

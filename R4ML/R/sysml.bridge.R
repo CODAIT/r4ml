@@ -420,6 +420,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
 #'
 sysml.execute <- function(dml, ...) {
   log_source <- "sysml.execute"
+  
   if (missing(dml)) {
     hydrar.err(log_source, "Must have the dml file or script")
   }
@@ -477,12 +478,27 @@ sysml.execute <- function(dml, ...) {
       }
     }
   }
-  #execute the scripts
-  sysml_outs <- if (is.file) {
-    ml_ctx$execute(dml_code, dml_arg_keys, dml_arg_vals)
-  } else {
-    ml_ctx$executeScript(dml_code, dml_arg_keys, dml_arg_vals)
-  }
+  
+  dml_result <- tryCatch({
+     previous_warning_length <- options()$warning.length
+     options(warning.length = 8170)
+     sysml_outs <- if (is.file) {
+       ml_ctx$execute(dml_code, dml_arg_keys, dml_arg_vals)
+     } else {
+       ml_ctx$executeScript(dml_code, dml_arg_keys, dml_arg_vals)
+     }
+   }, warning = function(war) {
+        war_msg <- paste0("DML returned warning ", war)
+        stop(war_msg)
+   }, error = function(err) {
+        err_msg <- paste0("DML returned error ", err)
+        stop(err_msg)
+   }, finally = {
+        options(warning.length = previous_warning_length)
+   }
+  )
+
+  
   # get the output and returns
   outputs <- list()
   for (out_arg in out_args) {
