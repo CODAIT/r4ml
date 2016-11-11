@@ -193,7 +193,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.kaplan.meier", def
           
           survStrataFrame = as.hydrar.frame(strataIds)
           #TODO see if it is possible to avoid the creation of matrix
-          strataIdsMatrix <- hydrar.matrix(survStrataFrame)   
+          strataIdsMatrix <- as.hydrar.matrix(survStrataFrame)   
           dmlArgs <- c(dmlArgs, SI=strataIdsMatrix)
           #adding strata-id path to the model
           model@strataNames <- model@dataColNames[strataIds]

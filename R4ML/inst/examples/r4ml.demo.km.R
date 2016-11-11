@@ -20,7 +20,7 @@ df_max_size = 90000
 # df_max_size = 30
 
 # Create Dataset
-hf <- hydrar.data.gen.km(num_datapoints)
+hf <- hydrar.data.gen.km(df_max_size)
 ignore <- cache(hf)
 
 # Preprocessing
