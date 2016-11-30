@@ -106,6 +106,34 @@ test_that("sysml.MLContext Short data", {
   SparkR:::showDF(o1)
 })
 
+# test the Bridge to the SystemML MLContext . To be removed eventually
+test_that("sysml.MLContext Exception handling test", {
+  cat("testing sysml.MLContext...")
+  mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
+  dml = '
+    fileX = ""
+    fileO = ""
+    X = read($fileX)
+    O = X*2 + $foo ~ M # it must fail
+    write(O, fileO)
+  '
+  aq_ozone <- airquality$Ozone
+  aq_ozone[is.na(aq_ozone)] <- 0
+  aq_ozone_df <- as.hydrar.matrix(as.hydrar.frame(as.data.frame(aq_ozone)))
+
+  x_cnt = SparkR:::count(aq_ozone_df)
+  mc <- HydraR:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
+  rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
+  sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
+  mlc$reset()
+  mlc$registerInput("X", sysml_jrdd, mc)
+  mlc$registerOutput("O")
+  options(warning.length = 5000) # set warning length to some number
+  expect_error(do.call(mlc$executeScript,list(dml)),".*Error*")
+  expect_equal(options()$warning.length, 5000) # test that the number remains the same
+
+})
+
 # test the Bridge to the SystemML MLContext. To be removed eventually
 test_that("sysml.MLContext Long", {
   if (exists("TESTTHAT_LONGTEST", hydrar.env) &&
