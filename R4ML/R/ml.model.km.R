@@ -78,7 +78,7 @@ setClass("hydrar.kaplan.meier",
 #'               Race=c(1,0,0,2,6,2,0,0,0), Origin=c(2,0,0,15,0,2,0,0,0),
 #'               Age=c(50,52,50,52,52,50,20,50,52))
 #' 
-#' survmat <- as.hydrar.matrix(surv) 
+#' survmat <- as.hydrar.frame(as.hydrar.matrix(surv))
 #'   
 #' # Create survival formula
 #' survformula <- Surv(Timestamp, Censor) ~ Age
@@ -384,7 +384,7 @@ summary.hydrar.kaplan.meier <- function(object) {
 #'               Race=c(1,0,0,2,6,2,0,0,0), Origin=c(2,0,0,15,0,2,0,0,0),
 #'               Age=c(50,52,50,52,52,50,20,50,52))
 #' 
-#' survmat <- as.hydrar.matrix(surv) 
+#' survmat <- as.hydrar.frame(as.hydrar.matrix(surv))
 #'   
 #' # Create survival formula
 #' survformula <- Surv(Timestamp, Censor) ~ Age
