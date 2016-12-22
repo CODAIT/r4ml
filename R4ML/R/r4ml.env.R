@@ -172,8 +172,9 @@ with(hydrar.env, {
   DML_RANDOM_FOREST_SCRIPT <- "random-forest.dml"
   DML_RANDOM_FOREST_TEST_SCRIPT <- "random-forest-predict.dml"
   DML_ALS_SCRIPT <- "ALS.dml"
-  DML_ALS_PREDICT_SCRIPT <- "ALS_predict.dml"
   DML_WRITE_CSV2BIN <- "./utils/csv2bin.dml" #@TODO make this file path work on Windows
+  DML_ALS_DS_SCRIPT <- "ALS-DS.dml"
+  DML_ALS_PREDICT_SCRIPT <- "ALS-predict.dml"
   DML_ALS_TOP_PREDICT_SCRIPT <- "ALS_topk_predict.dml"
   DML_KM_SCRIPT <- "KM.dml"
   DML_COX_SCRIPT <- "Cox.dml"

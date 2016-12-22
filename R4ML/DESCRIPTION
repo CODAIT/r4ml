@@ -34,6 +34,7 @@ Collate:
     'java.bridge.R'
     'util.commons.R'
     'ml.model.base.R'
+    'ml.model.als.R'
     'ml.model.cox.R'
     'ml.model.glm.R'
     'ml.model.km.R'
