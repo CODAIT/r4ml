@@ -31,6 +31,9 @@ with(hydrar.env, {
   NO_LOG_LEVEL <- 0
   DEFAULT_LOG_LEVEL <- ERR_LOG_LEVEL + WARN_LOG_LEVEL
   LOG_LEVEL <- DEFAULT_LOG_LEVEL
+  
+  # the log level when dml is executing
+  SYSML_LOG_LEVEL <- "ERROR"
 
   VERBOSE <- FALSE # for the more verbose output from HydraR
   

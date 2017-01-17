@@ -67,6 +67,16 @@ log4j.Logger <- setRefClass("log4j.Logger",
        }'
       level_jref = get(level, .self$env)
       SparkR:::callJMethod(env$jref, "setLevel", level_jref)
+      logger$getLevel()
+    },
+
+    getLevel = function() {
+      '\\tabular{ll}{
+         Description:\\tab \\cr
+           \\tab gets the log level\\cr
+       }'
+      level_jref <- SparkR:::callJMethod(env$jref, "getLevel")
+      return(SparkR:::callJMethod(level_jref, "toString"))
     }
   )
 )

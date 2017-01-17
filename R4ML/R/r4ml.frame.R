@@ -92,6 +92,13 @@ setGeneric("as.hydrar.frame", function(object, ...) {
 setMethod("as.hydrar.frame",
   signature(object = "SparkDataFrame"),
   function(object, ...) {
+    logSource <- "as.hydrar.frame"
+    
+    if (!hydrar.env$HYDRAR_SESSION_EXISTS) {
+      hydrar.err(logSource,
+                 'No HydraR session exists (call "hydrar.session()")')
+    }
+
     hydra_frame <- new("hydrar.frame", sdf=object@sdf, isCached=object@env$isCached)
     hydra_frame
   }
@@ -101,6 +108,13 @@ setMethod("as.hydrar.frame",
 setMethod("as.hydrar.frame",
   signature(object = "data.frame"),
   function(object, ...) {
+    logSource <- "as.hydrar.frame"
+
+    if (!hydrar.env$HYDRAR_SESSION_EXISTS) {
+      hydrar.err(logSource,
+                 'No HydraR session exists (call "hydrar.session()")')
+    }
+
     spark_df <- SparkR::createDataFrame(sysmlSqlContext, object)
     as.hydrar.frame(spark_df)
   }
@@ -291,6 +305,7 @@ setGeneric("hydrar.recode", function(hf, ...) {
 setMethod("hydrar.recode",
   signature(hf = "hydrar.frame"),
   function(hf, ...) {
+    logSource <- "hydrar.recode"
 
     # get the list of all input columns and set default (if needed)
     icols <- unlist(list(...), recursive = T)
@@ -311,8 +326,8 @@ setMethod("hydrar.recode",
       uicol_df <- SparkR:::distinct(icol_df)
       uicol_nr <- SparkR:::nrow(uicol_df)
       if (uicol_nr > nurow_max) {
-        hydrar.err("Number of unique element in the col " %++% icol %++%
-                     "exceed maximum" %++% nurow_max)
+        hydrar.err(logSource, "Number of unique element in the col "
+                   %++% icol %++% "exceed maximum" %++% nurow_max)
       }
       uicol_rdf_tmp <- SparkR::as.data.frame(uicol_df)
       #make sure that we have defined order of the distinct i.e natural order.

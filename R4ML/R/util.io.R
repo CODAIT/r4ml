@@ -23,7 +23,7 @@ NULL
 
 ##logging info
 hydrar.err <- function(source, message) {
-  stop("HydraR[" %++% source %++% "]: " %++% message)
+  stop("HydraR[" %++% source %++% "]: " %++% message, call. = FALSE)
 }
 
 # Prints a warning message

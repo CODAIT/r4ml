@@ -652,6 +652,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
   # Add stats
   if (testing) {
     statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+    colnames(statsCsv) <- c("name", "column", "scaled", "value")
   }
   else {
     statsCsv <- data.frame()
