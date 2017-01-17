@@ -58,7 +58,8 @@ NULL
 #' iris_cv <- hydrar.sample(iris_hf, rep(0.1, 10))
 #' }
 
-hydrar.sample <- function(data, perc, experimental=FALSE) {
+hydrar.sample <- function(data, perc, experimental=FALSE,
+                          cache = FALSE) {
   logSource <- "hydrar.sample"
   
   # Parameter validation
@@ -73,14 +74,14 @@ hydrar.sample <- function(data, perc, experimental=FALSE) {
     hydrar.err(logSource, "A dataset must be specified")   
   }    
   if (.hydrar.isNullOrEmpty(perc)) {
-    hydrar.err(logSource, "perc perc must be specified.")
+    hydrar.err(logSource, "perc must be specified.")
   }
   
   if (!inherits(data, "hydrar.frame") & !inherits(data, "hydrar.matrix") & !inherits(data, "SparkDataFrame")) {
-    hydrar.err(logSource, "The specified dataset must be a hydrar.frame or hydrar.matrix or Spark SparkDataFrame.")
+    hydrar.err(logSource, "The specified dataset must either be a hydrar.frame, hydrar.matrix, or SparkDataFrame.")
   }
 
-  # functor to convert the output type to the relevant input type
+  # function to convert the output type to the relevant input type
   outputType = function(...) {
     data_type <- class(data)
     castDF <- function(df) {
@@ -94,6 +95,11 @@ hydrar.sample <- function(data, perc, experimental=FALSE) {
       } else {
         stop("Unsupported type " %++% data_type %++% " passed in")
       }
+     
+      if (cache) {
+        dummy <- cache(casted_df)
+      }
+      
       casted_df
     }
     args <- list(...)
@@ -110,7 +116,7 @@ hydrar.sample <- function(data, perc, experimental=FALSE) {
       (class(data) %in% c('hydrar.frame', 'hydrar.matrix', 'SparkDataFrame'))) {
     # this is probably slightly faster version of when length(perc)>2
     if (abs(sum(perc) - 1.0) >= 1e-6) {
-      hydrar.err(logSource, "Random split must have the value sum to 1")
+      hydrar.err(logSource, "Random splits must sum to 1")
     } 
     
     perc_1 <- perc[1]
@@ -118,15 +124,16 @@ hydrar.sample <- function(data, perc, experimental=FALSE) {
     df2 <- SparkR::except(data, df1)
     out <- c(df1, df2)
     out <- do.call(outputType, list(df1, df2))
+
     return (out)
   } else if (length(perc) >= 2) {
     if (abs(sum(perc) - 1.0) >= 1e-6) {
-      stop("error must have the weights perc sum to 1")
+      stop("perc weights must sum to 1")
     }
     rcolname = "__hydrar_dummy_runif__"
     
     if (rcolname %in% SparkR::colnames(data)) {
-      stop("data has already have column " %++% rcolname)
+      stop("data already has column " %++% rcolname)
     }
     # create the uniform random (0,1) in the column rcolname
     aug_data <- SparkR::withColumn(data, rcolname, SparkR::rand())
@@ -150,7 +157,7 @@ hydrar.sample <- function(data, perc, experimental=FALSE) {
     out <- do.call(outputType, folded_data)
     return(out)
   } else {
-    stop("Other form of sampling not implemented yet")
+    stop("Other forms of sampling not implemented yet")
     #@TODO
   }
   return (NULL)
