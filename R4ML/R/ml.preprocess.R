@@ -266,7 +266,7 @@ hydrar.ml.preprocess <- function(
   proxy.omit.na <- function(hf) {
     rhf = hf
     if (is.omit.na) {
-      rhf = as.hydrar.frame(SparkR::dropna(hf))
+      rhf <- as.hydrar.frame(SparkR::dropna(hf), repartition = FALSE)
     }
     metadata <- list();
     list(data=rhf, metadata=metadata)

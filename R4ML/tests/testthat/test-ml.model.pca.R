@@ -22,8 +22,6 @@ context("Testing hydrar.pca\n")
 # test PCA feature extractor
 
 test_that("hydrar.pca projDataDefault ", {
-  require(SparkR)
-  require(HydraR)
   data("iris")
   irisData <- (iris[, -5])
   iris_dataframe <- as.data.frame(irisData)
@@ -34,14 +32,13 @@ test_that("hydrar.pca projDataDefault ", {
   # Test with default projData
   k = 2
   iris_pca <- hydrar.pca(train, center=T, scale=T, k=k)
-  stopifnot(nrow(iris_pca$projData) > 0, ncol(iris_pca$projData) == k)
+  expect_true(nrow(iris_pca$projData) > 0)
+  expect_equal(ncol(iris_pca$projData), k)
   show(iris_pca$model)
   
 })
 
 test_that("hydrar.pca profDataFalse", {
-  require(SparkR)
-  require(HydraR)
   data("iris")
   irisData <- (iris[, -5])
   iris_dataframe <- as.data.frame(irisData)
@@ -56,8 +53,6 @@ test_that("hydrar.pca profDataFalse", {
 })
 
 test_that("hydrar.pca profDataTrue", {
-  require(SparkR)
-  require(HydraR)
   data("iris")
   irisData <- (iris[, -5])
   iris_dataframe <- as.data.frame(irisData)
@@ -69,17 +64,16 @@ test_that("hydrar.pca profDataTrue", {
   k=2
   iris_pca <- hydrar.pca(train, center=T, scale=T, k=k, projData=T)
   show(iris_pca$model)
-  stopifnot(nrow(iris_pca$projData) > 0, ncol(iris_pca$projData) == k)
+  expect_true(nrow(iris_pca$projData) > 0)
+  expect_equal(ncol(iris_pca$projData), k)
   
 })
 
 test_that("hydrar.pca k_lessThan_features", {
-  require(SparkR)
-  require(HydraR)
   data("iris")
   irisData <- (iris[, -5])
   iris_dataframe <- as.data.frame(irisData)
-  iris_hframe <- as.hydrar.frame(iris_dataframe)
+  iris_hframe <- as.hydrar.frame(iris_dataframe, repartition = FALSE)
   iris_hmat <- as.hydrar.matrix(iris_hframe)
   train <- iris_hmat
   
@@ -88,6 +82,3 @@ test_that("hydrar.pca k_lessThan_features", {
   expect_that(hydrar.pca(train, center=T, scale=T, k=k, projData=T), throws_error("k must be less"))
   
 })
-
-
-

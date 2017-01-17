@@ -160,14 +160,16 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.kaplan.meier", def
       # time_status and groupid paths
       survTSGList <- hydrar.parseSurvivalArgsFromFormulaTree(formula,data,directory)
       timeAndStatusIds <- survTSGList[[1]]
-      timeAndStatusIdsFrame <- as.hydrar.frame(data.frame(timeAndStatusIds))
+      timeAndStatusIdsFrame <- as.hydrar.frame(data.frame(timeAndStatusIds),
+                                               repartition = FALSE)
 
       survTSMatrix <- as.hydrar.matrix(timeAndStatusIdsFrame)
       dmlArgs <- c(dmlArgs, TE=survTSMatrix)
       if (length(survTSGList) > 1) {                        
         groupIds <- survTSGList[[2]]
         if (length(groupIds) > 0){
-          survGFrame <- as.hydrar.frame(data.frame(groupIds))
+          survGFrame <- as.hydrar.frame(data.frame(groupIds),
+                                        repartition = FALSE)
           survGMatrix <- as.hydrar.matrix(survGFrame)
           
           dmlArgs <- c(dmlArgs, GI=survGMatrix)
@@ -191,7 +193,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.kaplan.meier", def
             }
           }
           
-          survStrataFrame = as.hydrar.frame(strataIds)
+          survStrataFrame <- as.hydrar.frame(strataIds, repartition = FALSE)
           #TODO see if it is possible to avoid the creation of matrix
           strataIdsMatrix <- as.hydrar.matrix(survStrataFrame)   
           dmlArgs <- c(dmlArgs, SI=strataIdsMatrix)
@@ -253,7 +255,8 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 
     cat("\n\nSurvival Median\n")
     # colnames=median_colnames
-    median <- as.hydrar.frame(hydrar.read.csv(file.path(object@medianPath)))
+    median <- as.hydrar.frame(hydrar.read.csv(file.path(object@medianPath)),
+                              repartition = FALSE)
     SparkR::colnames(median) <- median_colnames
     print(SparkR::take(median, 50))
   }
@@ -425,11 +428,15 @@ hydrar.kaplan.meier.test <- function(object) {
 
   km_test_colnames <- c(test_colnames, km_test_colnames)
   ### end generating header
-  km_test_full <- as.hydrar.frame(hydrar.read.csv(file.path(object@testPath), header=FALSE))
+  km_test_full <- as.hydrar.frame(hydrar.read.csv(file.path(object@testPath),
+                                                  header=FALSE),
+                                  repartition = FALSE)
   SparkR::colnames(km_test_full) <- km_test_colnames
 
   km_test_chsqr_path <- object@testPath %++% hydrar.env$DML_KM_TESTS_GRPS_OE_SUFFIX
-  km_test_chsqr <- as.hydrar.frame(hydrar.read.csv(file.path(km_test_chsqr_path), header=FALSE))
+  km_test_chsqr <- as.hydrar.frame(hydrar.read.csv(file.path(km_test_chsqr_path),
+                                                   header=FALSE),
+                                   repartition = FALSE)
   SparkR::colnames(km_test_chsqr) <- km_test_chsqr_colnames
 
   #chisqr <- "Chisq=" %++% km_test_chsqr[,3] %++% " on " %++% as.character(km_test_chsqr[,2]) %++% " degrees of freedom, p= " %++% as.character(km_test_chsqr[,4])

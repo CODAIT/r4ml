@@ -17,19 +17,15 @@
 context("Testing hydrar.step.lm\n")
 
 test_that("hydrar.step.lm direct", {
-  require(SparkR)
-  require(HydraR)
   data("iris")
 
-  hydra_iris <- as.hydrar.matrix(as.hydrar.frame(iris[,-5]))
+  hydra_iris <- as.hydrar.matrix(iris[, -5])
   step_lm <- hydrar.step.lm(Sepal_Length ~ ., data = hydra_iris)
   coef(step_lm)
   stats(step_lm)
 })
 
 test_that("hydrar.step.lm predict", {
-  require(SparkR)
-  require(HydraR)
   df <- iris
   df$Species <- (as.numeric(df$Species))
   iris_df <- as.hydrar.frame(df)
@@ -38,17 +34,15 @@ test_that("hydrar.step.lm predict", {
   s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
   test <- s[[1]]
   train <- s[[2]]
-  y_test <- as.hydrar.matrix(as.hydrar.frame(test[,1]))
+  y_test <- as.hydrar.matrix(test[, 1])
   y_test <- SparkR:::as.data.frame(y_test)
-  test <- as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
+  test <- as.hydrar.matrix(test[, c(2:5)])
   iris_step_lm <- hydrar.step.lm(Sepal_Length~ . , data = train)
   output <- predict(iris_step_lm, test)
   expect_true( base::mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) < 5)
 })
 
 test_that("hydrar.step.lm predict_scoring", {
-  require(SparkR)
-  require(HydraR)
   df <- iris
   df$Species <- (as.numeric(df$Species))
   iris_df <- as.hydrar.frame(df)
@@ -57,9 +51,9 @@ test_that("hydrar.step.lm predict_scoring", {
   s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
   test <- s[[1]]
   train <- s[[2]]
-  y_test <- as.hydrar.matrix(as.hydrar.frame(test[,1]))
+  y_test <- as.hydrar.matrix(test[,1])
   y_test <- SparkR:::as.data.frame(y_test)
-  test <- as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
+  test <- as.hydrar.matrix(test[, c(2:5)])
   iris_step_lm <- hydrar.step.lm(Sepal_Length ~ ., data=train)
   output <- predict(iris_step_lm, test)
   expect_true( mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) < 5)

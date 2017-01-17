@@ -238,6 +238,12 @@ with(hydrar.env, {
   #Logistic Regression specific constants
   BETA <- file.path("", "beta.csv")
   STATISTICS <- file.path("", "statistics.csv")
+  
+  # the minimum partition size in bytes for automatic repartitioning
+  MIN_PARTITION_SIZE <- 128000000
+  
+  # the min size of an object that we will repartion
+  MIN_REPARTION_SIZE <- 10000
 
 }) # End with
 

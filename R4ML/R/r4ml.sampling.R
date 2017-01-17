@@ -87,9 +87,9 @@ hydrar.sample <- function(data, perc, experimental=FALSE,
     castDF <- function(df) {
       casted_df = df
       if (data_type == 'hydrar.frame') {
-        casted_df <- as.hydrar.frame(df)
+        casted_df <- as.hydrar.frame(df, repartition = FALSE)
       } else if (data_type == 'hydrar.matrix') {
-        casted_df <- as.hydrar.matrix(as.hydrar.frame(df))
+        casted_df <- as.hydrar.matrix(df)
       } else if (data_type == 'SparkDataFrame') {
         casted_df <- df
       } else {

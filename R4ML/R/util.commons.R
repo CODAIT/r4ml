@@ -220,8 +220,8 @@ hydrar.emptySymbol <- function() (quote(f(,)))[[2]]
   yCols <- Filter(isYColName, colnames)
   xCols <- Filter(Negate(isYColName), colnames)
   #DEBUG browser()
-  yHM <- as.hydrar.matrix(as.hydrar.frame(SparkR::select(xy, yCols)))
-  xHM <- as.hydrar.matrix(as.hydrar.frame(SparkR::select(xy, xCols)))
+  yHM <- as.hydrar.matrix(SparkR::select(xy, yCols))
+  xHM <- as.hydrar.matrix(SparkR::select(xy, xCols))
   XandY <- c(X=xHM, Y=yHM)
   return(XandY)
 }

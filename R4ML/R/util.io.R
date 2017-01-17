@@ -77,16 +77,16 @@ hydrar.infoShow <- function(source, message) {
 
 hydrar.fs <- function() {
 
-  if (sparkR.conf()$spark.master == "yarn-client") {
+  if (SparkR::sparkR.conf()$spark.master == "yarn-client") {
     return("cluster")
   }
-  if (sparkR.conf()$spark.master == "yarn") {
+  if (SparkR::sparkR.conf()$spark.master == "yarn") {
     return("cluster")
   }
-  if (substr(sparkR.conf()$spark.master, 1, 8) == "spark://") {
+  if (substr(SparkR::sparkR.conf()$spark.master, 1, 8) == "spark://") {
     return("cluster")
   }
-  if (substr(sparkR.conf()$spark.master, 1, 5) == "local") {
+  if (substr(SparkR::sparkR.conf()$spark.master, 1, 5) == "local") {
     return("local")
   }
   

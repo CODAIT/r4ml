@@ -21,3 +21,8 @@ target/
 .Rproj.user
 log4j.spark.log*
 *.Rproj
+*.Rcheck/
+lib/
+html/
+man/
+doc/

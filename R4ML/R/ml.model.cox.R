@@ -173,14 +173,16 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.coxph", def =
                 # time_status and feature-id paths
                 survTSFList <- hydrar.parseSurvivalArgsFromFormulaTree(formula, data, directory)
                 timeAndStatusIds <- survTSFList[[1]]
-                timeAndStatusIdsFrame <- as.hydrar.frame(data.frame(timeAndStatusIds))
+                timeAndStatusIdsFrame <- as.hydrar.frame(data.frame(timeAndStatusIds), 
+                                                         repartition = FALSE)
                 survTSMatrix <- as.hydrar.matrix(timeAndStatusIdsFrame)
                 dmlArgs <- c(dmlArgs, TE = survTSMatrix)
                 
                 if (length(survTSFList) > 1) {
                   featureIds <- survTSFList[[2]]
                   
-                  survFrame <- as.hydrar.frame(as.data.frame(featureIds))
+                  survFrame <- as.hydrar.frame(as.data.frame(featureIds),
+                                               repartition = FALSE)
                   survFMatrix <- as.hydrar.matrix(survFrame)
                   
                   dmlArgs <- c(dmlArgs, F = survFMatrix)
@@ -338,7 +340,7 @@ hydrar.parseBaselineIds <- function(baseline, data, directory) {
     }
   }
   
-  baselineIdsFrame <- as.hydrar.frame(data.frame(from, to))
+  baselineIdsFrame <- as.hydrar.frame(data.frame(from, to), repartition = FALSE)
   return (baselineIdsFrame)
 }
 
@@ -420,6 +422,6 @@ predict.hydrar.coxph <- function(object, data) {
   prediction <- dmlOuts$P
   SparkR::colnames(prediction) <- c("lp", "se(lp)", "risk", "se(risk)", "cum.hazard", "se(cum.hazard)")
 
-  prediction <- as.hydrar.matrix(as.hydrar.frame(prediction))
+  prediction <- as.hydrar.matrix(prediction)
   return (prediction)
 }

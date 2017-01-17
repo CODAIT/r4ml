@@ -286,7 +286,7 @@ hydrar.model.splitXY <- function(data, yColname) {
 
 hydrar.model.getFeatureVector <- function(data) {
   cols <- SparkR::colnames(data)
-  features <- as.hydrar.matrix(as.hydrar.frame(SparkR::select(data,cols)))
+  features <- as.hydrar.matrix(SparkR::select(data,cols))
   return(features)
 }
 

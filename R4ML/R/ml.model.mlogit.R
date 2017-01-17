@@ -87,7 +87,7 @@ setClass("hydrar.mlogit",
 #'  iris_log_reg <- hydrar.mlogit(Species ~ . , data = train, labelNames=c("Setosa","Versicolor","Virginica")) 
 #'  
 #'  #Configure the test data
-#'  test = as.hydrar.matrix(as.hydrar.frame(test[,c(1:4)]))
+#'  test <- as.hydrar.matrix(test[, c(1:4)])
 #'
 #'  # Compute probabilities for the testing set
 #'  output <- predict.hydrar.mlogit(iris_log_reg, test)
@@ -264,7 +264,7 @@ setMethod("coef", signature="hydrar.mlogit", def =
 #'  iris_log_reg <- hydrar.mlogit(Species ~ . , data = train, labelNames=c("Setosa","Versicolor","Virginica")) 
 #'  
 #'  #Configure the test data
-#'  test = as.hydrar.matrix(as.hydrar.frame(test[,c(1:4)]))
+#'  test <- as.hydrar.matrix(test[, c(1:4)])
 #'
 #'  # Compute probabilities for the testing set
 #'  output <- predict(iris_log_reg, test)
@@ -274,7 +274,7 @@ setMethod("coef", signature="hydrar.mlogit", def =
 #' @seealso \link{hydrar.mlogit}
 predict.hydrar.mlogit <- function(object, data) {
   logSource <- "predict.hydrar.mlogit"
-  hydrar.info(logSource, "Predicting labels using given Logistic Regression model on data" %++% data)
+  hydrar.info(logSource, "Predicting labels using given Logistic Regression model on data")
   mlogit <- object
   
   .hydrar.checkParameter(logSource, data, inheritsFrom="hydrar.matrix")
@@ -284,7 +284,7 @@ predict.hydrar.mlogit <- function(object, data) {
 
   # Generate arguments to pass to SystemML script
   args <- list(dml = file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_GLM_TEST_SCRIPT),
-               B_full = as.hydrar.matrix(as.hydrar.frame(coef(object))),
+               B_full = as.hydrar.matrix(coef(object)),
                "means", # this is output $M
                O = statsPath,
                dfam = 3, # dfam = 3 gives us Multinomial in GLM_Predict script.
@@ -316,7 +316,7 @@ predict.hydrar.mlogit <- function(object, data) {
   # predictions themselves will be output
   colnames <- object@yColname
   
-  preds <- as.hydrar.matrix(as.hydrar.frame(dmlOuts[['means']]))
+  preds <- as.hydrar.matrix(dmlOuts[['means']])
 
   # Output probabilities/predictions accordingly
   output <- list("probabilities" = base::as.data.frame(SparkR::as.data.frame(preds)))

@@ -14,14 +14,11 @@
 # limitations under the License.
 #
 
-library (HydraR)
 library(testthat)
 context("Testing util.io\n")
 
 test_that("hydrar.fs", {
-  require(SparkR)
-  require(HydraR)
-  
+
   if(HydraR:::hydrar.fs() == "local") {
     expect_true(HydraR:::hydrar.fs.local())
     expect_false(HydraR:::hydrar.fs.cluster())
@@ -37,9 +34,7 @@ test_that("hydrar.fs", {
 test_that("hydrar.hdfs.exist", {
   
   if(HydraR:::hydrar.fs.cluster()) { # only need to run this test in cluster mode
-    require(SparkR)
-    require(HydraR)
-  
+
     warning("test hydrar.fs.cluster() is not implemented yet")
     #@TODO
   }
@@ -47,9 +42,7 @@ test_that("hydrar.hdfs.exist", {
 })
 
 test_that("hydrar.read.csv", {
-  require(SparkR)
-  require(HydraR)
-  
+
   if(HydraR:::hydrar.fs.local()) {
     warning("test hydrar.read.csv() is not implemented yet")
     #@TODO

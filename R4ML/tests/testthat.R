@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-library(testthat)
-library(HydraR)
-
-hydrar.session()
+library("testthat")
+library("SparkR")
 test_check("HydraR")

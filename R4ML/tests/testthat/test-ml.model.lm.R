@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-library (HydraR)
-hydrar.session()
 
 context("Testing hydrar.lm\n")
 
@@ -22,8 +20,6 @@ context("Testing hydrar.lm\n")
 # currently only the test for running is done but
 # accuracy test can be done later
 test_that("hydrar.lm direct", {
-  require(SparkR)
-  require(HydraR)
   data("airquality")
   aq_ozone <- airquality[c("Ozone", "Temp", "Wind")]
   aq_ozone[is.na(aq_ozone)] <- 0
@@ -43,8 +39,6 @@ test_that("hydrar.lm direct", {
 # currently only the test for running is done but
 # accuracy test can be done later
 test_that("hydrar.lm iterative", {
-  require(SparkR)
-  require(HydraR)
   data("airquality")
   aq_ozone <- airquality[c("Ozone", "Temp", "Wind")]
   aq_ozone[is.na(aq_ozone)] <- 0
@@ -60,8 +54,6 @@ test_that("hydrar.lm iterative", {
 })
 
 test_that("hydrar.lm predict", {
-  require(SparkR)
-  require(HydraR)
   df <- iris
   df$Species <- (as.numeric(df$Species))
   iris_df <- as.hydrar.frame(df)
@@ -70,27 +62,25 @@ test_that("hydrar.lm predict", {
   s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
   test <- s[[1]]
   train <- s[[2]]
-  y_test = as.hydrar.matrix(as.hydrar.frame(test[,1]))
+  y_test <- as.hydrar.matrix(test[, 1])
   y_test = SparkR:::as.data.frame(y_test)
-  test = as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
+  test <- as.hydrar.matrix(test[, c(2:5)])
   iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
   output <- predict(iris_lm, test)
 })
 
 test_that("hydrar.lm predict_scoring", {
-  require(SparkR)
-  require(HydraR)
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df)
+  iris_df <- as.hydrar.frame(df, repartition = FALSE)
   iris_mat <- as.hydrar.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
   s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
   test <- s[[1]]
   train <- s[[2]]
-  y_test = as.hydrar.matrix(as.hydrar.frame(test[,1]))
+  y_test <- as.hydrar.matrix(test[,1])
   y_test = SparkR:::as.data.frame(y_test)
-  test = as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
+  test <- as.hydrar.matrix(test[, c(2:5)])
   iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
   output <- predict(iris_lm, test)
   #stopifnot(mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) - 5 < .001)		

@@ -510,7 +510,7 @@ sysml.execute <- function(dml, ...) {
   outputs <- list()
   for (out_arg in out_args) {
     out_df <- sysml_outs$getDF(out_arg)
-    out_hm <- as.hydrar.matrix(as.hydrar.frame(out_df))
+    out_hm <- as.hydrar.matrix(as.hydrar.frame(out_df, repartition = FALSE))
     outputs[out_arg] <- out_hm
   }
   outputs

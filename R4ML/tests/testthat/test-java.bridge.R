@@ -14,9 +14,6 @@
 # limitations under the License.
 #
 
-
-library(HydraR)
-
 context("Testing Java Bridge\n")
 
 # test the java log4j.Logger

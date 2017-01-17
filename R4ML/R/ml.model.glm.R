@@ -498,7 +498,7 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
 predict.hydrar.glm <- function(object, data, family, dispersion) {
   logSource <- "hydrar.predict.glm"
   
-  hydrar.info(logSource, "Predicting labels using given GLM model on data" %++% data)
+  hydrar.info(logSource, "Predicting labels using given GLM model on data")
   glm <- object
   
   .hydrar.checkParameter(logSource, data, inheritsFrom="hydrar.matrix")
@@ -548,7 +548,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
   
   # TEMP: build the coefficients.csv file
   args <- list(dml=file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_GLM_TEST_SCRIPT),
-               B_full = as.hydrar.matrix(as.hydrar.frame(object@dmlOuts[['beta_out']])),
+               B_full = as.hydrar.matrix(as.hydrar.frame(object@dmlOuts[['beta_out']], repartition = FALSE)),
                "means", # this is output $M
                O=statsPath,
                dfam=distFamily,
@@ -641,7 +641,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
     glm@yColname
   }
   
-  preds <- as.hydrar.matrix(as.hydrar.frame(dmlOuts[['means']]))
+  preds <- as.hydrar.matrix(as.hydrar.frame(dmlOuts[['means']], repartition = FALSE))
   # Output probabilities/predictions accordingly
   output <- if (glm@family$family == "binomial") {
     list("probabilities" = preds)

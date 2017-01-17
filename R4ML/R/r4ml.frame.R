@@ -26,7 +26,7 @@ requireNamespace("SparkR")
 #' @examples \dontrun{
 #'
 #'  spark_df <- SparkR::createDataFrame(sysmlSqlContext, iris)
-#'  hydra_frame <- new("hydrar.frame", sdf=spark_df@@sdf, isCached=spark_df@@env$isCached)
+#'  hydrar_frame <- new("hydrar.frame", sdf=spark_df@@sdf, isCached=spark_df@@env$isCached)
 #'
 #' }
 #'
@@ -72,19 +72,49 @@ setMethod("is.hydrar.numeric",
   }
 )
 
+hydrar.calc.num.partitions <- function(object_size) {
+  logSource <- "calc num partitons"
+
+  # attempt to detect the # of CPU cores on machine
+  cores <- parallel::detectCores(all.tests = TRUE)
+  
+  if (is.null(cores) | cores < 1) {
+    hydrar.warn(logSource, "unable to detect number of CPU cores")
+    cores <- 8 # default to 8 cores
+  }
+
+  num_partitions <- as.numeric(object_size) / hydrar.env$MIN_PARTITION_SIZE
+  num_partitions <- ceiling(num_partitions)
+  
+  if (num_partitions < cores) {
+    # we should have at least as many partitions as cpu cores
+    num_partitions <- cores
+  }
+  
+  hydrar.info(logSource, paste(num_partitions, "partitions"))
+  
+  return(num_partitions)
+}
+
+
 #' Convert the various  data.frame into the hydraR data frame.
 #'
 #' This is the convenient method of converting the data in the distributed hydraR
 #'
 #' @name as.hydrar.frame
-#' @param object a R data.frame or SparkR::SparkDataFrame
-#' @return hdf a hydraR dataframe
+#' @param object a R data.frame or SparkDataFrame
+#' @param repartition (data.frame only) TRUE/FALSE, should the data automaticly
+#' be repartitioned
+#' @param numPartitons (data.frame only) number of partitons to create
+#' @return a HydraR frame
 #' @export
 #' @examples \dontrun{
 #'    hf1 <- as.hydrar.frame(iris)
 #'    hf2 <- as.hydrar.frame(SparkR::createDataFrame(symlSqlContext, iris))
 #' }
-setGeneric("as.hydrar.frame", function(object, ...) {
+setGeneric("as.hydrar.frame", function(object, repartition = TRUE,
+                                       numPartitions = NA,
+                                       ...) {
   standardGeneric("as.hydrar.frame")
 })
 
@@ -101,22 +131,48 @@ setMethod("as.hydrar.frame",
 
     hydra_frame <- new("hydrar.frame", sdf=object@sdf, isCached=object@env$isCached)
     hydra_frame
+
   }
 )
 
 #' @export
 setMethod("as.hydrar.frame",
   signature(object = "data.frame"),
-  function(object, ...) {
+  function(object, repartition = TRUE, numPartitions = NA, ...) {
     logSource <- "as.hydrar.frame"
 
     if (!hydrar.env$HYDRAR_SESSION_EXISTS) {
       hydrar.err(logSource,
                  'No HydraR session exists (call "hydrar.session()")')
     }
+    
+    # need to get the object size before we make it a Spark DataFrame
+    object_size <- object.size(object)
+    if (object_size < hydrar.env$MIN_REPARTION_SIZE) {
+      # don't repartion small objects
+      # this is required for some test cases (repartioning re-orders rows) and
+      # likely results in better performance with small datasets
+      repartition <- FALSE
+    }
 
     spark_df <- SparkR::createDataFrame(sysmlSqlContext, object)
-    as.hydrar.frame(spark_df)
+
+    if (repartition) {
+
+      if (is.na(numPartitions)) {
+        numPartitions <- hydrar.calc.num.partitions(object_size)
+      }
+
+      hydrar.info(logSource,
+                  paste("repartitioning an object of size:", object_size, 
+                        "into", numPartitions, "partitions"))
+
+      spark_df <- SparkR::repartition(spark_df, numPartitions = numPartitions)
+    }
+    
+    hf <- as.hydrar.frame(spark_df, ...)
+    
+    return(hf)
   }
 )
 
@@ -171,7 +227,7 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
 #' @param hf (hydrar.frame) A hydrar.frame to be inpute values with.
 #' @param df_columns (list) A named list with names that represent the columns to be fitted, values are imputed.
 #' 
-#'@examples /dontrun{
+#'@examples \dontrun{
 #'  # Load Dataset
 #'  df <- as.DataFrame(sysmlSqlContext, airquality)
 #'  head(df)
@@ -392,7 +448,7 @@ setMethod("hydrar.recode",
       new_sch_fld <- old_sch_fld
       if (exists(cname, envir=icol2rec_env, inherits = F)) {
         old_sch_fld <- old_sch_flds[[i]]
-        new_sch_fld <- structField(old_sch_fld$name(), "integer",
+        new_sch_fld <- SparkR::structField(old_sch_fld$name(), "integer",
                                    old_sch_fld$nullable())
       } else {
         #default  new_sch_fld <- old_sch_fld

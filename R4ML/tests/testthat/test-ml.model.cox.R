@@ -13,56 +13,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#library (HydraR)
 
 context("Testing hydrar.cox\n")
 
 test_that("hydrar.coxph", {
-  require(SparkR)
-  require(HydraR)
   
-  surv <- data.frame("Other"    = c(1, 2, 3, 4, 5, 6),
-                    "Gender"   = c(1, 0, 0, 1, 1, 0),
-                    "Race"     = c(1, 0, 0, 2, 6, 2),
-                    "Origin"   = c(2, 0, 0, 15, 0, 2),
-                    "Censor"   = c(1, 0, 0, 0, 1, 1),
-                    "Age"      = c(20, 17, 25, 52, 52, 52),
-                    "Timestamp"= c(1, 2, 3, 4, 5, 6))
+  # this test case works by building 2 cox models: 1 using survival::coxph and
+  # 1 using HydraR::hydrar.coxph. It then checks to make sure the outputs are
+  # the same
+  
+  
+  library("SparkR")
+  library("survival")
+  
+  data("lung")
+  colnames(lung) <- c("inst", "time", "status", "age", "sex", "ph_ecog",
+                      "ph_karno", "pat_karno", "meal_cal", "wt_loss" )
+  
+  lung$meal_cal[which(is.na(lung$meal_cal))] <- 930
+  lung$wt_loss[which(is.na(lung$wt_loss))] <- 10
+  lung$ph_ecog[which(is.na(lung$ph_ecog))] <- 1
+  lung$pat_karno[which(is.na(lung$pat_karno))] <- 80
+  lung$inst[which(is.na(lung$inst))] <- 11
+  lung$ph_karno[which(is.na(lung$ph_karno))] <- 80
+  
+  
+  hydrar_lung <- as.hydrar.frame(lung, repartition = FALSE)
+  
+  hydrar_lung_pp <- hydrar.ml.preprocess(hydrar_lung,
+                                         transformPath = file.path(tempdir(), "cox"),
+                                         dummycodeAttrs = c("sex", "ph_ecog"),
+                                         recodeAttrs = c("sex", "ph_ecog"))
+  lung <- SparkR::as.data.frame(hydrar_lung_pp$data)
+  
+  surv_formula <- Surv(time, status) ~ age + sex_1 + ph_ecog_1 + ph_ecog_2 + ph_ecog_3
+  
+  cox_fit <- coxph(surv_formula, lung)
+  hydrar_cox_fit <- hydrar.coxph(hydrar_lung_pp$data, surv_formula,
+                                 baseline = list("sex_1", "ph_ecog_1", "ph_ecog_2", "ph_ecog_3"))
 
-  surv <- as.hydrar.frame(surv)
-
-  coxsurvdc <- hydrar.ml.preprocess(surv,
-                                    transformPath = "/tmp/cox/survcox2.transform",
-                                    dummycodeAttrs = c("Origin", "Gender"),
-                                    recodeAttrs = c("Origin", "Gender"))
+  expect_true(abs(hydrar_cox_fit@coxModel["age","coef"] - cox_fit$coefficients["age"]) < .1)
   
-  cox_formula <- Surv(Timestamp, Censor) ~ Gender_1 + Gender_2 + Origin_1 + Origin_2 + Origin_3 + Age
+  #@TODO test predict
   
-  cox_obj <- hydrar.coxph(formula = cox_formula,
-                          data = coxsurvdc$data,
-                          baseline = list("Origin_1", "Origin_2", "Origin_3", "Gender_1", "Gender_2")
-                          )
-
-  expect_equal(round(cox_obj@coxModel$coef[1]), -6)
-  expect_equal(round(cox_obj@coxModel$coef[6]), 0)  
-  
-  coxpred <- data.frame("Gender" = c(1, 0, 0, 0), 
-                        "Origin" = c(0, 2, 14, 15),
-                        "Censor" = c(0, 1, 0, 0), 
-                        "Age" = c(65, 56, 45, 90),
-                        "Timestamp" = c(5, 6, 8, 9))
-  
-  coxsurvpredbf <- as.hydrar.frame(coxpred)
-
-  coxsurvpredc <- hydrar.ml.preprocess(coxsurvpredbf,
-                                      transformPath = "/tmp/cox/survcox2.transform",
-                                      dummycodeAttrs = c("Origin", "Gender"),
-                                      recodeAttrs = c("Origin", "Gender"))
-
-  pred <- predict.hydrar.coxph(cox_obj, data = coxsurvpredc$data)
-  
-  pred <- SparkR::as.data.frame(pred)
-  
-  expect_equal(round(pred$lp[1]), -397)
-  
+  #predict(cox_fit, type = "lp")
+  #hydrar_pred <- predict.hydrar.coxph(hydrar_cox_fit, hydrar_lung_pp$data)
+  #predict(cox_fit, type = "expected")
+  #predict(cox_fit, type = "risk", se.fit = TRUE)
+  #predict(cox_fit, type = "terms", se.fit = TRUE)
   })

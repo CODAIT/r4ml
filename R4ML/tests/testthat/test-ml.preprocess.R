@@ -21,8 +21,6 @@ context("Testing hydrar.pre.processing\n")
 
 test_that("hydrar.impute", {
   # skip("skip for now")
-  require(SparkR)
-  require(HydraR)
   data("airquality")
   airq_hf <- as.hydrar.frame(as.data.frame(airquality))
   airq_hm <- as.hydrar.matrix(airq_hf)

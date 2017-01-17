@@ -72,7 +72,7 @@ N = nrow(X)
 tmp_df <- data.frame(recode=c(5,4,2))
 # since most of the sysml interface is via the matrix.
  
-tmp_hm <- as.hydrar.matrix(as.hydrar.frame(tmp_df)) # call the previously create onehot udf
+tmp_hm <- as.hydrar.matrix(tmp_df) # call the previously create onehot udf
 tmp_onehot_hm <- udf_onehot(tmp_hm)
 # lets see it's content
 showDF(tmp_onehot_hm)
@@ -108,7 +108,7 @@ ignore <- cache(al_df) # very important step otherwise the partition gets screw 
 # convert to the hydrar frame
 al_df <- SparkR::select(al_df, attr2process)
 ignore <- cache(al_df)
-al_hm = as.hydrar.matrix(as.hydrar.frame(al_df))
+al_hm <- as.hydrar.matrix(al_df)
 
 al_onehot_hm <- udf_onehot(al_hm)
 # lets see it's content

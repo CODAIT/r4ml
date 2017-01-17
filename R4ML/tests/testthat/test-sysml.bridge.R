@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-library(HydraR)
 
 context("Testing sysml_bridge\n")
 
@@ -30,11 +29,9 @@ test_that("sysml.MatrixCharacteristics", {
 
 # test the bridge to the SystemML RDDConverterUtilsExt
 test_that("sysml.RDDConverterUtils", {
-  require(SparkR)
-  require(HydraR)
   aq_ozone <- airquality$Ozone
   aq_ozone[is.na(aq_ozone)] <- 0
-  aq_ozone_df <- as.hydrar.matrix(as.hydrar.frame(as.data.frame(aq_ozone)))
+  aq_ozone_df <- as.hydrar.matrix(as.data.frame(aq_ozone))
   mc <- HydraR:::sysml.MatrixCharacteristics$new(count(aq_ozone_df), 1, 10, 1)
   rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
   sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
@@ -47,7 +44,7 @@ test_that("sysml.MLContext sample data",{
   as.data.frame(v)
   tdf=as.data.frame(v)
   dv=as.data.frame(v)
-  dv_df <- as.hydrar.matrix(as.hydrar.frame(dv))
+  dv_df <- as.hydrar.matrix(as.hydrar.frame(dv, repartition = FALSE))
   
   mc <- HydraR:::sysml.MatrixCharacteristics$new(count(dv_df), 1, 10,1)
   rdd_utils<- HydraR:::sysml.RDDConverterUtils$new()
@@ -75,7 +72,7 @@ test_that("sysml.MLContext sample data",{
   cat("output dataframe")
   SparkR:::showDF(o1)
   o2=SparkR:::collect(o1)
-  expect_equivalent(2*v, o2$O)
+  expect_equivalent(sort(2*v), sort(o2$O))
 })
 
 # test the Bridge to the SystemML MLContext . To be removed eventually
@@ -91,7 +88,7 @@ test_that("sysml.MLContext Short data", {
   '
   aq_ozone <- airquality$Ozone
   aq_ozone[is.na(aq_ozone)] <- 0
-  aq_ozone_df <- as.hydrar.matrix(as.hydrar.frame(as.data.frame(aq_ozone)))
+  aq_ozone_df <- as.hydrar.matrix(as.data.frame(aq_ozone))
   
   x_cnt = SparkR:::count(aq_ozone_df)
   mc <- HydraR:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
@@ -119,7 +116,8 @@ test_that("sysml.MLContext Exception handling test", {
   '
   aq_ozone <- airquality$Ozone
   aq_ozone[is.na(aq_ozone)] <- 0
-  aq_ozone_df <- as.hydrar.matrix(as.hydrar.frame(as.data.frame(aq_ozone)))
+  aq_ozone_df <- as.hydrar.matrix(as.hydrar.frame(as.data.frame(aq_ozone),
+                                                  repartition = FALSE))
 
   x_cnt = SparkR:::count(aq_ozone_df)
   mc <- HydraR:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
@@ -129,7 +127,7 @@ test_that("sysml.MLContext Exception handling test", {
   mlc$registerInput("X", sysml_jrdd, mc)
   mlc$registerOutput("O")
   options(warning.length = 5000) # set warning length to some number
-  expect_error(do.call(mlc$executeScript,list(dml)),".*Error*")
+  expect_error(do.call(mlc$executeScript,list(dml)))
   expect_equal(options()$warning.length, 5000) # test that the number remains the same
 
 })

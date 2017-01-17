@@ -14,14 +14,10 @@
 # limitations under the License.
 #
 
-library(HydraR)
 library(testthat)
 context("Testing airline.R\n")
 
 test_that("airline.R", {
-  require(SparkR)
-  require(HydraR)
-
   df <- airline
   
   expect_equal(class(df), "data.frame")

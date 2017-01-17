@@ -139,9 +139,9 @@ One can follow one of the following instructions...
     s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
     test <- s[[1]]
     train <- s[[2]]
-    y_test = as.hydrar.matrix(as.hydrar.frame(test[,1]))
+    y_test <- as.hydrar.matrix(test[, 1])
     y_test = SparkR:::as.data.frame(y_test)
-    test = as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
+    test <- as.hydrar.matrix(test[, c(2:5)])
 
     # create the linear model
     iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")

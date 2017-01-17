@@ -293,9 +293,9 @@ setMethod("stats", signature="hydrar.lm", def =
 #'   s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
 #'   test <- s[[1]]
 #'   train <- s[[2]]
-#'   y_test = as.hydrar.matrix(as.hydrar.frame(test[,1]))
+#'   y_test <- as.hydrar.matrix(test[, 1])
 #'   y_test = SparkR:::as.data.frame(y_test)
-#'   test = as.hydrar.matrix(as.hydrar.frame(test[,c(2:5)]))
+#'   test <- as.hydrar.matrix(test[,c(2:5)])
 #'   iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
 #'   output <- predict(iris_lm, test)
 #' }       
@@ -333,7 +333,7 @@ predict.hydrar.lm <- function(object, data) {
     }
     # add arguments that are general across testing/scoring
     args <- c(args, dfam = 1)
-    args <- c(args, B_full = as.hydrar.matrix(as.hydrar.frame(coef(object))))
+    args <- c(args, B_full = as.hydrar.matrix(coef(object)))
     args <- c(args, "means")
     args <- c(args, fmt = "csv")
     args <- c(args, dml=file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_GLM_TEST_SCRIPT))

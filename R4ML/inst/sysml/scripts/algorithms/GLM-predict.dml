@@ -90,7 +90,7 @@ fileX = " ";
 fileB = " ";
 fileM = ifdef ($M, " ");
 fileY = " ";
-fileO = " ";
+fileO = ifdef ($O, " ");
 fmtM  = ifdef ($fmt, "text");
 cmd_scoring_only = ifdef($scoring_only, "yes");
 

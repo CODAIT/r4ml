@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-library(HydraR)
 library(testthat)
 context("Testing hydrar.env\n")
 

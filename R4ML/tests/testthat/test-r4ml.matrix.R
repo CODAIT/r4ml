@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-library (HydraR)
 
 context("Testing hydrar.matrix\n")
 
@@ -30,7 +29,7 @@ test_that("as.hydrar.matrix", {
 # begin one hot testing
 test_that("hydrar.onehot generic case 1", {
   rdf2hm <- function(rdf) {
-    as.hydrar.matrix(as.hydrar.frame(as.DataFrame(sysmlSqlContext, rdf)))
+    as.hydrar.matrix(as.DataFrame(sysmlSqlContext, rdf))
   }
   # out data set contains mix columns
   data <- rdf2hm(data.frame( c1=c(2,3,4), c2=c(1,4,3), c3=c(5,5,5), c4=c(3,1,2) ))
@@ -69,9 +68,7 @@ test_that("hydrar.onehot generic case 1", {
 # end one hot encoding
 
 test_that("hydrar.impute", {
-  require(SparkR)
-  require(HydraR)
-  df <- as.hydrar.matrix(as.hydrar.frame(airquality))
+  df <- as.hydrar.matrix(airquality)
   ml.coltypes(df) <- c("scale", "scale", "scale", "scale", "nominal", "nominal")
   new_df <- hydrar.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
 })

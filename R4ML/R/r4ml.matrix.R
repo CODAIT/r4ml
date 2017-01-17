@@ -75,16 +75,29 @@ setMethod("as.hydrar.matrix",
       ml.coltypes(result) <- rep("scale", ncol)
     } else {
       #@TODO auto convert
-      warning("as.hydrar.matrix, auto conversion from non numeric hydrar.frame is not supported yet")
-      stop("object " %++% object %++% "is not numeric.")
-      # else throw error
-      stop("can't convert the hydrar.frame to hydrar.matrix")
+      stop("conversion from non numeric hydrar.frame is not supported yet")
     }
     result
   }
 )
 
+setMethod("as.hydrar.matrix",
+  signature(object = "data.frame"),
+  function(object) {
+  hf <- as.hydrar.frame(object)
+  hm <- as.hydrar.matrix(hf)
+  return(hm)
+  }
+)
 
+setMethod("as.hydrar.matrix",
+  signature(object = "SparkDataFrame"),
+  function(object) {
+  hf <- as.hydrar.frame(object)
+  hm <- as.hydrar.matrix(hf)
+  return(hm)
+  }
+)
 
 #' @export
 setGeneric("ml.coltypes<-",
@@ -260,7 +273,7 @@ hydrar.onehot.column <- function(hm, colname) {
     y_names <- c(hm_names[1:col_idx-1], oh_new_names)
   }
   SparkR::colnames(Y) <- y_names
-  data <- as.hydrar.matrix(as.hydrar.frame(Y))
+  data <- as.hydrar.matrix(Y)
   metadata <- new.env(parent=emptyenv())
   assign(colname, oh_new_names, envir=metadata)
   

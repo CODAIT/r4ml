@@ -82,25 +82,33 @@ auto_start_session <- function() {
 # call the systemML as well as SparkR functionality as needed
 # if sparkR is already initialized then it wil re-initialize it
 .onLoad <- function(libname, pkgname) {
+  logSource <- ".onLoad"
+  
+  if (Sys.getenv("HYDRAR_DEBUG_MODE") == "1") {
+    hydrar.env$LOG_LEVEL <-4
+    hydrar.info(logSource, "debug mode activated")
+  }
 
   if ("SparkR" %in% loadedNamespaces()) {
     if (exists(".sparkRjsc", envir = SparkR:::.sparkREnv)) {
+      hydrar.warn(logSource, "Reloading SparkR")
       hydrar.reload.SparkR()
-      stop("Reloading SparkR")
     } else {
+      hydrar.info(logSource, "loading SparkR")
       hydrar.load.SparkR()
     }
   }
 
   print_hydrar_ascii()
-  
+
   if(nchar(libname) > 0 & nchar(pkgname) > 0) { 
     # in some environments libname and pkgname may not be passed
-    desc <- packageDescription(pkg = pkgname, lib.loc = libname)
+    desc <- utils::packageDescription(pkg = pkgname, lib.loc = libname)
     cat(paste0("version ", desc$Version, "\n"))
   }
   
   if(auto_start_session()) {
+    hydrar.info(logSource, "auto starting session")
     hydrar.session()
   }
   
@@ -121,7 +129,15 @@ is.sparkr.ready <- function() {
 # it basically stops the SparkR cluster and unload any namespace associated with it
 #
 .onUnload <- function(libpath) {
+  if (hydrar.env$HYDRAR_SESSION_EXISTS) {
+    hydrar.session.stop()
+  }
+  
   hydrar.unload.SparkR()
+}
+
+.onDetach <- function(libpath) {
+  .onUnload()
 }
 # a utlity function to check is sparkR loaded
 is.sparkr.loaded <- function() {
@@ -149,8 +165,9 @@ hydrar.load.SparkR <- function() {
     lib_loc <- file.path(Sys.getenv("SPARK_HOME"), "R", "lib")
     .libPaths(c(lib_loc, .libPaths()))
     #library(SparkR, lib.loc = c(lib_loc))
-    requireNameSpace("SparkR")
   }
+  
+  requireNamespace("SparkR")
 
 }
 
@@ -197,9 +214,6 @@ sysml.init <- function(sc) {
   # logger and level settings
   logger <- log4j.Logger$new("org")
   assign("logger", logger, .GlobalEnv)
-
-  logger <- log4j.Logger$new()
-  assign("logger", logger, .GlobalEnv)
   logger$setLevel("WARN")
 
   # static class sysml.RDDUtils
@@ -235,21 +249,21 @@ hydrar.session <- function(
   logSource <- "hydrar.session"
 
   if (hydrar.env$HYDRAR_SESSION_EXISTS) {
-    warning("HydraR session already initialized")
+    hydrar.warn(logSource, "HydraR session already initialized")
     return()
   }
 
   if (nchar(master) == 0) {
-    warning("master not defined. Defaulting to local[*]")
+    hydrar.warn(logSource, "master not defined. Defaulting to local[*]")
     master <- "local[*]"
   }
   
   if (nchar(sparkHome) == 0) {
-    stop("SPARK_HOME not defined")
+    hydrar.err(logSource, "SPARK_HOME not defined")
   }
   
   if (length(sparkConfig$spark.driver.memory) == 0  || nchar(sparkConfig$spark.driver.memory) == 0) {
-    warning("driver.memory not defined. Defaulting to 2G")
+    hydrar.warn(logSource, "driver.memory not defined. Defaulting to 2G")
     sparkConfig$spark.driver.memory <- "2G"
   }
   
@@ -273,9 +287,11 @@ hydrar.session <- function(
 #' @description Stop HydraR
 #' @export
 hydrar.session.stop <- function() {
+  logSource <- "hydrar.session.stop"
   
   if(hydrar.env$HYDRAR_SESSION_EXISTS == FALSE) {
-    stop("No HydraR session exists")
+    hydrar.warn(logSource, "No HydraR session exists")
+    return()
   }
   
   SparkR::sparkR.session.stop()

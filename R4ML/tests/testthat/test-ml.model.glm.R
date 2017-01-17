@@ -21,13 +21,11 @@ context("Testing hydrar.glm\n")
 # currently only the test for running is done but
 # accuracy test can be done later
 test_that("hydrar.glm", {
-  require(SparkR)
-  require(HydraR)
   data("airquality")
   aq_ozone <- airquality[c("Ozone", "Temp", "Wind")]
   aq_ozone[is.na(aq_ozone)] <- 0
   aq_ozone_rdf <- as.data.frame(aq_ozone)
-  aq_ozone_df <- as.hydrar.frame(aq_ozone_rdf)
+  aq_ozone_df <- as.hydrar.frame(aq_ozone_rdf, repartition = FALSE)
   aq_ozone_mat <- as.hydrar.matrix(aq_ozone_df)
   train <- aq_ozone_mat
   aq_glm <- hydrar.glm(Ozone ~ . , data = train)
@@ -48,19 +46,17 @@ test_that("hydrar.glm", {
 })
 
 test_that("predict.hydrar.glm", {
-  require(SparkR)
-  require(HydraR)
   data("airquality")
   aq_ozone <- airquality[c("Ozone", "Temp", "Wind")]
   aq_ozone[is.na(aq_ozone)] <- 0
   aq_ozone_rdf <- as.data.frame(aq_ozone)
-  aq_ozone_df <- as.hydrar.frame(aq_ozone_rdf)
+  aq_ozone_df <- as.hydrar.frame(aq_ozone_rdf, repartition = FALSE)
   aq_ozone_mat <- as.hydrar.matrix(aq_ozone_df)
   s <- hydrar.sample(aq_ozone_mat, perc=c(0.2,0.8))
   test <- s[[1]]
   train <- s[[2]]
   test1 <- test[,c(2,3)]
-  test2 <- as.hydrar.matrix(as.hydrar.frame(test1))
+  test2 <- as.hydrar.matrix(test1)
   
   aq_glm <- hydrar.glm(Ozone ~ . , data = train, lambda=1.1)
   predict(aq_glm, test)

@@ -3,15 +3,14 @@ Type: Package
 Title: Distributed R based on the Apache SparkR and Apache SystemML
 Version: 0.8.0
 Date: 2016-10-14
-Author: Apache Open Source
-Maintainer: Who to complain to <noreply@apache.org>
+Author: IBM Spark Technology Center
+Maintainer: IBM Spark Technology Center <community@spark.tc>
 Description: Distributed R based on the Apache SparkR and Apache SystemML.
 URL: https://github.com/SparkTC/spark-hydrar/
 LazyData: TRUE
 Depends:
     R(>= 3.0.0),
     SparkR(>= 2.0.0),
-    readr
 Imports:
     readr,
     survival
@@ -19,7 +18,7 @@ Suggests:
     testthat,
     knitr,
     devtools
-License: file LICENSE
+License: Apache License (== 2.0)
 Collate:
     'zzz.R'
     'HydraR.R'
