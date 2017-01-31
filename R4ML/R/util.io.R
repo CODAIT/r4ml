@@ -51,11 +51,9 @@ hydrar.info <- function(source, message) {
   infoBit <- trunc(hydrar.env$LOG_LEVEL / 4) %% 2
   if (infoBit == 1) {
     if (length(message) == 1) {
-      cat("DEBUG[" %++% source %++% "]: " %++% message)
-      cat("\n")
+      message("DEBUG[" %++% source %++% "]: " %++% message)
     } else {
-      cat("DEBUG[" %++% source %++% "]: [vector]: " %++% paste(message, collapse=", "))
-      cat("\n")
+      message("DEBUG[" %++% source %++% "]: [vector]: " %++% paste(message, collapse=", "))
     }
   }
 }
@@ -76,6 +74,7 @@ hydrar.infoShow <- function(source, message) {
 }
 
 hydrar.fs <- function() {
+  logSource <- "hydrar.fs"
 
   if (SparkR::sparkR.conf()$spark.master == "yarn-client") {
     return("cluster")
@@ -91,7 +90,7 @@ hydrar.fs <- function() {
   }
   
   # if the input is not one of the above it is most liklely some other kind of spark cluster
-  warning("Unable to determine file system. Assuming cluster mode.")
+  hydrar.warn(logSource, "Unable to determine file system. Defaulting to cluster mode.")
   return("cluster")
 }
 
@@ -104,8 +103,9 @@ hydrar.fs.cluster <- function() {
 }
 
 hydrar.hdfs.exist <- function(file) {
+  logSource <- "hydrar.hdfs.exist"
   if(hydrar.fs.local()) {
-    warning("Not in cluster mode!") 
+    hydrar.warn(logSource, "Not in cluster mode!") 
     return(FALSE)
   }
   
@@ -121,15 +121,19 @@ hydrar.hdfs.exist <- function(file) {
 #' @param header logical
 #' @param stringsAsFactors logical
 #' @param inferSchema logical
+#' @param na.strings a vector of strings which should be interpreted as NA
+#' @param schema (cluster mode) the SparkR scheme
 #' @param sep field separator character, supported in local mode
 #' @export
 hydrar.read.csv <- function(
   file, header = FALSE, stringsAsFactors = FALSE, inferSchema = FALSE, sep = ",",
    na.strings = "NA", schema = NULL, ...
 ){
+  logSource <- "hydrar.read.csv"
+  
   if(hydrar.fs.local()) {
     if (!is.null(schema)) {
-      hydrar.err("Can't have the schema in the local mode")
+      hydrar.err(logSource, "Can't have the schema in the local mode")
     }
     df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors, sep = sep, na.strings = na.strings)
     return(df)

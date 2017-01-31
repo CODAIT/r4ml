@@ -55,7 +55,7 @@ test_that("hydrar.svm direct", {
     predict(iris_svm, test_iris_inp_mat)
   }, error = function(e) {
     #@TODO this test fails on some machines. Alok will fix
-    cat("svm error")
+    warning("svm error")
   })
   
   # Get the scores                 
@@ -109,7 +109,7 @@ test_that("hydrar.svm direct", {
     preds <- predict(iris_svm, test_iris_inp_mat)
   }, error = function(e) {
     #@TODO this test fails on some machines. Alok will fix
-    cat("svm error")
+    warning("svm error")
   })
   
 
@@ -123,6 +123,6 @@ test_that("hydrar.svm direct", {
   # Get the overall accuracy
   #preds$accuracy
   
-  cat("testing svm done")
+  message("testing svm done")
   
 })

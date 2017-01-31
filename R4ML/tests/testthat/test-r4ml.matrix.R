@@ -17,13 +17,17 @@
 context("Testing hydrar.matrix\n")
 
 test_that("is.hydrar.matrix", {
-  warning("test is.hydrar.matrix is not implemented yet")
-  #@TODO
+
+  expect_false(is.hydrar.matrix(iris))
+  expect_false(is.hydrar.matrix(as.hydrar.frame(iris)))
+  expect_true(is.hydrar.matrix(as.hydrar.matrix(as.hydrar.frame(iris[, -5]))))
+  
 })
 
 test_that("as.hydrar.matrix", {
-  warning("test as.hydrar.matrix is not implemented yet")
-  #@TODO
+
+  hm <- as.hydrar.matrix(iris[, -5])
+  
 })
 
 # begin one hot testing

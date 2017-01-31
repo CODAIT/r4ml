@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-print_hydrar_ascii <- function() {
+hydrar_ascii <- function() {
   
   #' Big by Glenn Chappell 4/93 -- based on Standard
   #' Includes ISO Latin-1
@@ -27,18 +27,19 @@ print_hydrar_ascii <- function() {
   #' supported by FIGlet and FIGWin.  May also be slightly modified for better use
   #' of new full-width/kern/smush alternatives, but default output is NOT changed.
   
-    cat("\n")
-    cat("  _    _           _           _____\n")
-    cat(" | |  | |         | |         |  __ \\\n") 
-    cat(" | |__| |_   _  __| |_ __ __ _| |__) |\n")
-    cat(" |  __  | | | |/ _` | '__/ _` |  _  /\n")
-    cat(" | |  | | |_| | (_| | | | (_| | | \\ \\\n")
-    cat(" |_|  |_|\\__, |\\__,_|_|  \\__,_|_|  \\_\\\n")
-    cat("          __/ |\n")
-    cat("         |___/\n")
+  ascii <- "\n"
+  ascii <- paste0(ascii, "  _    _           _           _____\n")
+  ascii <- paste0(ascii, " | |  | |         | |         |  __ \\\n") 
+  ascii <- paste0(ascii, " | |__| |_   _  __| |_ __ __ _| |__) |\n")
+  ascii <- paste0(ascii, " |  __  | | | |/ _` | '__/ _` |  _  /\n")
+  ascii <- paste0(ascii, " | |  | | |_| | (_| | | | (_| | | \\ \\\n")
+  ascii <- paste0(ascii, " |_|  |_|\\__, |\\__,_|_|  \\__,_|_|  \\_\\\n")
+  ascii <- paste0(ascii, "          __/ |\n")
+  ascii <- paste0(ascii, "         |___/\n")
+  return(ascii)
 }
 
-print_systemml_ascii <- function() {
+systemml_ascii <- function() {
   
   #' Big by Glenn Chappell 4/93 -- based on Standard
   #' Includes ISO Latin-1
@@ -51,15 +52,16 @@ print_systemml_ascii <- function() {
   #' supported by FIGlet and FIGWin.  May also be slightly modified for better use
   #' of new full-width/kern/smush alternatives, but default output is NOT changed.
 
-  cat("\n")
-  cat("   _____           _                 __  __ _\n")
-  cat("  / ____|         | |               |  \\/  | |\n")
-  cat(" | (___  _   _ ___| |_ ___ _ __ ___ | \\  / | |\n")
-  cat("  \\___ \\| | | / __| __/ _ \\ '_ ` _ \\| |\\/| | |\n")
-  cat("  ____) | |_| \\__ \\ ||  __/ | | | | | |  | | |____\n")
-  cat(" |_____/ \\__, |___/\\__\\___|_| |_| |_|_|  |_|______|\n")
-  cat("          __/ |\n")
-  cat("         |___/\n")
+  ascii <- "\n"
+  ascii <- paste0(ascii, "   _____           _                 __  __ _\n")
+  ascii <- paste0(ascii, "  / ____|         | |               |  \\/  | |\n")
+  ascii <- paste0(ascii, " | (___  _   _ ___| |_ ___ _ __ ___ | \\  / | |\n")
+  ascii <- paste0(ascii, "  \\___ \\| | | / __| __/ _ \\ '_ ` _ \\| |\\/| | |\n")
+  ascii <- paste0(ascii, "  ____) | |_| \\__ \\ ||  __/ | | | | | |  | | |____\n")
+  ascii <- paste0(ascii, " |_____/ \\__, |___/\\__\\___|_| |_| |_|_|  |_|______|\n")
+  ascii <- paste0(ascii, "          __/ |\n")
+  ascii <- paste0(ascii, "         |___/\n")
+  return(ascii)
 }
 
 auto_start_session <- function() {
@@ -99,12 +101,12 @@ auto_start_session <- function() {
     }
   }
 
-  print_hydrar_ascii()
+  packageStartupMessage(hydrar_ascii())
 
   if(nchar(libname) > 0 & nchar(pkgname) > 0) { 
     # in some environments libname and pkgname may not be passed
     desc <- utils::packageDescription(pkg = pkgname, lib.loc = libname)
-    cat(paste0("version ", desc$Version, "\n"))
+    packageStartupMessage(paste("version", desc$Version))
   }
   
   if(auto_start_session()) {
@@ -158,9 +160,9 @@ hydrar.reload.SparkR <- function() {
 
 #load and initialize SparkR
 hydrar.load.SparkR <- function() {
-
+  logSource <- "hydrar.load.SparkR"
   if (!requireNamespace("SparkR")) {
-    warning("SparkR not found in the standard library or in the R_LIBS path")
+    hydrar.warn(logSource, "SparkR not found in the standard library or in the R_LIBS path")
 
     lib_loc <- file.path(Sys.getenv("SPARK_HOME"), "R", "lib")
     .libPaths(c(lib_loc, .libPaths()))
@@ -237,7 +239,8 @@ sysml.stop <- function() {
 #' hydrar.session is a wrapper function for sparkR.session
 #' @param master typically either local[*] or yarn
 #' @param sparkHome path to spark
-#' @param spark.driver.memory default 2G
+#' @param sparkConfig configuration options to be passed to sparkR.session()
+#' @param ... other arguments to be passed to sparkR.session()
 #' @export
 hydrar.session <- function(
   master = Sys.getenv("HYDRAR_CLIENT"),
@@ -245,9 +248,9 @@ hydrar.session <- function(
   sparkConfig = list("spark.driver.memory" = Sys.getenv("HYDRAR_SPARK_DRIVER_MEMORY")),
   ...
   ) {
-  
   logSource <- "hydrar.session"
-
+  #@TODO in the future make the signature of this function match sparkr.session()
+  
   if (hydrar.env$HYDRAR_SESSION_EXISTS) {
     hydrar.warn(logSource, "HydraR session already initialized")
     return()
@@ -274,7 +277,6 @@ hydrar.session <- function(
     sparkConfig = sparkConfig,
     sparkJars = hydrar.env$SYSML_JARS(),
     sparkPackages = "",
-    enableHiveSupport = FALSE,
     ...)
   
   sysml.init(sc)

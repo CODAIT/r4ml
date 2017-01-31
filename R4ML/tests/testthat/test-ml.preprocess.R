@@ -28,13 +28,13 @@ test_that("hydrar.impute", {
 })
 
 # begin hydrar.ml.preprocess
-test_that("hydrar.ml.preprocess",  {
+test_that("hydrar.ml.preprocess", {
   #skip("skip for now")
   data("iris")
   iris_hf <- as.hydrar.frame(as.data.frame(iris))
   
   iris_transform <- hydrar.ml.preprocess(
-    iris_hf, transformPath = "/tmp",
+    iris_hf, transformPath = tempdir(),
     dummycodeAttrs = "Species",
     binningAttrs = c("Sepal_Length", "Sepal_Width"),
     numBins=4,

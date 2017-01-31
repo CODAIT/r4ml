@@ -24,9 +24,9 @@ test_that("hydrar.kaplan.meier summary", {
                             test=1, rho="wilcoxon")
   summary = summary.hydrar.kaplan.meier(km)
   test = hydrar.kaplan.meier.test(km)
-  expect_equal(sum(summary[' Age=20'][[1]]), 0)
-  expect_equal(sum(summary[' Age=50'][[1]]), 9)
-  expect_equal(sum(summary[' Age=52'][[1]]), 9)
+  expect_equal(sum(summary[grep("20", names(summary))][[1]]), 0)
+  expect_equal(sum(summary[grep("50", names(summary))][[1]]), 9)
+  expect_equal(sum(summary[grep("52", names(summary))][[1]]), 9)
 })
 
 test_that("hydrar.kaplan.meier tests", {
@@ -56,7 +56,7 @@ test_that("hydrar.kaplan.meier none", {
   summary = summary.hydrar.kaplan.meier(km)
   test = hydrar.kaplan.meier.test(km)
   
-  expect_equal(sum(summary[' Age=50'][[1]]), 9)
+  expect_equal(sum(summary[grep("50", names(summary))][[1]]), 9)
   
   #@TODO create a more robust test case as the order of the vars in test may change:
   #expect_true(as.numeric(head(test[[1]])[4][[1]][1]) - 0.3333333 < .001)
@@ -75,7 +75,7 @@ test_that("hydrar.kaplan.meier log-rank", {
   summary = summary.hydrar.kaplan.meier(km)
   test = hydrar.kaplan.meier.test(km)
   
-  expect_equal(sum(summary[' Age=50'][[1]]), 9)
+  expect_equal(sum(summary[grep("50", names(summary))][[1]]), 9)
   
   expect_true(as.numeric(SparkR::head(test[[1]])[4][[1]][1]) - 0.4777778 < .001)
   expect_true(as.numeric(SparkR::head(test[[1]])[5][[1]][2]) - 0.06188374 < .001)

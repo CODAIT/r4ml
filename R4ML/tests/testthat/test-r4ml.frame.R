@@ -16,41 +16,37 @@
 
 library(testthat)
 
+if (!hydrar.env$HYDRAR_SESSION_EXISTS) {
+  hydrar.session()
+}
 
 context("Testing hydrar.frame\n")
 
 # test hydra c'tor
 #
 test_that("hydrar.frame", {
-  warning("test construction of hydrar.frame is not implemented yet")
-  #@TODO
-  # test creation from SparkR dataframe
+
+  sdf <- SparkR::as.DataFrame(beaver1)
+  hdf <- as.hydrar.frame(sdf)
 
 })
 
 # test is.hydrar.numeric
 test_that("is.hydrar.numeric", {
-  warning("test is.hydrar.numeric is not implemented yet")
-  #@TODO
-  # test that it return true for numeric hydrar.frame
 
-  # test that it returns false for non numeric hydrar.frame
+  non_numeric_hdf <- as.hydrar.frame(iris)
+  numeric_hdf <- as.hydrar.frame(beaver1)
 
+  expect_false(is.hydrar.numeric(non_numeric_hdf))
+  expect_true(is.hydrar.numeric(numeric_hdf))
+  
 })
 
 # test as.hydrar.frame for R dataframe
 test_that("as.hydrar.frame", {
-  warning("test as.hydrar.frame from R data.frame is not implemented yet")
-  #@TODO
-  # test that we can convert from data frame from R data.frame
-})
-
-
-# test as.hydrar.frame for SparkR SparkDataFrame
-test_that("as.hydrar.frame", {
-  warning("test as.hydrar.frame from SparkR SparkDataFrame is not implemented yet")
-  #@TODO
-  # test that we can convert from SparkR SparkDataFrame
+  
+  hf <- as.hydrar.frame(iris)
+  
 })
 
 test_that("show", {
@@ -69,7 +65,7 @@ test_that("hydrar.recode iris data with one recode", {
   hf_rec = hydrar.recode(hf, c("Species"))
 
   # make sure that recoded value is right
-  rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
+  rhf_rec <- SparkR::as.data.frame(hf_rec$data)
   expect_equal(unique(rhf_rec$Species), c(1,2,3))
 
   # make sure that meta data is mapped correctly
@@ -107,7 +103,7 @@ test_that("hydrar.recode all columns recoded", {
   hf_rec = hydrar.recode(hf)
 
     # make sure that recoded value is right
-  rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
+  rhf_rec <- SparkR::as.data.frame(hf_rec$data)
 
   expect_true(all.equal(rhf_rec, exp_rec_data))
 
@@ -150,7 +146,7 @@ test_that("hydrar.normalize all columns recoded", {
    hf_rec = hydrar.normalize(hf, col2norm)
   
   # make sure that normalize value is right
-  rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
+  rhf_rec <- SparkR::as.data.frame(hf_rec$data)
   
   expect_true(all.equal(rhf_rec, exp_rec_data))
   

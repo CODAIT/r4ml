@@ -19,7 +19,7 @@ context("Testing hydrar.glm\n")
 
 # test hydra GLM model
 # currently only the test for running is done but
-# accuracy test can be done later
+#@TODO create accuracy test
 test_that("hydrar.glm", {
   data("airquality")
   aq_ozone <- airquality[c("Ozone", "Temp", "Wind")]

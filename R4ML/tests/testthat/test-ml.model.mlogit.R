@@ -17,6 +17,7 @@
 
 context("Testing hydrar.mlogit\n")
 
+library("SparkR")
 # test hydra logistic regression
 
 test_that("hydrar.mlogit", {

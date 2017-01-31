@@ -15,14 +15,14 @@
 #
 #' @include hydrar.frame.R
 
-#' check if the given object is hydrar.matrix
-#'
-#' it checks the class attribute and checks the columns of DF to be numeric
-#'
+#' @name is.hydrar.matrix
+#' @description check if the given object is hydrar.matrix
+#' @param object the object to test
+#' @param ... other arguments to be passed to as.hydrar.frame
 #' @export
 #' @seealso \link{is.hydrar.numeric}
 is.hydrar.matrix <- function(object) {
-  if (vector(class(object)) != "hydrar.matrix") { return (FALSE)}
+  if (class(object) != "hydrar.matrix") { return (FALSE)}
   if (!is.hydrar.numeric(object)) { return (FALSE)}
   return (TRUE)
 }
@@ -42,6 +42,9 @@ setClass("hydrar.matrix",
          validity = is.hydrar.matrix
 )
 
+#' @name as.hydrar.matrix
+#' @description convert an object to a hydrar.matrix
+#' @param object a data.frame, Spark DataFrame, or hydrar.frame
 #' @export
 setGeneric("as.hydrar.matrix", function(object) {
   standardGeneric("as.hydrar.matrix")
@@ -65,7 +68,7 @@ setMethod("as.hydrar.matrix",
   function(object) {
     result = NULL
     if (is.hydrar.numeric(object)) {
-      ncol <- length(SparkR:::colnames(object))
+      ncol <- length(SparkR::colnames(object))
       result = new("hydrar.matrix",
                    sdf = object@sdf,
                    isCached = object@env$isCached
@@ -154,11 +157,10 @@ setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
 #' - If transform metadata are available, \code{ml.coltypes} is set to "nominal" for such attributes that
 #' have been binned or recoded. All other attributes are considered as "scale".
 
-#' @usage
-#'
-#' \code{ml.coltypes(bm)}
-#'
-#' \code{ml.coltypes(bm) <- value}
+#' @usage \code{
+#' ml.coltypes(bm)
+#' ml.coltypes(bm) <- value
+#' }
 #'
 #'
 #' @param x (hydrar.matrix)
@@ -200,6 +202,7 @@ ml.coltypes <- function(bm) {
 #' see  the \link{hydrar.onehot} for usages and details
 #' @export  
 hydrar.onehot.column <- function(hm, colname) {
+  logSource <- "hydrar.onehot.column"
   dml= '
   #  # encode dml function for one hot encoding
   encode_onehot = function(matrix[double] X) return(matrix[double] Y) {
@@ -234,17 +237,17 @@ hydrar.onehot.column <- function(hm, colname) {
   
   '
   
-  hm_names <- SparkR:::colnames(hm)
+  hm_names <- SparkR::colnames(hm)
   oh_colname <- colname
   col_idx <- match(oh_colname, hm_names)
   if (length(col_idx) > 1) {
-    stop("multiple one hot matches")
+    hydrar.err(logSource, "multiple one hot matches")
   }
   if (col_idx < 1 || col_idx > length(hm_names)) {
-    stop("col_idx out of range")
+    hydrar.err(logSource, "col_idx out of range")
   }
   # call the sysml connector to execute the code in the cluster after
-  # matrix optimization  
+  # matrix optimization
   outputs <- sysml.execute(
     dml = dml, # dml code
     X = hm, # attach the input hydrar matrix to X var in dml
@@ -254,10 +257,10 @@ hydrar.onehot.column <- function(hm, colname) {
   Y = outputs[['Y']] # get the output dataframes
   
   # assign the proper column names
-  hm_names <- SparkR:::colnames(hm)
+  hm_names <- SparkR::colnames(hm)
   hm_colsize <- length(hm_names)
   oh_name <- hm_names[col_idx]
-  y_ncol <- SparkR:::ncol(Y)
+  y_ncol <- SparkR::ncol(Y)
   oh_colsize <- y_ncol - (length(hm_names) - 1)
   oh_new_names <- paste(oh_name, 1:oh_colsize, sep="_")
   y_names <- character(0)
@@ -302,7 +305,7 @@ hydrar.onehot.column <- function(hm, colname) {
 #'  hf_rec = hydrar.recode(hf, c("Species"))
 #'
 #'  # make sure that recoded value is right
-#'  rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
+#'  rhf_rec <- SparkR::as.data.frame(hf_rec$data)
 #'  rhf_data <- rhf_rec$data # recoded hydrar.frame
 #'  as.hydrar.matrix(rhf_data)
 #'  hf_oh_db <- hydrar.onehot(hm)
@@ -333,7 +336,4 @@ hydrar.onehot <- function(hm, ... ) {
   metadata <- as.environment(sapply(md_list, as.list)) # combine the environ
   list(data=data, metadata=metadata)
 }
-
-
-
 

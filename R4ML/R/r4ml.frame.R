@@ -105,7 +105,7 @@ hydrar.calc.num.partitions <- function(object_size) {
 #' @param object a R data.frame or SparkDataFrame
 #' @param repartition (data.frame only) TRUE/FALSE, should the data automaticly
 #' be repartitioned
-#' @param numPartitons (data.frame only) number of partitons to create
+#' @param numPartitions (data.frame only) number of partitons to create
 #' @return a HydraR frame
 #' @export
 #' @examples \dontrun{
@@ -305,7 +305,7 @@ setMethod("hydrar.impute",
       for_call = list(hf)
       for (i in strings){
         # Use eval to convert the strings into function calls
-        for_call <- c(for_call, SparkR:::column(eval(parse(text=i))@jc))
+        for_call <- c(for_call, SparkR::column(eval(parse(text=i))@jc))
       }
       values <- as.list(SparkR::collect(do.call(agg, for_call)))
       names(values) <- column_names
@@ -625,11 +625,11 @@ setMethod("hydrar.binning",
       icolumn <- column
       # Convert for hydrar vector to SparkR column to access aggregation functions
       if (class(column) == "hydrar.vector") {
-        icolumn <- SparkR:::column(column@jc)
+        icolumn <- SparkR::column(column@jc)
       } else {}
       
       # Grab min/max, collect will be fine since this will only return min max
-      minmax = SparkR:::collect(SparkR::agg(hf, min(icolumn), max(icolumn)))
+      minmax = SparkR::collect(SparkR::agg(hf, min(icolumn), max(icolumn)))
       minimum = minmax[1][[1]]
       maximum = minmax[2][[1]]
       range = ((maximum-minimum)/number) 

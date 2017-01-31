@@ -140,7 +140,7 @@ setGeneric("as.sparkr.column", function(hv, ...) {
 setMethod("as.sparkr.column",
           signature(hv = "hydrar.vector"),
           function(hv, ...) {
-            SparkR:::column(hv@jc)
+            SparkR::column(hv@jc)
           }
 )
 
