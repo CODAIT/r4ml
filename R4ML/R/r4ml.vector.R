@@ -69,7 +69,7 @@ setMethod("show", signature = "hydrar.vector", definition = function(object) {
   head.df <- head(object, hydrar.env$DEFAULT_SHOW_ROWS)
   
   if (length(head.df) == 0) {
-    colname <- callJMethod(object@jc, "toString")
+    colname <- SparkR:::callJMethod(object@jc, "toString")
     cat(paste0(colname, "\n"))
     cat(paste0("<Empty column>\n"))
   } else {
@@ -298,6 +298,9 @@ setMethod("mean",
   
   # Create all methods
   for (name in methodNames) {
+    # disable it for now. In future, we will re-evaluate the functionality and see after bug fixes 
+    # enable it
+    next
     args <- createHydraRColumnMethod(name)
     if (length(args) > 0) {
       functionCode <- args[[1]]

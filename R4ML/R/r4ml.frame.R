@@ -307,7 +307,7 @@ setMethod("hydrar.impute",
         # Use eval to convert the strings into function calls
         for_call <- c(for_call, SparkR::column(eval(parse(text=i))@jc))
       }
-      values <- as.list(SparkR::collect(do.call(agg, for_call)))
+      values <- as.list(SparkR::collect(do.call(SparkR::agg, for_call)))
       names(values) <- column_names
     }
     names(constants) <- constant_names
@@ -375,6 +375,7 @@ setMethod("hydrar.recode",
 
     #salt <- "r:"
     salt <- ""
+    empty_string_recode = hydrar.env$EMPTY_STRING_RECODE
     # create the env aka hashmap for each column
     icol2rec_env = new.env(hash=TRUE, parent = emptyenv())
     for (icol in icols) {
@@ -386,6 +387,9 @@ setMethod("hydrar.recode",
                    %++% icol %++% "exceed maximum" %++% nurow_max)
       }
       uicol_rdf_tmp <- SparkR::as.data.frame(uicol_df)
+      # since empty string can't be the key to the env
+      uicol_rdf_tmp[uicol_rdf_tmp==''] <- empty_string_recode
+      
       #make sure that we have defined order of the distinct i.e natural order.
       #note that distinct can give different order in sep run
       uicol_rdf <- setNames(
@@ -424,7 +428,11 @@ setMethod("hydrar.recode",
           if (exists(cname, envir=icol2rec_env, inherits = F)) {
             icol2recode <- get(cname, envir=icol2rec_env, inherits = F)
             if (exists(cname, envir=icol2rec_env, inherits = F)) {
+              if (row_i == '') {
+                row_i = empty_string_recode
+              }
               row_i_salty <- paste(salt, row_i, sep="")
+              
               rec_val <- get(row_i_salty, icol2recode, inherits = F)
               ret = c(ret, rec_val)
             } else {
@@ -455,8 +463,8 @@ setMethod("hydrar.recode",
       }
       new_sf[[length(new_sf)+1]] <- new_sch_fld
     }
-    new_row_rdd_sch <- do.call("structType", as.list(new_sf))
-    res_hf <- as.hydrar.frame(as.DataFrame(sysmlSqlContext, new_row_rdd, new_row_rdd_sch))
+    new_row_rdd_sch <- do.call(SparkR::structType, as.list(new_sf))
+    res_hf <- as.hydrar.frame(SparkR::as.DataFrame(sysmlSqlContext, new_row_rdd, new_row_rdd_sch))
     meta_db <- icol2rec_env
     list(data=res_hf, metadata=meta_db)
   }
@@ -494,7 +502,7 @@ setGeneric("hydrar.normalize", function(hf, ...) {
 setMethod("hydrar.normalize",
   signature(hf = "hydrar.frame"),
   function(hf, ...) {
-    
+    logSource <- "hydrar.normalize"
     hfnames <- SparkR::colnames(hf)
     hftypes <- SparkR::coltypes(hf)
     
@@ -511,7 +519,7 @@ setMethod("hydrar.normalize",
     # check that all inputs to be imputed is in the class
     uinames <- inames[which(is.na(match(inames, hfnames)))]
     if (length(uinames) != 0) {
-      stop(paste(unames, "columns not found in the input data"))
+      hydrar.err(logSource, paste(uinames, "columns not found in the input data"))
     }
     
     itypes <- hftypes[match(inames, hfnames)]
@@ -521,7 +529,7 @@ setMethod("hydrar.normalize",
     # we have the constant string so take care of it
     binames <- inames[which(sapply(itypes, function(e) !e %in% c("numeric", "integer", "double")))]
     if (length(binames) >= 1) {
-      stop(paste(binames, " input columns are not numeric and can't be imputed"))
+      hydrar.err(logSource, paste(binames, " input columns are not numeric and can't be imputed"))
     }
     
     # dynamically create command to be executed later

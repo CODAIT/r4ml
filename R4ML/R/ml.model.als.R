@@ -235,9 +235,9 @@ predict.hydrar.als <- function(object, data, type, k){
   #verify that all pairs of user-id and password exist in factor matrices
   #TODO In future, don't store the entire input data - just store the number of rows an columns.
   V <- object@dmlArgs$V
-  n <- nrow(V);
-  m <- ncol(V);
-  vp_colnames <- columns(V)
+  n <- SparkR::nrow(V);
+  m <- SparkR::ncol(V);
+  vp_colnames <- SparkR::columns(V)
   
   dmlScript <- file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_ALS_PREDICT_SCRIPT);
   

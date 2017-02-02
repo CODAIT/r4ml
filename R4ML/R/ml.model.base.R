@@ -474,7 +474,7 @@ hydrar.getFunctionArguments <- function(call, env) {
       }
 
       # Check that target column is numeric
-      coltype <- coltypes(data)[targetColId]
+      coltype <- SparkR::coltypes(data)[targetColId]
       if (coltype != "numeric" & coltype != "integer") {
         hydrar.err(logSource, "Target column for histograms and box plots must be numeric")
       }

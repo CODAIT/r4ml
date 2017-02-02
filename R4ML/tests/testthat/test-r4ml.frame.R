@@ -189,3 +189,52 @@ test_that("hydrar.impute all columns imputed", {
   expect_equal(new_df$metadata[["Ozone"]], 4000, tolerance=1e-2)
   expect_equal(new_df$metadata[["Solar_R"]], 185, tolerance=1e-2)
 })
+
+
+test_that("hydrar.recode empty string ", {
+  idata <- data.frame(c1=c("b", "a", "", "a"),
+                      c2=c("C", "B", "A", "B"),
+                      c3=c("a1", "a2", "a3", "a3"))
+  exp_rec_data <- data.frame(c1=c(2,1,3,1),
+                             c2=c(3,2,1,2),
+                             c3=c(1,2,3,3))
+  
+  exp_meta_data <- list(
+    c1 = list(a = 1, b = 2, "hydrar::__empty_string__" = 3),
+    c2 = list(A = 1, B = 2, C = 3),
+    c3 = list(a1 = 1, a2 = 2, a3 = 3)
+  )
+  
+  hf <- as.hydrar.frame(as.data.frame(idata))
+  hf_rec = hydrar.recode(hf)
+  
+  # make sure that recoded value is right
+  rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
+  
+  expect_true(all.equal(rhf_rec, exp_rec_data))
+  
+  # make sure that meta data is mapped correctly
+  md <- hf_rec$metadata
+  emd <- exp_meta_data
+  for (name in names(emd)) {
+    colmd <- emd[[name]]
+    for (vname in names(colmd)) {
+      #write("DEBUG " %++% name %++% " " %++% vname, stderr())
+      #write("DEBUG " %++% md[[name]][[vname]] %++% " " %++% emd[[name]][[vname]], stderr())
+      exp <- emd[[name]][[vname]]
+      act <- md[[name]][[vname]]
+      cat(exp %++% " " %++% act)
+      expect_equal(act, exp)
+    }
+  }
+})
+
+
+test_that("test that we can call columns functions which hydrar.vector can break", {
+  hf <- as.hydrar.frame(iris)
+  alt_hf <- SparkR::mutate(hf, altered_sepal_width=hf$Sepal_Width+10)
+  alt_rhf <- SparkR::as.data.frame(alt_hf)
+  expect_true(all.equal(alt_rhf$altered_sepal_width, alt_rhf$Sepal_Width+10))
+})
+
+

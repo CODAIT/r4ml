@@ -217,9 +217,10 @@ hydrar.ml.preprocess <- function(
   #writeBigFrameMtdFile(bf)
   #colnamesFilePath <- writeColnames(hf)
   
-  if (!is.null(applyTransformPath) && (applyTransformPath!="")) {
-    return(hydrar.apply.transform(hf, outData, transformPath, applyTransformPath))
-  }
+  # @TODO ALOK comment this out and we will have it in future, when we have applyTransform
+  # if (!is.null(applyTransformPath) && (applyTransformPath!="")) {
+  #  return(hydrar.apply.transform(hf, outData, transformPath, applyTransformPath))
+  #}
   
   # @TODO BEGIN dml_transform
   # in future, we might use the dml transform or may be not. The decision is open yet
@@ -422,9 +423,10 @@ hydrar.ml.preprocess <- function(
   }
   
   if (!is.null(applyTransformPath) && (applyTransformPath == "")) applyTransformPath <- NULL
-  if (!is.null(applyTransformPath) && (.hydrar.isFileOrDirectory(applyTransformPath) != "DIRECTORY")) {
-    hydrar.err(logSource, "Parameter 'applyTransformPath' is not a valid path.")
-  }
+  # @TODO ALOK in the future
+  # if (!is.null(applyTransformPath) && (.hydrar.isFileOrDirectory(applyTransformPath) != "DIRECTORY")) {
+  #  hydrar.err(logSource, "Parameter 'applyTransformPath' is not a valid path.")
+  # }
 }
 
 .hydrar.transform.validateTransformOptions <- function(

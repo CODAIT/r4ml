@@ -52,6 +52,8 @@ with(hydrar.env, {
 
   EMPTY_TABLE_EXPRESSION <- "[[]]"
 
+  EMPTY_STRING_RECODE <- "hydrar::__empty_string__"
+
   # A list of supported data formats
   DATA_SOURCES <- c(TEXT_FILE, JSON, TRANSFORM, LINE_FILE)
 

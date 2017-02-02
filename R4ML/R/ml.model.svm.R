@@ -437,11 +437,11 @@ predict.hydrar.svm <- function(object, data, returnScores=T) {
     #ALOK BEGIN bugfix
     dmlOutNames <- names(object@dmlOuts)
     if (!any(is.na(match(c("extra_model_params", "weights"), dmlOutNames)))) {
-      w <- SparkR:::as.data.frame(object@dmlOuts[['weights']])
-      e <- SparkR:::as.data.frame(object@dmlOuts[['extra_model_params']])
+      w <- SparkR::as.data.frame(object@dmlOuts[['weights']])
+      e <- SparkR::as.data.frame(object@dmlOuts[['extra_model_params']])
       e <- setNames(e, names(w))
       d <- rbind(w, e)
-      coef_hf <- as.hydrar.matrix(as.DataFrame(sysmlSqlContext, d))
+      coef_hf <- as.hydrar.matrix(SparkR::as.DataFrame(sysmlSqlContext, d))
     }
     #ALOK BEGIN bugfix
     
