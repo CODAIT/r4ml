@@ -78,7 +78,7 @@ with(hydrar.env, {
   SUPPORTED_DATA_TYPES <- c("character", "numeric", "integer", "logical")
 
   #
-  SYSML_BLOCK_MATRIX_SIZE <- list("nrows" = 10000, "ncols" = 10000)
+  SYSML_BLOCK_MATRIX_SIZE <- list("nrows" = 1000, "ncols" = 1000)
 
   # The number of rows returned by head and tail methods
   DEFAULT_HEAD_ROWS <- 6

@@ -304,7 +304,7 @@ setMethod(
   if (object@shiftAndRescale) {
     row.names(df) <- c("no-shift-and-rescale", "shift-and-rescale")
   } else {
-    row.names(df) <- ""
+    row.names(df) <- NULL
   }
   
   # Move the intercept column from the end to the beginning

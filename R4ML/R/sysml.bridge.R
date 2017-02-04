@@ -320,7 +320,7 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
       # drop the id,
       # rename the remaining column to 'colname'
       oldnames <- SparkR:::colnames(df)
-      no_ids <- oldnames[oldnames != "ID"]
+      no_ids <- oldnames[oldnames != "__INDEX"]
       df_noid <- SparkR:::select(df, no_ids)
       newnames <- as.vector(sapply(no_ids, function(x) colname))
       SparkR:::colnames(df_noid) <- newnames
@@ -360,7 +360,15 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
       }
       env <<- new.env()
       env$sparkContext <<- sparkContext
-      env$jclass <<- "org.apache.sysml.runtime.instructions.spark.utils.RDDConverterUtilsExt"
+
+      # Some of the deprecated methods we call require JavaSparkContext.
+      env$javaSparkContext <<- 
+          SparkR:::newJObject("org.apache.spark.api.java.JavaSparkContext",
+                              sparkContext)
+
+      # Functionality has moved to a different class in SystemML 0.13+
+      #env$jclass <<- "org.apache.sysml.runtime.instructions.spark.utils.RDDConverterUtilsExt"
+      env$jclass <<- "org.apache.sysml.runtime.instructions.spark.utils.FrameRDDConverterUtils"
     },
 
     finalize = function() {
@@ -406,7 +414,9 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
       stopifnot(class(df) == "hydrar.matrix",
                 class(mc) == "sysml.MatrixCharacteristics")
       fname <- "dataFrameToBinaryBlock"
-      vdf_jref<-SparkR:::callJStatic(env$jclass, fname, env$sparkContext, df@sdf, mc$env$jref, id)
+      # Conversion happens in two phases: DataFrame --> Frame --> Matrix
+      bin_block_rdd_jref<-SparkR:::callJStatic(env$jclass, fname, env$javaSparkContext, df@sdf, mc$env$jref, id)
+      vdf_jref<-SparkR:::callJStatic(env$jclass, "binaryBlockToMatrixBlock", bin_block_rdd_jref, mc$env$jref, mc$env$jref)
       vdf_jref
       # @NOTE causing issues so remove it and hack around
       # vdf <- SparkR:::RDD(vdf_jref)
@@ -468,7 +478,7 @@ sysml.execute <- function(dml, ...) {
         hm = arg_val
         # now v is the numeric dataframe
         #find the characteristics of the dataframe
-        hm_nrows <- length(SparkR:::count(hm))
+        hm_nrows <- SparkR:::count(hm)
         hm_ncols <- length(SparkR:::colnames(hm))
         bm_nrows <- min(hm_nrows, hydrar.env$SYSML_BLOCK_MATRIX_SIZE$nrows)
         bm_ncols <- min(hm_ncols,  hydrar.env$SYSML_BLOCK_MATRIX_SIZE$ncols)

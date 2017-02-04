@@ -203,7 +203,7 @@ setMethod("hydrar.model.postTraining", signature = "hydrar.als", def =
 #' }
 #' 
 #' @seealso \link{hydrar.als}
-#' 
+#' @export
 predict.hydrar.als <- function(object, data, type, k){
   
   logSource <- "predict.hydrar.als"
