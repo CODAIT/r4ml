@@ -16,6 +16,7 @@
 #' @include hydrar.frame.R
 
 #' @name is.hydrar.matrix
+#' @title is.hydrar.matrix
 #' @description check if the given object is hydrar.matrix
 #' @param object the object to test
 #' @param ... other arguments to be passed to as.hydrar.frame
@@ -42,9 +43,6 @@ setClass("hydrar.matrix",
          validity = is.hydrar.matrix
 )
 
-#' @name as.hydrar.matrix
-#' @description convert an object to a hydrar.matrix
-#' @param object a data.frame, Spark DataFrame, or hydrar.frame
 #' @export
 setGeneric("as.hydrar.matrix", function(object) {
   standardGeneric("as.hydrar.matrix")
