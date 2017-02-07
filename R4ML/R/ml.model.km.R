@@ -78,14 +78,14 @@ setClass("hydrar.kaplan.meier",
 #'               Race=c(1,0,0,2,6,2,0,0,0), Origin=c(2,0,0,15,0,2,0,0,0),
 #'               Age=c(50,52,50,52,52,50,20,50,52))
 #' 
-#' survmat <- as.hydrar.frame(as.hydrar.matrix(surv))
+#' survmat <- as.hydrar.matrix(surv)
 #'   
 #' # Create survival formula
 #' survformula <- Surv(Timestamp, Censor) ~ Age
-#' 
+#'
 #' # Create survival model
 #' km <- hydrar.kaplan.meier(survformula, data=survmat, test=1, rho="log-rank", 
-#'                             directory="/user/hydrar/examples/km-analysis")
+#'                             directory = "/tmp")
 #' 
 #' # Show summary
 #' summary(km)
@@ -287,7 +287,7 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 #' 
 #' # Create survival model
 #' km <- hydrar.kaplan.meier(survformula, data=survmat, test=1, rho="log-rank", 
-#'                             directory="/user/hydrar/examples/km-analysis")
+#'                             directory = "/tmp")
 #' 
 #' # Show summary
 #' summary(km)
@@ -387,14 +387,14 @@ summary.hydrar.kaplan.meier <- function(object) {
 #'               Race=c(1,0,0,2,6,2,0,0,0), Origin=c(2,0,0,15,0,2,0,0,0),
 #'               Age=c(50,52,50,52,52,50,20,50,52))
 #' 
-#' survmat <- as.hydrar.frame(as.hydrar.matrix(surv))
+#' survmat <- as.hydrar.matrix(surv)
 #'   
 #' # Create survival formula
 #' survformula <- Surv(Timestamp, Censor) ~ Age
 #' 
 #' # Create survival model
 #' km <- hydrar.kaplan.meier(survformula, data=survmat, test=1, rho="log-rank", 
-#'                             directory="/user/hydrar/examples/km-analysis")
+#'                             directory = "/tmp")
 #' 
 #' # Show summary
 #' summary(km)

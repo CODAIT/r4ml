@@ -157,7 +157,7 @@ setMethod("initialize", "hydrar.svm",
 #' # extract the transformed hydrar.frame and corresponding metadata
 #' iris_phf <- iris_phf_info$data
 #' 
-#' corresponding metadata
+#' # corresponding metadata
 #' iris_pmd <- iris_phf_info$metadata
 #' # take a peek at the recoded Species value
 #' as.list(iris_pmd$proxy.recode$Species)
@@ -373,7 +373,7 @@ setMethod(f = "show", signature = "hydrar.svm", definition =
 #' # extract the transformed hydrar.frame and corresponding metadata
 #' iris_phf <- iris_phf_info$data
 #' 
-#' corresponding metadata
+#' #corresponding metadata
 #' iris_pmd <- iris_phf_info$metadata
 #' # take a peek at the recoded Species value
 #' as.list(iris_pmd$proxy.recode$Species)

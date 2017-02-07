@@ -17,7 +17,8 @@ Imports:
 Suggests:
     testthat,
     knitr,
-    devtools
+    devtools,
+    roxygen2
 License: Apache License (== 2.0)
 Collate:
     'zzz.R'
@@ -47,4 +48,4 @@ Collate:
     'sysml.bridge.R'
     'util.io.R'
 VignetteBuilder: knitr
-RoxygenNote: 6.0.0
+RoxygenNote: 6.0.1

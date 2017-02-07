@@ -183,9 +183,10 @@ hydrar.unload.SparkR <- function() {
 #'
 #' It is the wrapper over the base detach package
 #'
-#' @examples
-#' detach_package(HydraR)
-#'
+#' @examples \dontrun{
+#' library("survival")
+#' detach_package("survival")
+#' }
 #' @export
 detach_package <- function(pkg, character.only = FALSE) {
   if(!character.only) {

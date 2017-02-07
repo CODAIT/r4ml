@@ -323,4 +323,22 @@ with(hydrar.env, {
       }
       return(workspace)
   }
+  
+  TESTTHAT_LONGTEST <- function() {
+    # if TRUE unit test that take a long time will be run
+    if (Sys.getenv("HYDRAR_TESTTHAT_LONGTEST") == "1") {
+      return(TRUE)
+    }
+    
+    return(FALSE)
+  }
+
+  TESTTHAT_EXAMPLES <- function() {
+    # if TRUE unit test that take a long time will be run
+    if (Sys.getenv("HYDRAR_TESTTHAT_EXAMPLES") == "1") {
+      return(TRUE)
+    }
+  
+    return(FALSE)
+  }
 })

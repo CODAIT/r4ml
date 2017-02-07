@@ -33,7 +33,7 @@ test_that("hydrar.fs", {
 
 test_that("hydrar.hdfs.exist", {
   
-  if(HydraR:::hydrar.fs.cluster()) { # only need to run this test in cluster mode
+  if (HydraR:::hydrar.fs.cluster()) { # only need to run this test in cluster mode
 
     warning("test hydrar.fs.cluster() is not implemented yet")
     #@TODO
@@ -43,12 +43,22 @@ test_that("hydrar.hdfs.exist", {
 
 test_that("hydrar.read.csv", {
 
-  if(HydraR:::hydrar.fs.local()) {
-    warning("test hydrar.read.csv() is not implemented yet")
-    #@TODO
+  if (HydraR:::hydrar.fs.local()) {
+    
+    seperators <- c(" ", ",", ":", "|")
+  
+    for (i in 1:NROW(seperators)) {
+      tmp_file <- paste0(tempfile(), ".csv")
+      write.table(iris, file = tmp_file, sep = seperators[i], row.names = FALSE)
+      df <- hydrar.read.csv(tmp_file, header = TRUE, sep = seperators[i])
+      expect_equal(nrow(df), nrow(iris))
+      expect_equal(ncol(df), ncol(iris))
+      expect_true(all(df == iris))
+      }
+
   }
   
-  if(HydraR:::hydrar.fs.cluster()) {
+  if (HydraR:::hydrar.fs.cluster()) {
     warning("test hydrar.read.csv() is not implemented in cluster mode yet")
     #@TODO
   }

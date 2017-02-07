@@ -49,14 +49,14 @@
 #' @param hf (hydrar.frame) The data to be transformed.
 #' @param transformPath (character) Path on HDFS where the transform metadata (e.g., recode maps, dummy-code maps, etc.) will be stored.
 #' @param applyTransformPath (character) Path of an existing transform metadata folder. 
-#'                                       If specified, \code{hydrar.transform()} will apply the same transformations to \code{bf}.
+#'                                       If specified, \code{hydrar.ml.preprocess()} will apply the same transformations to \code{bf}.
 #'                                       Transform metadata for the resulting hydrar.matrix will be copied to the location specified in \code{transformPath}.
 #'                                       Parameter \code{applyTransformPath} is optional.
 #' @param recodeAttrs (character) Names of attributes to be recoded. All columns of type 'character' will be recoded, even if they do not
 #'                                appear in \code{recodeAttrs}.
 #' @param missingAttrs (character) Names of of attributes containing missing values to be filled in using an imputation method.
 #'                                 \strong{Note}: 1) Function \code{hydrar.which.na.cols()} can be run to find out which columns contain missing values.
-#'                                       2) If no imputation is done on a column with missing values, and such column is not part of \code{omit.na}, hydrar.transform 
+#'                                       2) If no imputation is done on a column with missing values, and such column is not part of \code{omit.na}, hydrar.ml.preprocess 
 #'                                       will throw an error, as all NA values must be handled. Parameter \code{omit.na} can be used to remove all rows which have missing values
 #'                                       in specific columns.
 #' @param imputationMethod (character) String value or vector containing the imputation method(s) to be used to fill in missing values.
@@ -115,8 +115,7 @@
 #' # Create a hydrar.matrix object from the dataset. Column Species will be automatically recoded.
 #' # as it is of type character. Since the dataset doesn't have missing values, no further
 #' # action is required.
-#' irisBM <- hydrar.transform(irisBF,  
-#'                          transformPath = "/user/hydrar/examples/iris.transform")
+#' irisBM <- hydrar.ml.preprocess(irisBF, transformPath = "/tmp")
 #' 
 #' 
 #' # Create a copy of the Iris dataset and introduce some NA values in it
@@ -129,23 +128,23 @@
 #' irisBF <- as.hydrar.frame(iris2)
 #' 
 #' # Find out which columns have NA values
-#' hydrar.which.na.cols(irisBF)
+#' # hydrar.which.na.cols(irisBF) #@TODO implement this function
 #' 
 #' # Create a hydrar.matrix after dummycoding, binning, and scaling some attributes. Missing values
 #' # must be handled accordingly.
-#' irisBM <- hydrar.transform(irisBF, transformPath = "/user/hydrar/examples/iris2.transform",
+#' irisBM <- hydrar.ml.preprocess(irisBF, transformPath = "/tmp",
 #'             dummycodeAttrs = "Species",
-#'             binningAttrs = c("Sepal.Length", "Sepal.Width"),
-#'             numBins=4,
-#'             missingAttrs = c("Petal.Length", "Sepal.Width"),
-#'             omit.na="Petal.Width",
-#'             scalingAttrs=c("Petal.Length")
+#'             binningAttrs = c("Sepal_Length", "Sepal_Width"),
+#'             numBins = 4,
+#'             missingAttrs = c("Petal_Length", "Sepal_Width"),
+#'             omit.na = "Petal_Width",
+#'             scalingAttrs = c("Petal_Length")
 #'  )
 #'                                                                            
 #' # Apply existing transformations to a new dataset
 #' irisbf2 <- as.hydrar.frame(iris)
-#' irisBM2 <- hydrar.transform(irisbf2, applyTransformPath="/user/hydrar/examples/iris2.transform", 
-#'                           transformPath="/user/hydrar/examples/iris3.transform")
+#' irisBM2 <- hydrar.ml.preprocess(irisbf2, applyTransformPath = "/tmp", 
+#'                           transformPath = "/tmp")
 #' }
 hydrar.ml.preprocess <- function(
   hf,
@@ -163,7 +162,7 @@ hydrar.ml.preprocess <- function(
   scalingMethod = "mean-subtraction",
   omit.na = NULL)
 {
-  logSource <- "hydrar.transform"
+  logSource <- "hydrar.ml.preprocess"
  .hydrar.transform.argumentsPreconditions(
     hf, 
     transformPath,
@@ -186,7 +185,7 @@ hydrar.ml.preprocess <- function(
   if (!is.null(dummycodeAttrs) && (dummycodeAttrs == "")) dummycodeAttrs <- NULL
   if (!is.null(scalingAttrs) && (scalingAttrs == "")) scalingAttrs <- NULL
   
-  characterCols <- SparkR:::colnames(hf)[SparkR:::coltypes(hf) %in% c("character", "logical")]
+  characterCols <- SparkR::colnames(hf)[SparkR::coltypes(hf) %in% c("character", "logical")]
   recodeAttrs <- c(recodeAttrs, characterCols[!(characterCols %in% recodeAttrs)])
   
   if (length(imputationMethod) == 1 && length(missingAttrs) > 1) {
@@ -399,7 +398,7 @@ hydrar.ml.preprocess <- function(
     otherParamsSpecified <- otherParamsSpecified || !is.null(binningAttrs) && binningAttrs!=""
     otherParamsSpecified <- otherParamsSpecified || !is.null(missingAttrs) && missingAttrs!=""
     if (otherParamsSpecified) {
-      HydraR:::hydrar.err(logSource, "Transform parameters (recodeAttrs, dummycodeAttrs, scalingAttrs, binningAttrs, missingAttrs)
+      hydrar.err(logSource, "Transform parameters (recodeAttrs, dummycodeAttrs, scalingAttrs, binningAttrs, missingAttrs)
                       must not be specified when applyTransformPath is provided.")
     }
   }
@@ -445,7 +444,7 @@ hydrar.ml.preprocess <- function(
   omit.na) {
   
   logSource <- "validateTransformOptions"
-  columnNames <- SparkR:::colnames(hf)
+  columnNames <- SparkR::colnames(hf)
   if (!is.null(recodeAttrs) && any(is.na(match(recodeAttrs, columnNames)))) {
     hydrar.err(logSource, "One or more columns specified in recodeAttrs do not exist in the dataset. [" %++%
                paste(recodeAttrs, sep=",") %++% "].")
@@ -456,7 +455,7 @@ hydrar.ml.preprocess <- function(
     }
     missingAttrsIndex <- 1
     for (missingAttr in missingAttrs) {
-      coltype <- SparkR:::coltypes(hf)[SparkR:::colnames(hf) %in% missingAttr]
+      coltype <- SparkR::coltypes(hf)[SparkR::colnames(hf) %in% missingAttr]
       if (!coltype  %in% c("integer", "double", "numeric")) {
         if(!any(imputationMethod[missingAttrs %in% missingAttr] == c("constant"))){
           hydrar.err(logSource, "Only 'constant' imputation method is supported on non-numeric columns [" %++% missingAttr %++% "].")
@@ -558,7 +557,7 @@ hydrar.ml.preprocess <- function(
   }
   
   # generate the vector of recode columns
-  columnTypes <- SparkR:::coltypes(hf)
+  columnTypes <- SparkR::coltypes(hf)
   strbools <- (columnTypes == "character" | columnTypes == "logical")
   seedList <- columnNames[strbools]     
   rcdList <- union(seedList, recodeAttrs)
@@ -588,10 +587,8 @@ hydrar.ml.preprocess <- function(
 
 isAnyAttrOfType <- function(hm, attrs, type) {
   logSource <- "columnTypes"
-  allColumnNames <- SparkR:::colnames(hm)
-  allColumnTypes <- SparkR:::coltypes(hm)
+  allColumnNames <- SparkR::colnames(hm)
+  allColumnTypes <- SparkR::coltypes(hm)
   return(any(allColumnTypes[allColumnNames %in% attrs] == type))
 }
-
-
 

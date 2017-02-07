@@ -30,8 +30,7 @@ NULL
 #'        along with java ref corresponding to jvm
 #' @examples
 #' \dontrun{
-#'    logger = log4j.Logger$new()
-#'    logger.setLevel("WARN")
+#'    logger$setLevel("WARN")
 #' }
 #'
 
@@ -86,14 +85,14 @@ log4j.Logger <- setRefClass("log4j.Logger",
 #' A Reference Class that represent java HashMap which lives in the spark jvm memory
 #'
 #' HashMap is used for passing in arguements between java and R code
-#'
+#' @name java.ArrayList
 #' @family Java Utils
 #' @export
 #' @field env An R environment that stores bookkeeping states of the class
 #'        along with java ref corresponding to jvm
 #' @examples \dontrun{
-#'    ja = java.ArrayList$new()
-#'    ja.add("a")
+#'    ja <- HydraR:::java.ArrayList$new()
+#'    ja$add("a")
 #'}
 #'
 #'

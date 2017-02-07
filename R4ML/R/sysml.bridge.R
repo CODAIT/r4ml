@@ -17,6 +17,9 @@
 NULL
 
 requireNamespace("SparkR")
+
+#' @name sysml.MatrixCharacteristics
+#' @description 
 #' A Reference Class that represent systemML MatrixCharacteristics
 #'
 #' Create a meta info about the block and overall size of matrix
@@ -33,7 +36,7 @@ requireNamespace("SparkR")
 #'  java reference
 #' @export
 #' @examples \dontrun{
-#' matrix_info = sysml.MatrixCharacteristics(1000, 1000, 1000, 1000)
+#' sysml.MatrixCharacteristics(1000, 1000, 1000, 1000)
 #' }
 #'
 
@@ -73,8 +76,9 @@ sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
 #'        along with java ref corresponding to jvm
 #' @export
 #' @examples \dontrun{
-#'    sc # the default spark context
-#'    mlCtx = sysml.MLContext$new(sc)
+#'    #@TODO fix this example
+#'    #sc # the default spark context
+#'    #mlCtx = sysml.MLContext$new(sc)
 #' }
 sysml.MLContext <- setRefClass("sysml.MLContext",
   fields = list(env="environment"),
@@ -285,8 +289,9 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
 #'        along with java ref corresponding to jvm
 #' @export
 #' @examples \dontrun{
-#'    sysmlSparkContext # the default spark context
-#'    mlCtx = sysml.MLOutput$new()
+#'    #@TODO fix this example
+#'    #sysmlSparkContext # the default spark context
+#'    #mlCtx = sysml.MLOutput$new()
 #' }
 sysml.MLOutput <- setRefClass("sysml.MLOutput",
   fields = list(env="environment"),
@@ -341,14 +346,18 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
 #' @field env An R environment that stores bookkeeping states of the class
 #'        along with java ref corresponding to jvm
 #' @export
-#' @examples
-#' \dontrun{
-#'    sysmlSparkContext # the default spark context
-#'    air_dist <- createDataFrame(sysmlSqlContext, airrtd)
-#'    x_cnt <- SparkR:::count(air_dist)
-#'    x_mc <- HydraR:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
-#'    rdd_utils <- HydraR:::sysml.RDDConverterUtils$new(sc)
-#'    x_rdd <- rdd_utils$dataFrameToBinaryBlock(air_dist, X_mc)
+#' @examples \dontrun{
+#' airr <- HydraR::airline
+#' airrt <- airr$Distance
+#' airrt[is.na(airrt)] <- 0
+#' airrtd <- as.data.frame(airrt)
+#' air_dist <- createDataFrame(sysmlSqlContext, airrtd)
+#' 
+#' X_cnt <- SparkR::count(air_dist)
+#' X_mc <- HydraR:::sysml.MatrixCharacteristics$new(X_cnt, 1, 10, 1)
+#' rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
+#' air_dist <- as.hydrar.matrix(air_dist)
+#' bb_df <- rdd_utils$dataFrameToBinaryBlock(air_dist, X_mc)
 #' }
 #'
 sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",

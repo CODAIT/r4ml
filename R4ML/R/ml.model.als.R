@@ -50,17 +50,12 @@ setClass("hydrar.als",
 #' 
 #' @examples \dontrun{
 #' 
-#'   # Create a sample dataset: 4 items, 2 users
+#' # Create a sample dataset: 4 items, 2 users
 #' df <- data.frame(X1=c(1, 0), X2=c(5, 2), "X3"=c(0, 1), "X4"=c(1, 0))
 #' bm <- as.hydrar.matrix(as.hydrar.frame(df))
 #' 
 #' # Create a hydrar.als model
 #' als <- hydrar.als(data=bm, rank=2, lambda = .1)
-#' 
-#' # Predict ratings for a given input list of pairs (user-id, item-id)
-#' dfTest <- data.frame(userIndex=c(1, 1, 2, 2), itemIndex=c(4, 1, 2, 3))
-#' bmTest <- as.hydrar.matrix(as.hydrar.frame(dfTest))
-#' pred <- predict(als, bmTest)
 #' 
 #' }
 #' 
@@ -177,7 +172,7 @@ setMethod("hydrar.model.postTraining", signature = "hydrar.als", def =
 #' @param type (character) Equal to "pairs" or "topk"
 #' @param k (numeric) The number of top k items. This paramet is applicable only if predictTop=TRUE
 #' @param object (hydrar.als) The ALS Model
-#' 
+#' @export
 #' @return The result is a \code{hydrar.matrix} which contain a list of triples: {user-id, item-id, rating} if
 #' predictTop=FALSE or a list of top recommendations for each user if predictTop=TRUE
 #' 
@@ -186,7 +181,7 @@ setMethod("hydrar.model.postTraining", signature = "hydrar.als", def =
 #' 
 #' @examples \dontrun{
 #' 
-#'   # Create a sample dataset: 4 items, 2 users
+#' # Create a sample dataset: 4 items, 2 users
 #' df <- data.frame(X1=c(1, 0), X2=c(5, 2), "X3"=c(0, 1), "X4"=c(1, 0))
 #' bm <- as.hydrar.matrix(as.hydrar.frame(df))
 #' 

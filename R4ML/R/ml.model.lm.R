@@ -73,18 +73,16 @@ setClass("hydrar.lm",
 #'
 #' @examples \dontrun{
 #'
-#'library(HydraR)
-#'
-#'# Project some relevant columns for modeling / statistical analysis
-#'airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
+#' # Project some relevant columns for modeling / statistical analysis
+#' airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
 #'                                "Distance", "ArrDelay")]
 #'
 #' airlineFiltered <- as.hydrar.frame(airlineFiltered)
 #'
-#'airlineFiltered <- as.hydrar.frame(airlineFiltered)
+#' airlineFiltered <- as.hydrar.frame(airlineFiltered)
 #'
-#'# Apply required transformations for Machine Learning
-#'airlineFiltered <- hydrar.ml.preprocess(
+#' # Apply required transformations for Machine Learning
+#' airlineFiltered <- hydrar.ml.preprocess(
 #'  hf = airlineFiltered,
 #'  transformPath = "/tmp",
 #'  recodeAttrs = c("DayOfWeek"),
@@ -100,7 +98,7 @@ setClass("hydrar.lm",
 #' test <- samples[[2]]
 #'
 #' # Create a linear regression model
-#' lm <- hydrar.lm(ArrDelay ~ ., data=train, directory="/user/hydrar/examples/lm/lm.model")
+#' lm <- hydrar.lm(ArrDelay ~ ., data=train, directory = "/tmp")
 #'
 #' # Get the coefficients of the regression
 #' coef(lm)
@@ -252,7 +250,7 @@ setMethod(f = "show", signature = "hydrar.lm", definition =
 #' @seealso \link{show}
 setMethod("coef", signature="hydrar.lm", def =
   function(object) {
-    obj <- SparkR:::as.data.frame(object@dmlOuts[['beta_out']])
+    obj <- SparkR::as.data.frame(object@dmlOuts[["beta_out"]])
     rownames(obj) <- object@featureNames
     obj
   }
@@ -283,20 +281,18 @@ setMethod("stats", signature="hydrar.lm", def =
 #' definitions of these statistics.
 #' @examples \dontrun{
 #' 
-#'   require(SparkR)
-#'   require(HydraR)
 #'   df <- iris
 #'   df$Species <- (as.numeric(df$Species))
 #'   iris_df <- as.hydrar.frame(df)
 #'   iris_mat <- as.hydrar.matrix(iris_df)
 #'   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-#'   s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
+#'   s <- hydrar.sample(iris_mat, perc=c(0.2, 0.8))
 #'   test <- s[[1]]
 #'   train <- s[[2]]
 #'   y_test <- as.hydrar.matrix(test[, 1])
-#'   y_test = SparkR:::as.data.frame(y_test)
+#'   y_test <- SparkR::as.data.frame(y_test)
 #'   test <- as.hydrar.matrix(test[,c(2:5)])
-#'   iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
+#'   iris_lm <- hydrar.lm(Sepal_Length ~ ., data = train, method = "iterative")
 #'   output <- predict(iris_lm, test)
 #' }       
 #' 

@@ -134,8 +134,7 @@ test_that("sysml.MLContext Exception handling test", {
 
 # test the Bridge to the SystemML MLContext. To be removed eventually
 test_that("sysml.MLContext Long", {
-  if (exists("TESTTHAT_LONGTEST", hydrar.env) &&
-      hydrar.env$TESTTHAT_LONGTEST == TRUE) {
+  if (hydrar.env$TESTTHAT_LONGTEST() == TRUE) {
     mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
     dml = '
     fileX = ""
@@ -150,16 +149,17 @@ test_that("sysml.MLContext Long", {
     airrtd <- as.data.frame(airrt)
     air_dist <- createDataFrame(sysmlSqlContext, airrtd)
 
-    X_cnt <- SparkR:::count(air_dist)
+    X_cnt <- SparkR::count(air_dist)
     #X_rdd <- SparkR:::toRDD(air_dist)
     X_mc <- HydraR:::sysml.MatrixCharacteristics$new(X_cnt, 1, 10, 1)
     rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
+    air_dist <- as.hydrar.matrix(air_dist)
     bb_df <- rdd_utils$dataFrameToBinaryBlock(air_dist, X_mc)
     mlc$reset()
     mlc$registerInput("X", bb_df, X_mc)
     mlc$registerOutput("O")
     outputs <- mlc$executeScript(dml)
-    o1 = outputs$getDF("O")
+    o1 <- outputs$getDF("O")
   }
 })
 

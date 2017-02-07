@@ -110,7 +110,7 @@ hydrar.calc.num.partitions <- function(object_size) {
 #' @export
 #' @examples \dontrun{
 #'    hf1 <- as.hydrar.frame(iris)
-#'    hf2 <- as.hydrar.frame(SparkR::createDataFrame(symlSqlContext, iris))
+#'    hf2 <- as.hydrar.frame(SparkR::createDataFrame(sysmlSqlContext, iris))
 #' }
 setGeneric("as.hydrar.frame", function(object, repartition = TRUE,
                                        numPartitions = NA,
@@ -232,6 +232,8 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
 #'  df <- as.DataFrame(sysmlSqlContext, airquality)
 #'  head(df)
 #'  
+#'  df <- as.hydrar.frame(df)
+#'  
 #'  # Example with "mean" value in list.
 #'  new_df <- hydrar.impute(df, list("Ozone"="mean"))
 #'  head(new_df$data)
@@ -343,11 +345,11 @@ setMethod("hydrar.impute",
 #'      
 #' @examples \dontrun{
 #'  hf <- as.hydrar.frame(as.data.frame(iris))
-#'  hf_rec = hydrar.recode(hf, c("Species"))
+#'  hf_rec <- hydrar.recode(hf, c("Species"))
 #'
 #'  # make sure that recoded value is right
-#'  rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
-#'  rhf_data <- rhf_rec$data # recoded hydrar.frame
+#'  rhf_rec <- SparkR::as.data.frame(hf_rec$data)
+#'  rhf_data <- rhf_rec # recoded hydrar.frame
 #'  rhf_md <- rhf_rec$metadata # metadata associated with the recode
 #'  show(rhf_data)
 #'  rhf_md$Species$setosa # check one of the recoded value

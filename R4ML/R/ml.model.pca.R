@@ -66,12 +66,12 @@ setClass(
 #' train <- as.hydrar.matrix(iris[, -5])
 #'
 #' # Create a hydrar.pca model on Iris and projected data. Then display the new feature set(ie the principal components),
-#' eigen values, eigen vectors, standard deviations (i.e., the square roots of the eigen values)
-#' iris_pca <- hydrar.pca(train, center=T, scale=T, k=2)
+#' # eigen values, eigen vectors, standard deviations (i.e., the square roots of the eigen values)
+#' iris_pca <- hydrar.pca(train, center = TRUE, scale = TRUE, k = 2)
 #' show(iris_pca$model)
 #'
 #' # projData set to False: Only the eigen values, eigen vectors and standard deviations are returned.
-#' iris_pca <- hydrar.pca(train, center=T, scale=T, k=2, projData=F)
+#' iris_pca <- hydrar.pca(train, center = TRUE, scale = TRUE, k = 2, projData = FALSE)
 #' show(iris_pca)
 #'
 #' }

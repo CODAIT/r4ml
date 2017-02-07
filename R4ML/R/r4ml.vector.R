@@ -90,7 +90,7 @@ setMethod("show", signature = "hydrar.vector", definition = function(object) {
 #' @examples
 #'\dontrun{
 #' hf <- as.hydrar.frame(iris)
-#' collect(hf$Sepal_Lenght)
+#' collect(hf$Sepal_Length)
 #' hf$Species 
 #' }
 setMethod("collect", signature = "hydrar.vector", definition = function(x) {
@@ -128,7 +128,7 @@ setMethod("$", signature(x = "hydrar.frame"),
 #' @export
 #' @examples \dontrun{
 #'    iris_hf <- as.hydrar.frame(iris)
-#'    pl_mean <- mean(as.sparkr.column(hf1$Petal_Length))
+#'    pl_mean <- mean(as.sparkr.column(iris_hf$Petal_Length))
 #'    mval <- agg(iris_hf, pl_mean)
 #'    mval
 #' }

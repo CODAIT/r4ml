@@ -64,7 +64,6 @@ setClass(
 #' 
 #' @examples \dontrun{
 #' 
-#' library(HydraR)
 #'                                                                           
 #' # Project some relevant columns for modeling / statistical analysis
 #' airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
@@ -458,8 +457,6 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
 #' 
 #' @examples \dontrun{
 #' 
-#' library(HydraR)
-#'                                                                           
 #' # Project some relevant columns for modeling / statistical analysis
 #' airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
 #'                                 "Distance", "ArrDelay")]

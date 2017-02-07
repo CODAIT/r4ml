@@ -57,7 +57,7 @@ setGeneric("as.hydrar.matrix", function(object) {
 #' @param object A hydrar.frame.
 #' @return A hydrar.matrix.  The sum of \code{x} and \code{y}.
 #' @examples \dontrun{
-#' hydrar_frame <-  ...
+#' hydrar_frame <-  as.hydrar.frame(beaver1)
 #' hydrar_matrix <- as.hydrar.matrix(hydrar_frame)
 #' }
 #' @export
@@ -174,18 +174,18 @@ setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
 #'
 #' # Create a hdyrar.matrix after dummycoding, binning, and scaling some attributes
 #' # this features is not implemented
-#' irisBM <- hydrar.transform(bf = irisbf, outData = "/user/hydrar/examples/irisbf.rcd",
-#'                                       transformPath = "/user/hydrar/examples/irisbf.maps",
-#'                                       dummycodeAttrs = "Species",
-#'                                       binningAttrs = c("Sepal.Length", "Sepal.Width"),
-#'                                       numBins=4,
-#'                                       scalingAttrs=c("Petal.Length"))
+#' irisBM <- hydrar.ml.preprocess(hf = irisbf,
+#'                                transformPath = "/tmp"
+#'                                dummycodeAttrs = "Species",
+#'                                binningAttrs = c("Sepal_Length", "Sepal_Width"),
+#'                                numBins = 4,
+#'                                scalingAttrs = c("Petal_Length"))
 #'
 #' # Get ml.coltypes
-#' print(ml.coltypes(irisBM))
+#' print(ml.coltypes(irisBM$data))
 #'
 #' # Set all columns as "scale"
-#' ml.coltypes(irisBM) <- rep("scale", 5)
+#' ml.coltypes(irisBM$data) <- rep("scale", 7)
 #'
 #' # Visualize the structure of the dataset after changing ml.coltypes
 #' str(irisBM)
@@ -299,21 +299,19 @@ hydrar.onehot.column <- function(hm, colname) {
 #' @export
 #'      
 #' @examples \dontrun{
-#'  hf <- as.hydrar.frame(as.data.frame(iris))
-#'  hf_rec = hydrar.recode(hf, c("Species"))
-#'
-#'  # make sure that recoded value is right
-#'  rhf_rec <- SparkR::as.data.frame(hf_rec$data)
-#'  rhf_data <- rhf_rec$data # recoded hydrar.frame
-#'  as.hydrar.matrix(rhf_data)
-#'  hf_oh_db <- hydrar.onehot(hm)
-#'  hf_oh <- hf_oh_db$data
-#'  showDF(hf_oh)
+#' hf <- as.hydrar.frame(iris)
+#' hf <- hydrar.recode(hf, c("Species"))
+#' hm <- as.hydrar.matrix(hf$data)
+#' hm <- hydrar.onehot(hm, "Species")
 #' }
 #'
 hydrar.onehot <- function(hm, ... ) {
+  logSource <- "hydrar.onehot"
   args <- list(...)
-  if (length(args) <= 0) return(hm)
+  if (length(args) <= 0) {
+    hydrar.warn(logSource, "no columns specified")
+    return(list(data = hm, metadata = NA))
+  }
   # check if it is list
   colnames <- args
   if (length(args) == 1 && class(args[1]) == "list") {

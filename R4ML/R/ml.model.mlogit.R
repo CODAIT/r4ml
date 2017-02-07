@@ -76,7 +76,7 @@ setClass("hydrar.mlogit",
 #'  iris_df <- as.hydrar.frame(df)
 #'  iris_mat <- as.hydrar.matrix(iris_df)
 #'  
-#'  Split data in to 80% train and 20% test
+#'  # Split data in to 80% train and 20% test
 #'  s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
 #'  test <- s[[1]]
 #'  train <- s[[2]]
