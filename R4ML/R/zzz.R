@@ -65,15 +65,17 @@ systemml_ascii <- function() {
 }
 
 auto_start_session <- function() {
+  logSource <- "auto_start_session"
   
-  # variables we can't auto-start with out
-  if(nchar(Sys.getenv("SPARK_HOME")) == 0){return(FALSE)}
+  if (Sys.getenv("HYDRAR_AUTO_START") == "1") {
+    if (nchar(Sys.getenv("SPARK_HOME")) == 0){
+      hydrar.warn(logSource, "unable to start session. 'SPARK_HOME' not defined")
+      return(FALSE)
+      }
+    return(TRUE)
+    }
   
-  # what does the user want?  
-  if(Sys.getenv("HYDRAR_AUTO_START") == "0") {return(FALSE)}
-  if(Sys.getenv("HYDRAR_AUTO_START") == "1") {return(TRUE)}
-  
-  return(TRUE)
+  return(FALSE)
 }
 
 # this will be called at the library loading time.
