@@ -30,23 +30,24 @@ setClassUnion("hydrar.frame.OrNull", c("hydrar.frame", "NULL"))
 #' @title hydrar.vector operations
 #' @rdname hydrar.vector_ops
 #' 
-#' #' @examples
-#'\dontrun{
-#' # Load the iris dataset as a hydrar.frame
-#' hf <- as.hydrar.frame(iris)
-#' 
-#' # Advanced nested arithmetic operations
-#' avgLength <- (hf$Sepal_Length + hf$Sepal_Width) / 2
-#' ones <- sin(avgLength) ^ 2 + cos(avgLength ^ 2)
-#' show(ones)
-#' 
-#' # Character operations
-#' lower(substr(hf$Species, 1, 3))
-#' 
-#' # Recoding columns
-#' hf$size <- ifelse(avgLength > 4, "large", "small")
-#' str(hf)
-#' }
+#' @examples
+##'\dontrun{
+## TODO this test case is not working
+##' # Load the iris dataset as a hydrar.frame
+##' hf <- as.hydrar.frame(iris)
+##' 
+##' # Advanced nested arithmetic operations
+##' avgLength <- (hf$Sepal_Length + hf$Sepal_Width) / 2
+##' ones <- sin(avgLength) ^ 2 + cos(avgLength ^ 2)
+##' show(ones)
+##' 
+##' # Character operations
+##' lower(substr(hf$Species, 1, 3))
+##' 
+##' # Recoding columns
+##' hf$size <- ifelse(avgLength > 4, "large", "small")
+##' str(hf)
+##' }
 NULL
 #' @export
 setClass("hydrar.vector", 
@@ -124,12 +125,14 @@ setMethod("$", signature(x = "hydrar.frame"),
 #'
 #' @name as.sparkr.column
 #' @param object hydrar.vector
+#' @param hv a hydrar.vector
+#' @param ... future optional additional arguments to be passed to or from methods
 #' @return SparkR::Column
 #' @export
 #' @examples \dontrun{
 #'    iris_hf <- as.hydrar.frame(iris)
-#'    pl_mean <- mean(as.sparkr.column(iris_hf$Petal_Length))
-#'    mval <- agg(iris_hf, pl_mean)
+#'    pl_mean <- SparkR::mean(as.sparkr.column(iris_hf$Petal_Length))
+#'    mval <- SparkR::agg(iris_hf, pl_mean)
 #'    mval
 #' }
 #'    

@@ -43,7 +43,7 @@ setClass(
 #' @param projData (logical) a boolean value indicating whether the data should be projected in the new feature space. If
 #' set to TRUE, a list (hydrar.pca model, hydrar.matrix projData) is returned. If set to FALSE, only the hydrar.pca model is returned.
 #' Default value for \code{projData} is TRUE.
-#' @param applyPCA (hydrar.pca) (optional) Currently is not supported. In future this option will import an existing hydrarr.pca model. If provided, \code{data} will be projected to the
+#' @param applyPCA (hydrar.pca) (optional) Currently is not supported. In future this option will import an existing hydrar.pca model. If provided, \code{data} will be projected to the
 #' new feature space given the existing eigen vectors. In this case, a new hydrar.matrix will be returned.
 #' @export
 #' @return hydrar.pca S4 object is returned if projData is set to FALSE:\cr
@@ -206,17 +206,17 @@ setMethod(
       
       #Converting hydra.matrix to data.frame for consumption
       model@std.deviations <-
-        SparkR:::as.data.frame(outputs$eval_stdev_dominant)
+        SparkR::as.data.frame(outputs$eval_stdev_dominant)
       colnames(model@std.deviations) <- "StdDev"
       
       model@eigen.vectors <-
-        SparkR:::as.data.frame(outputs$evec_dominant)
+        SparkR::as.data.frame(outputs$evec_dominant)
       colnames(model@eigen.vectors) <-
         "PC" %++% seq(1:SparkR::ncol(model@eigen.vectors))
       rownames(model@eigen.vectors) <- model@featureNames
       
       model@eigen.values <-
-        SparkR:::as.data.frame(outputs$eval_dominant)
+        SparkR::as.data.frame(outputs$eval_dominant)
       colnames(model@eigen.values) <-
         "EigenValues" %++% seq(1:SparkR::ncol(model@eigen.values))
       

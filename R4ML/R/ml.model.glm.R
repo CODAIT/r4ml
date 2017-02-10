@@ -299,7 +299,7 @@ setMethod(
 )
 
 .hydrar.glm.buildCoef <- function(object) {
-  df <- as.data.frame(t(SparkR:::as.data.frame(object@dmlOuts[['beta_out']])))
+  df <- as.data.frame(t(SparkR::as.data.frame(object@dmlOuts[["beta_out"]])))
   if (object@shiftAndRescale) {
     row.names(df) <- c("no-shift-and-rescale", "shift-and-rescale")
   } else {
@@ -450,7 +450,7 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
 #' \tab STDEV_RES_Y\tab Y-column residual st. dev. of Y - pred:mean(Y|X)\cr
 #' \tab PRED_STDEV_RES\tab Model-predicted Y-column residual st. deviation\cr
 #' \tab PLAIN_R2\tab Plain R2 of Y-column residual with bias included\cr
-#' \tab ADUSTED_R2\tab Adjusted R2 of Y-column residual w. bias included\cr
+#' \tab ADJUSTED_R2\tab Adjusted R2 of Y-column residual w. bias included\cr
 #' \tab PLAIN_R2_NOBIAS\tab Plain R2 of Y-column residual, bias subtracted\cr
 #' \tab ADJUSTED_R2_NOBIAS\tab Adjusted R2 of Y-column residual, bias subtracted\cr
 #' }
@@ -533,7 +533,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
   coefcn <- colnames(glm@coefficients)
   
   # compare the column name vector with the data's
-  cn <- SparkR:::colnames(data)
+  cn <- SparkR::colnames(data)
   
   # Skip the very last coefficient if intecrept=TRUE
   if (glm@intercept == TRUE) {

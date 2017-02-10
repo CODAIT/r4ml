@@ -67,7 +67,7 @@
 #'                         must be provided in \code{imputationValues} parameter (see below).
 #'                         (b) If the "global_mode" imputation method is used and the dataset has multiple modes for the corresponding column,
 #'                         then one of the modes is chosen to impute for the missing values arbitrarily.
-#' @param imputationValues (list) A List of values to be used as replacement values for the columns to be imputated using the "constant" imputation method.                        
+#' @param imputationValues (list) A List of values to be used as replacement values for the columns to be imputed using the "constant" imputation method.                        
 #' @param binningAttrs (character) Name(s) of numeric attribute(s) to be binned.
 #' @param numBins (integer) Integer or vector denoting the number of bins to use on each column.
 #'                      Note: the order of the values specified in \code{numbins} should coincide with the order of the 
@@ -273,6 +273,7 @@ hydrar.ml.preprocess <- function(
   }
   #2.
   proxy.impute <- function(hf) {
+    logSource <- "proxy.impute"
     rhf <- hf
     rmd <- NULL
     if (length(missingAttrs) > 0) {
@@ -286,7 +287,7 @@ hydrar.ml.preprocess <- function(
         } else if (method == "constant") {
           iargs[[missingAttr]] <- imputationValues[[missingAttr]]
         } else {
-          stop("unknown method")
+          hydrar.err(logSource, "unknown method")
         }
       }
       hf_info <- do.call("hydrar.impute", list(hf, iargs))

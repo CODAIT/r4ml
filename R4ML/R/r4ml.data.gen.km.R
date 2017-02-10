@@ -35,7 +35,7 @@
 #' # Transform data to hydrar matrix
 #' survMatrix <- as.hydrar.matrix(surv)
 #' 
-#' # Extablish formula for parsing
+#' # Establish formula for parsing
 #' survFormula <- Surv(Timestamp, Censor) ~ Age
 #' 
 #' # Run kaplan meier on generated data

@@ -277,6 +277,7 @@ with(hydrar.env, {
   }
   
   SYSML_JARS <- function() {
+    logSource <- "SYSML_JARS"
     sysml_jars <- file.path(system.file(package="HydraR"), "lib", "SystemML.jar")
     
     if (nchar(Sys.getenv("SYSML_HOME")) >= 1) {
@@ -285,6 +286,7 @@ with(hydrar.env, {
 
     if (nchar(Sys.getenv("HYDRAR_SYSML_JAR")) >= 1) {
       sysml_jars <- Sys.getenv("HYDRAR_SYSML_JAR")
+      hydrar.info(logSource, paste("using custom SystemML jar:", sysml_jars))
     }
 
     if (!file.exists(sysml_jars)) {

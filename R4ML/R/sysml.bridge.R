@@ -104,6 +104,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
     },
 
     registerInput = function(dmlname, rdd_or_df, mc) {
+      logSource <- "registerInput"
       '\\tabular{ll}{
          Description:\\tab \\cr
            \\tab bind the rdd or dataframe to the dml variable
@@ -128,7 +129,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       } else if (cls == 'jobj') {
         jrdd = rdd_or_df
       } else {
-        stop("unsupported argument rdd_or_df only rdd or dataframe is supported")
+        hydrar.err(logSource, "unsupported argument rdd_or_df only rdd or dataframe is supported")
       }
 
       SparkR:::callJMethod(env$jref, "registerInput", dmlname, jrdd, mc$env$jref)
@@ -438,6 +439,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
 #' @description execute the dml code or script via the systemML library
 #' @name sysml.execute
 #' @param dml a string containing dml code or the file containing dml code
+#' @param ... arguments to be passed to the DML
 #' @return a named list containing hydrar.matrix for each output
 #' @export
 #' @examples \dontrun{
@@ -514,11 +516,9 @@ sysml.execute <- function(dml, ...) {
        ml_ctx$executeScript(dml_code, dml_arg_keys, dml_arg_vals)
      }
    }, warning = function(war) {
-        war_msg <- paste0("DML returned warning ", war)
-        stop(war_msg)
+        hydrar.err(log_source, paste("DML returned warning:", war))
    }, error = function(err) {
-        err_msg <- paste0("DML returned error ", err)
-        stop(err_msg)
+        hydrar.err(log_source, paste("DML returned error:", err))
    }, finally = {
         options(warning.length = previous_warning_length)
    }

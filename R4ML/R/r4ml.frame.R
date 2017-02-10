@@ -42,6 +42,7 @@ setClass("hydrar.frame", contains="SparkDataFrame")
 #'
 #' @name is.hydrar.numeric
 #' @param object a hydrar.frame
+#' @param ... future optional additional arguments to be passed to or from methods
 #' @return TRUE if all the cols are numeric else FALSE
 #' @export
 #'
@@ -58,7 +59,6 @@ setGeneric("is.hydrar.numeric", function(object, ...) {
   standardGeneric("is.hydrar.numeric")
 })
 
-#' @export
 setMethod("is.hydrar.numeric",
   signature(object = "hydrar.frame"),
   function(object, ...) {
@@ -73,7 +73,7 @@ setMethod("is.hydrar.numeric",
 )
 
 hydrar.calc.num.partitions <- function(object_size) {
-  logSource <- "calc num partitons"
+  logSource <- "calc num partitions"
 
   # attempt to detect the # of CPU cores on machine
   cores <- parallel::detectCores(all.tests = TRUE)
@@ -97,28 +97,27 @@ hydrar.calc.num.partitions <- function(object_size) {
 }
 
 
-#' Convert the various  data.frame into the hydraR data frame.
+#' Coerce to a HydraR Frame
 #'
-#' This is the convenient method of converting the data in the distributed hydraR
+#' Convert a data.frame, hydrar.matrix, or Spark DataFrame into a hydrar.frame
 #'
 #' @name as.hydrar.frame
 #' @param object a R data.frame or SparkDataFrame
-#' @param repartition (data.frame only) TRUE/FALSE, should the data automaticly
+#' @param repartition (data.frame only) (logical) should the data automatically
 #' be repartitioned
-#' @param numPartitions (data.frame only) number of partitons to create
-#' @return a HydraR frame
+#' @param numPartitions (data.frame only) (numeric) number of partitions
+#' @param ... future optional additional arguments to be passed to or from methods
+#' @return a hydrar.frame
 #' @export
 #' @examples \dontrun{
 #'    hf1 <- as.hydrar.frame(iris)
 #'    hf2 <- as.hydrar.frame(SparkR::createDataFrame(iris))
 #' }
 setGeneric("as.hydrar.frame", function(object, repartition = TRUE,
-                                       numPartitions = NA,
-                                       ...) {
+                                       numPartitions = NA, ...) {
   standardGeneric("as.hydrar.frame")
 })
 
-#' @export
 setMethod("as.hydrar.frame",
   signature(object = "SparkDataFrame"),
   function(object, ...) {
@@ -135,7 +134,6 @@ setMethod("as.hydrar.frame",
   }
 )
 
-#' @export
 setMethod("as.hydrar.frame",
   signature(object = "data.frame"),
   function(object, repartition = TRUE, numPartitions = NA, ...) {
@@ -176,19 +174,6 @@ setMethod("as.hydrar.frame",
   }
 )
 
-# 
-#' Show the content of the hydrar.frame
-#'
-#' This is the convenient method for showing the content of the hydrar.frame. The output
-#' is similar to the output produce by R
-#'
-#' @name show
-#' @param object a R data.frame 
-#' @export
-#' @examples \dontrun{
-#'    hf1 <- as.hydrar.frame(iris)
-#'    show(hf1)
-#' }
 setMethod(f = "show", signature = "hydrar.frame", definition = 
   function(object) {
     logSource <- "hydrar.frame.show"
@@ -224,8 +209,8 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
 #' @description Imputes a missing value with either the mean of the feature or a user supplied constant.
 #' @details List parameter takes a named list with columns to impute for as the names and either "mean", empty (in which case mean will be assumed), or a constant to impute as the values
 #' 
-#' @param hf (hydrar.frame) A hydrar.frame to be inpute values with.
-#' @param df_columns (list) A named list with names that represent the columns to be fitted, values are imputed.
+#' @param hf (hydrar.frame) A hydrar.frame to be impute values with.
+#' @param ... (list) A named list with names that represent the columns to be fitted, values are imputed.
 #' 
 #'@examples \dontrun{
 #'  # Load Dataset
@@ -251,7 +236,7 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
 #'  head(new_df$data)
 #'}
 # NOTE: add the more specific arguement to ...
-# NOTE: output must contain atleast same or more columns as input
+# NOTE: output must contain at least same or more columns as input
 setGeneric("hydrar.impute", function(hf, ...) {
   standardGeneric("hydrar.impute")
 })
@@ -332,15 +317,16 @@ setMethod("hydrar.impute",
 #'  mapped into consecutive numeric categories. For example, if a column has 
 #'  values "Low", "Medium", and "High", these will be mapped to 1, 2, and 3. 
 #'  \strong{Note}: All columns of type character will be automatically recoded.
-#'  The order of the recoded values is non-deterministic. 
-#'  @param ... list of columns to be recoded. If no columns are given all 
+#'  The order of the recoded values is non-deterministic.
+#' @param hf a hydrar.frame
+#' @param ... list of columns to be recoded. If no columns are given all 
 #'      the columns are recoded
 #' @details The transformed dataset will be returned as a \code{hydrar.frame}
 #'  object. The transform meta-info is also returned. This is helpful to keep
 #'  track of which transformations were performed as well as to apply the same
 #'  set of transformations to a different dataset.The structure of the metadata
 #'  is the nested env
-#'    NOTE: output contain atleast same number of columns as the original hydrar.frame
+#'    NOTE: output contain at least same number of columns as the original hydrar.frame
 #' @export
 #'      
 #' @examples \dontrun{
@@ -438,7 +424,7 @@ setMethod("hydrar.recode",
               rec_val <- get(row_i_salty, icol2recode, inherits = F)
               ret = c(ret, rec_val)
             } else {
-              stop("hydrar.recode FATAL can't find the recode value")
+              hydrar.err(logSource, "can't find the recode value")
             }
           } else {
             ret = c(ret, row_i)
@@ -477,7 +463,8 @@ setMethod("hydrar.recode",
 #' @description Specified scale columns will be 
 #'  shifting by mean and divided by it's sample standard deviation. In case, 
 #'  we do only the shifting by mean. 
-#'  @param ... list of columns to be normalized. If no columns are given all 
+#' @param hf a hydrar frame
+#' @param ... list of columns to be normalized. If no columns are given all 
 #'      the columns are recoded
 #' @details The transformed dataset will be returned as a \code{hydrar.frame}
 #'  object. The transform meta-info is also returned. This is helpful to keep
@@ -601,7 +588,7 @@ setMethod("hydrar.normalize",
 #' @title Binning
 #' @export
 #' @description Takes a column and a number of bins and returns a new column with the average value of the bin each value has been placed into.
-#' @param df (hydrar.frame) The hydrar.frame to bin columns for.
+#' @param hf (hydrar.frame) The hydrar.frame to bin columns for.
 #' @param columns (list) List of column names to create bins with.
 #' @param number (numeric) Number of bins to create.
 #' 
@@ -616,7 +603,7 @@ setMethod("hydrar.normalize",
 #' }
 #'
 # NOTE: add the more specific arguement to ...
-# NOTE: output must contain atleast same or more columns as input
+# NOTE: output must contain at least same or more columns as input
 setGeneric("hydrar.binning", function(hf, ...) {
   standardGeneric("hydrar.binning")
 })

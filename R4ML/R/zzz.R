@@ -261,8 +261,8 @@ sysml.stop <- function() {
   
 }
 
-#' hydrar.session
-#' @description Initialize HydraR
+#' Initialize a HydraR Session
+#' 
 #' hydrar.session is a wrapper function for sparkR.session
 #' @param master typically either local[*] or yarn
 #' @param sparkHome path to spark
@@ -312,8 +312,9 @@ hydrar.session <- function(
   
 }
 
-#' hydrar.session.stop
-#' @description Stop HydraR
+#' Session Stop
+#' 
+#' Stops an existing HydraR session
 #' @export
 hydrar.session.stop <- function() {
   logSource <- "hydrar.session.stop"

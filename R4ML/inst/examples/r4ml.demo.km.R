@@ -38,7 +38,7 @@ survhf <- hydrar.ml.preprocess(
 survMatrix <- as.hydrar.matrix(survhf$data)
 ignore <- cache(survMatrix)
 
-# Extablish formula for parsing
+# Establish formula for parsing
 survFormula <- Surv(Timestamp, Censor) ~ Age
 
 # Run kaplan meier on generated data

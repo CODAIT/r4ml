@@ -24,15 +24,18 @@ setClass("hydrar.step.lm",
 #' @name hydrar.step.lm
 #' @title Step-wise Linear Regression
 #' @export
-#' @description Fits a linear regression model from a hydrar.matrix in a step-wise fashion or
-#'    loads an existing model from HDFS.
-#'
-#' @param formula (formula) A formula in the form Y ~ ., where Y is the response variable.
-#'                The response variable must be of type "scale".
+#' @description Fits a linear regression model from a hydrar.matrix in a
+#' step-wise fashion or loads an existing model from HDFS.
+#' @param formula (formula) A formula in the form Y ~ ., where Y is the response
+#' variable. The response variable must be of type "scale".
 #' @param data (hydrar.matrix) A hydrar.matrix to be fitted.
-#' @param intercept (logical) Boolean value indicating if the intercept term should be used for the regression.
-#' @param shiftAndRescale (logical) Boolean value indicating if shifting and rescaling X columns to mean = 0, variance = 1 should be performed.
-#' @param lambda (numeric) Regularization parameter.
+#' @param intercept (logical) Boolean value indicating if the intercept term
+#' should be used for the regression.
+#' @param shiftAndRescale (logical) Boolean value indicating if shifting and
+#' rescaling X columns to mean = 0, variance = 1 should be performed.
+#' @param threshold Threshold to stop the algorithm: if the decrease in the
+#' value of AIC falls below this no further features are being checked and the
+#' algorithm stops 
 #' @param directory (character) The HDFS path to save the Linear Regression model
 #'  if \code{formula} and \code{data} are specified. Otherwise, an HDFS location
 #'  with a previously trained model to be loaded.
@@ -53,15 +56,15 @@ setClass("hydrar.step.lm",
 #'
 #' @examples \dontrun{
 #'
-#'
-#' # Convert the iris data set into a HydraR frame. Column #5 is a factor so we will ignore it for now
-#' hydra_iris <- as.hydrar.frame(iris[,-5])
+#' # Convert the iris data set into a HydraR frame.
+#' # Column #5 is a factor so we will ignore it for now
+#' hydra_iris <- as.hydrar.frame(iris[, -5])
 #' 
 #' # Convert the HydraR frame into a HydraR matrix
 #' hydra_iris <- as.hydrar.matrix(hydra_iris)
 #'
 #'
-#'step_lm <- hydrar.step.lm(Sepal_Length ~ . , data = hydra_iris)
+#'step_lm <- hydrar.step.lm(Sepal_Length ~ ., data = hydra_iris)
 #'
 #' }
 #'
@@ -69,11 +72,12 @@ setClass("hydrar.step.lm",
 #'
 
 
-hydrar.step.lm <- function(formula, data, intercept=FALSE, shiftAndRescale=FALSE, threshold=.001, directory="~/"){
+hydrar.step.lm <- function(formula, data, intercept=FALSE, shiftAndRescale=FALSE, threshold=.001,
+                           directory = hydrar.env$WORKSPACE_ROOT()){
   
   new("hydrar.step.lm", modelType="regression",
       formula=formula, data=data, method="direct-solve", intercept=intercept, shiftAndRescale=shiftAndRescale,
-      lambda=0, directory=directory, tolerance=hydrar.emptySymbol(), iter.max=hydrar.emptySymbol(), lambda=0, threshold=threshold)
+      lambda=0, directory=directory, tolerance=hydrar.emptySymbol(), iter.max=hydrar.emptySymbol(), threshold=threshold)
 }
 
 setMethod("hydrar.model.validateTrainingParameters", signature="hydrar.step.lm", def = 

@@ -42,28 +42,24 @@ setClass("hydrar.matrix",
          contains = "hydrar.frame",
          validity = is.hydrar.matrix
 )
-
-#' @export
-setGeneric("as.hydrar.matrix", function(object) {
-  standardGeneric("as.hydrar.matrix")
-})
-
-#' @title Convert a hydrar.frame to hydrar.martix by
-#' @description It converts the hydrar.frame to hydrar.matrix so that it is consumable by all the relevant ml algo
-#'   - assigning machine learning types i.e (scale, nominal, ordinal, dummy).
-#'     (default = scale)
-#'   - use transform to convert the type so that it is numeric. Not yet implemented
-#'   - currently it just check if input are are numeric
-#' @param object A hydrar.frame.
-#' @return A hydrar.matrix.  The sum of \code{x} and \code{y}.
+#' Coerce to a HydraR Matrix
+#'
+#' Convert an object to a hydrar.matrix
+#' @param object A hydrar.frame, data.frame, or Spark DataFrame
+#' @return A hydrar.matrix
 #' @examples \dontrun{
 #' hydrar_frame <-  as.hydrar.frame(beaver1)
 #' hydrar_matrix <- as.hydrar.matrix(hydrar_frame)
 #' }
 #' @export
+setGeneric("as.hydrar.matrix", function(object) {
+  standardGeneric("as.hydrar.matrix")
+})
+
 setMethod("as.hydrar.matrix",
   signature(object = "hydrar.frame"),
   function(object) {
+    logSource <- "as.hydrar.matrix"
     result = NULL
     if (is.hydrar.numeric(object)) {
       ncol <- length(SparkR::colnames(object))
@@ -76,7 +72,7 @@ setMethod("as.hydrar.matrix",
       ml.coltypes(result) <- rep("scale", ncol)
     } else {
       #@TODO auto convert
-      stop("conversion from non numeric hydrar.frame is not supported yet")
+      hydrar.err(logSource, "conversion from non numeric hydrar.frame is not supported yet")
     }
     result
   }
@@ -172,10 +168,10 @@ setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
 #' # Load the Iris dataset to HDFS
 #' irisbf <- as.hydrar.frame(iris)
 #'
-#' # Create a hdyrar.matrix after dummycoding, binning, and scaling some attributes
+#' # Create a hydrar.matrix after dummycoding, binning, and scaling some attributes
 #' # this features is not implemented
 #' irisBM <- hydrar.ml.preprocess(hf = irisbf,
-#'                                transformPath = "/tmp"
+#'                                transformPath = "/tmp",
 #'                                dummycodeAttrs = "Species",
 #'                                binningAttrs = c("Sepal_Length", "Sepal_Width"),
 #'                                numBins = 4,
@@ -197,7 +193,12 @@ ml.coltypes <- function(bm) {
   return(hydrar.env$DML_DATA_TYPES[bm@ml.coltypes])
 }
 
+#' hydrar.onehot.column
+#' 
 #' see  the \link{hydrar.onehot} for usages and details
+#' 
+#' @param hm a hydrar.matrix
+#' @param colname name of column to be one hot encoded
 #' @export  
 hydrar.onehot.column <- function(hm, colname) {
   logSource <- "hydrar.onehot.column"
@@ -285,7 +286,7 @@ hydrar.onehot.column <- function(hm, colname) {
 #' @title Onehot encode the value that has been previously onehot encoded.
 #' @description Specified recoded columns will be 
 #'  mapped into onehot encoding. For example, if a column (c1) has values 
-#'  then one hot columsn will be c1_1 == c(0,0,1); c1_2 == c(0, 1, 0) and 
+#'  then one hot columns will be c1_1 == c(0,0,1); c1_2 == c(0, 1, 0) and 
 #'  c1_3== c(0,0,1), 
 #' @param hm a hydrar matrix
 #' @param ... list of columns to be onehot encoded. If no columns are given

@@ -93,7 +93,7 @@ hydrar.sample <- function(data, perc, experimental=FALSE,
       } else if (data_type == 'SparkDataFrame') {
         casted_df <- df
       } else {
-        stop("Unsupported type " %++% data_type %++% " passed in")
+        hydrar.err(logSource, "Unsupported type " %++% data_type %++% " passed in")
       }
      
       if (cache) {
@@ -128,12 +128,12 @@ hydrar.sample <- function(data, perc, experimental=FALSE,
     return (out)
   } else if (length(perc) >= 2) {
     if (abs(sum(perc) - 1.0) >= 1e-6) {
-      stop("perc weights must sum to 1")
+      hydrar.err(logSource, "sum of perc weights must be equal 1")
     }
     rcolname = "__hydrar_dummy_runif__"
     
     if (rcolname %in% SparkR::colnames(data)) {
-      stop("data already has column " %++% rcolname)
+      hydrar.err(logSource, "data already has column " %++% rcolname)
     }
     # create the uniform random (0,1) in the column rcolname
     aug_data <- SparkR::withColumn(data, rcolname, SparkR::rand())
@@ -157,7 +157,7 @@ hydrar.sample <- function(data, perc, experimental=FALSE,
     out <- do.call(outputType, folded_data)
     return(out)
   } else {
-    stop("Other forms of sampling not implemented yet")
+    hydrar.err(logSource, "Other forms of sampling not implemented yet")
     #@TODO
   }
   return (NULL)

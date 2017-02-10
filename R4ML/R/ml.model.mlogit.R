@@ -46,6 +46,7 @@ setClass("hydrar.mlogit",
 #' @param intercept (logical) Logical value for whether the intercept should be used.
 #' @param shiftAndRescale (logical) Logical value indicating if the data should be normalized to zero mean, variance/standard deviation = 1.
 #' @param lambda (numeric) Regularization parameter.
+#' @param labelNames (character) (optional) label names
 #' @param tolerance (numeric) Epsilon degree of tolerance, criterion for convergence.
 #' @param outer.iter.max (numeric) maximum number of outer (Newton) iterations
 #' @param inner.iter.max (numeric) maximum number of inner (conjugate gradient) iterations, 0 = no max
@@ -56,7 +57,7 @@ setClass("hydrar.mlogit",
 #'  \tabular{rlll}{
 ##'\tab\code{beta}          \tab (numeric) \tab Coefficients of the regression\cr
 ##'\tab\code{modelPath}     \tab (character) \tab HDFS location where the model files are stored\cr
-##'\tab\code{transformPath} \tab (character)   \tab HDFS location where the \code{bigr.transform()} metadata are stored \cr
+##'\tab\code{transformPath} \tab (character)   \tab HDFS location where the \code{hydrar.transform()} metadata are stored \cr
 ##'\tab\code{yIdx}          \tab (numeric) \tab Column id of the response variable\cr
 ##'\tab\code{labelColname}      \tab (character) \tab Column name of the response variable \cr
 ##'\tab\code{call}          \tab (character) \tab String representation of this method's call, including the parameters and values passed to it.\cr

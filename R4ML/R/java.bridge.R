@@ -77,7 +77,7 @@ log4j.Logger <- setRefClass("log4j.Logger",
 #'
 #' A Reference Class that represent java HashMap which lives in the spark jvm memory
 #'
-#' HashMap is used for passing in arguements between java and R code
+#' HashMap is used for passing in arguments between java and R code
 #' @name java.ArrayList
 #' @family Java Utils
 #' @export

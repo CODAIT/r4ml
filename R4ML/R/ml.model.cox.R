@@ -27,15 +27,17 @@ setClass("hydrar.coxph",
          contains = "hydrar.model"
 )
 
-#' @name hydrar.coxph
-#' @export
-#' @title Cox proportional hazards models
-#' @description Fits a Cox proportional hazards regression model with time dependant coefficients or loads an existing model from HDFS.
-#' @details The Cox proportional hazard analysis is a semi-parametric statistical estimator. It is used
-#' to handle censored time-to-event data. It is semi-parametric because it does not make any assumptions on 
-#' the distribution of the timestamps yet it assumes that the hazard ratios remain constant.
-#' In this implementation, we use Breslow's approximation to handle ties and the regression parameters are calculated using
-#' trust region Newton's method with conjugate gradient.
+#' Cox proportional hazards regression model
+#' 
+#' Fit a Cox proportional hazards regression model with time dependent
+#' coefficients or loads an existing model from HDFS.
+#' @details The Cox proportional hazard analysis is a semi-parametric
+#' statistical estimator. It is used to handle censored time-to-event data. It
+#' is semi-parametric because it does not make any assumptions on the
+#' distribution of the timestamps yet it assumes that the hazard ratios remain
+#' constant. In this implementation, we use Breslow's approximation to handle
+#' ties and the regression parameters are calculated using trust region Newton's
+#' method with conjugate gradient.
 #' 
 #' The input dataset should have the following columns:
 #'
@@ -57,7 +59,6 @@ setClass("hydrar.coxph",
 #' @param tolerance (numeric) tolerance value
 #' @param iter.max.inner (numeric) Max. number of inner (conjugate gradient) iterations (0 = unlimited)
 #' @param iter.max.outer (numeric) Max. number of outer (Newton) iterations
-#' @param test (numeric) indicates whether the tests should be calculated (1 = yes, 0 = no)
 #' @param directory (character) The HDFS path to save the Cox model if input data is specified.
 #'        Otherwise, an HDFS location with a previously trained model to be loaded.
 #' @return An S4 object of class \code{hydrar.coxph} which contains the arguments above as well as the following additional fields:
@@ -74,7 +75,7 @@ setClass("hydrar.coxph",
 ##'  \tab\code{call}         \tab (character) \tab String representation of this method's call, including the parameters and values passed to it.\cr
 #'  }
 #'
-#' @details Cox proportional hazards is a method used in biostatistics to handle time-to-event data.
+#' @details Cox proportional hazards is a method used in bio-statistics to handle time-to-event data.
 #' @examples \dontrun{
 #' surv <- data.frame("Other"    = c(1, 2, 3, 4, 5, 6),
 #'                   "Gender"   = c(1, 0, 0, 1, 1, 0),
@@ -100,6 +101,7 @@ setClass("hydrar.coxph",
 #' }
 #' @seealso \link{summary.hydrar.coxph}
 #' @seealso \link{predict.hydrar.coxph}
+#' @export
 #' 
 hydrar.coxph <- function(data,
                          formula,

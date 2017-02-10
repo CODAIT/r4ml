@@ -55,7 +55,7 @@ hydrar.emptySymbol <- function() (quote(f(,)))[[2]]
   return(FALSE)
 }
 
-# check if the seq of inputs has atleast one Null or Empty
+# check if the seq of inputs has at least one Null or Empty
 .hydrar.hasNullOrEmpty <- function(x) {
   logSource <- ".hydrar.isNullOrEmpty"
   if (.hydrar.isNullOrEmpty(x)) {
@@ -311,7 +311,7 @@ hydrar.ml.checkModelFeaturesMatchData <- function (modelMatrix, dataMatrix, inte
 }
 
 # Extracts a list of column ids using input formula tree: root
-# It uses .bigr.tree.traversal to traverse over nodes of the input tree
+# It uses .hydrar.tree.traversal to traverse over nodes of the input tree
 # Afterwards it identifies the column-nodes and maps them to the corresponding ids
 # This method returns a vector of column-ids
 hydrar.extractColsFromFormulaTree  <- function(root, dataset=NULL, delimiter){
@@ -349,7 +349,7 @@ hydrar.extractColsFromFormulaTree  <- function(root, dataset=NULL, delimiter){
       if (is.null(bfmName)) {
         bfmName <- leaves[[i + 1]]
       } else if (bfmName != leaves[[i + 1]]) {
-        hydrar.err(logSource, "All columns specified in the formula must belong to the same bigr.frame or bigr.matrix.")
+        hydrar.err(logSource, "All columns specified in the formula must belong to the same hydrar.frame or hydrar.matrix.")
       } else {
         bfmName <- leaves[[i + 1]]
       }

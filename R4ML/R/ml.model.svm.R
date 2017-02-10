@@ -68,17 +68,17 @@ setMethod("initialize", "hydrar.svm",
     classes <- if(is.binary.class) 2 else length(names(dmlOuts$w))
     coltypes <- if(is.binary.class) "numeric" else rep("numeric", classes)
    
-    d <- SparkR:::as.data.frame(dmlOuts[['w']])
+    d <- SparkR::as.data.frame(dmlOuts[["w"]])
     dmlOutNames <- names(dmlOuts)
     if (!any(is.na(match(c("extra_model_params", "weights"), dmlOutNames)))) {
-      w <- SparkR:::as.data.frame(dmlOuts[['weights']])
-      e <- SparkR:::as.data.frame(dmlOuts[['extra_model_params']])
+      w <- SparkR::as.data.frame(dmlOuts[["weights"]])
+      e <- SparkR::as.data.frame(dmlOuts[["extra_model_params"]])
       e <- setNames(e, names(w))
       d <- rbind(w, e)
     }
    
     .Object@dmlOuts <- dmlOuts
-    .Object@coefficients <- SparkR:::as.data.frame(d[1:length(featureNames),])
+    .Object@coefficients <- SparkR::as.data.frame(d[1:length(featureNames), ])
             
     if (!is.null(labelNames)) {
       if (l2svm) {
@@ -128,6 +128,7 @@ setMethod("initialize", "hydrar.svm",
 #'
 #' @param formula (formula) A formula in the form Y ~ ., where Y is the response variable.
 #' @param data (hydrar.matrix) A dataset to be fitted.
+#' @param is.binary.class (logical)
 #' @param intercept (logical) Boolean value specifying whether the intercept term should be part of the model.
 #' @param tolerance (numeric) Tolerance value to control the termination of the algorithm.
 #' @param iter.max (numeric) Number of iterations.
@@ -425,7 +426,7 @@ predict.hydrar.svm <- function(object, data, returnScores=T) {
   #}
   #)
   numFeaturesInModel = nrow(object@coefficients) - if(object@intercept) 1 else 0
-  numColumnsInData = length(SparkR:::colnames(data))
+  numColumnsInData <- length(SparkR::colnames(data))
   
   testing <- hydrar.ml.checkModelFeaturesMatchData(object@coefficients, data, object@intercept, object@labelColname, object@yIdx)
   
@@ -516,12 +517,12 @@ packagePredictSvmOutput <- function(outputDir, predictDmlOut, svm, scores, testi
   sc <- NULL
   if(testing) {
     suppressWarnings(
-      acc <- SparkR:::as.data.frame(hydrar.read.csv(file.path(outputDir, "accuracy.csv"), header=FALSE, 
+      acc <- SparkR::as.data.frame(hydrar.read.csv(file.path(outputDir, "accuracy.csv"), header=FALSE, 
                       stringsAsFactors=FALSE, sep=" "))[1,3]
     )
     coltypes <- if(svm@classes==2) "numeric" else as.vector(rep("numeric", svm@classes))
     
-    con <- SparkR:::as.data.frame(predictDmlOut$confusion_mat)
+    con <- SparkR::as.data.frame(predictDmlOut$confusion_mat)
     con[is.na(con)] <- 0
     
     if(nrow(con) != ncol(con)) {

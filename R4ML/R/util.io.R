@@ -166,6 +166,7 @@ hydrar.hdfs.exist <- function(file) {
 #' @param na.strings a vector of strings which should be interpreted as NA
 #' @param schema (cluster mode) the SparkR scheme
 #' @param sep field separator character, supported in local mode
+#' @param ... (optional)
 #' @export
 hydrar.read.csv <- function(
   file, header = FALSE, stringsAsFactors = FALSE, inferSchema = FALSE, sep = ",",
@@ -175,7 +176,7 @@ hydrar.read.csv <- function(
   
   if(hydrar.fs.local()) {
     if (!is.null(schema)) {
-      hydrar.err(logSource, "Can't have the schema in the local mode")
+      hydrar.err(logSource, "schema not supported in local mode")
     }
     df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors,
                           sep = sep, na.strings = na.strings, ...)
@@ -239,7 +240,7 @@ hydrar.read.csv <- function(
 #'   # default levels
 #'   level <- mylogger$getLevel();
 #'   # change the log level
-#'   log$setLevel("ERROR")
+#'   mylogger$setLevel("ERROR")
 #'   mylogger$setLevel(level)
 #' }
 #' 

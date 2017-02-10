@@ -274,7 +274,7 @@ setMethod("stats", signature="hydrar.lm", def =
 #' is labeled, testing will be done and some statistics will be computed to measure the quality of the model. 
 #' Otherwise, scoring will be performed and only the predictions will be computed.
 #' @param object (hydrar.lm) The linear regression model
-#' @param data   (bigr.matrix) The data to be tested or scored.
+#' @param data (hydrar.matrix) The data to be tested or scored.
 #' @return If the testing dataset is not labeled, the result will be a hydrar.matrix with the predictions for each row.
 #' Otherwise, the result will be a list with a hydrar.matrix with the predictions for each row (\code{$probabilities}), and
 #' (2) a data.frame with goodness-of-fit statistics ($statistics) for each column. Please refer to \link{predict.hydrar.glm} for the
