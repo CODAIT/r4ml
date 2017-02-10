@@ -128,7 +128,7 @@
 #' irisBF <- as.hydrar.frame(iris2)
 #' 
 #' # Find out which columns have NA values
-#' # hydrar.which.na.cols(irisBF) #@TODO implement this function
+#' # hydrar.which.na.cols(irisBF) #TODO implement this function
 #' 
 #' # Create a hydrar.matrix after dummycoding, binning, and scaling some attributes. Missing values
 #' # must be handled accordingly.

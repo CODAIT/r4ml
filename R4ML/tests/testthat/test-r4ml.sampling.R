@@ -71,7 +71,7 @@ test_that("hydrar.sampling k split\n", {
     folded_iris_hf <- args[[2]]
     w_ratio <- nrow(folded_iris_hf) / nrow(iris_hf)
     cat("weight_ratio => {expected=" %++% w %++% "," %++% "got=" %++% w_ratio %++% "}\n")
-    expect_equal(w_ratio, w, tolerance = 0.2)
+    expect_equal(w_ratio, w, tolerance = 0.3)
   })
   cat("\n")
 })

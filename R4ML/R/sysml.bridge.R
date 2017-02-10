@@ -19,9 +19,9 @@ NULL
 requireNamespace("SparkR")
 
 #' @name sysml.MatrixCharacteristics
-#' @description 
+#' @title
 #' A Reference Class that represent systemML MatrixCharacteristics
-#'
+#' @description 
 #' Create a meta info about the block and overall size of matrix
 #' This class acts as the metadata for the systemML matrix and is used by other
 #' classes in the systemML.
@@ -76,7 +76,7 @@ sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
 #'        along with java ref corresponding to jvm
 #' @export
 #' @examples \dontrun{
-#'    #@TODO fix this example
+#'    #TODO fix this example
 #'    #sc # the default spark context
 #'    #mlCtx = sysml.MLContext$new(sc)
 #' }
@@ -289,7 +289,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
 #'        along with java ref corresponding to jvm
 #' @export
 #' @examples \dontrun{
-#'    #@TODO fix this example
+#'    #TODO fix this example
 #'    #sysmlSparkContext # the default spark context
 #'    #mlCtx = sysml.MLOutput$new()
 #' }
