@@ -124,7 +124,7 @@ hydrar.startup.message <- function(libname, pkgname, ...) {
 
   # print the other important info
   msg <-  "hydrar default message level set at 'INFO'\n"
-  msg <- paste(msg, " you can change it by hydrar.logger.setLevel(level)")
+  msg <- paste(msg, "you can change it by hydrar.logger$setLevel(level)")
   packageStartupMessage(msg)
   
   

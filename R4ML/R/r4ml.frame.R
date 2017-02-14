@@ -62,8 +62,8 @@ setGeneric("is.hydrar.numeric", function(object, ...) {
 setMethod("is.hydrar.numeric",
   signature(object = "hydrar.frame"),
   function(object, ...) {
-    cnames <- SparkR:::colnames(object)
-    ctypes <- SparkR:::coltypes(object)
+    cnames <- SparkR::colnames(object)
+    ctypes <- SparkR::coltypes(object)
     bad_cols <- cnames[which(sapply(ctypes, function(e) !e %in% c("numeric", "integer", "double")))]
     if (length(bad_cols) >= 1) {
       return (FALSE)
@@ -180,7 +180,7 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
     # Get the query result as a data.frame
     df <- SparkR::as.data.frame(
       if (hydrar.env$DEFAULT_SHOW_ROWS > 0) {
-        SparkR:::head(object, hydrar.env$DEFAULT_SHOW_ROWS)
+        SparkR::head(object, hydrar.env$DEFAULT_SHOW_ROWS)
       } else {
         object                
       }
@@ -353,7 +353,7 @@ setMethod("hydrar.recode",
 
     # get the list of all input columns and set default (if needed)
     icols <- unlist(list(...), recursive = T)
-    hf_colnames <- SparkR:::colnames(hf)
+    hf_colnames <- SparkR::colnames(hf)
     if (missing(icols) || length(icols) == 0) {
       icols <- hf_colnames
     }
@@ -367,9 +367,10 @@ setMethod("hydrar.recode",
     # create the env aka hashmap for each column
     icol2rec_env = new.env(hash=TRUE, parent = emptyenv())
     for (icol in icols) {
-      icol_df <- SparkR:::select(hf, icol)
-      uicol_df <- SparkR:::distinct(icol_df)
-      uicol_nr <- SparkR:::nrow(uicol_df)
+      hydrar.debug(logSource, paste("on column", icol))
+      icol_df <- SparkR::select(hf, icol)
+      uicol_df <- SparkR::distinct(icol_df)
+      uicol_nr <- SparkR::nrow(uicol_df)
       if (uicol_nr > nurow_max) {
         hydrar.err(logSource, "Number of unique element in the col "
                    %++% icol %++% "exceed maximum" %++% nurow_max)
@@ -435,7 +436,7 @@ setMethod("hydrar.recode",
     )
    
     #calculate the new schema
-    old_sch <- SparkR:::schema(hf)
+    old_sch <- SparkR::schema(hf)
     old_sch_flds <- old_sch$fields()
     new_sf = list()
     for (i in 1:length(hf_colnames)) {
@@ -647,11 +648,11 @@ setMethod("hydrar.binning",
       }
       
       # Establish outputs
-      hf = SparkR:::withColumn(hf, new_name, avg_bins)
+      hf = SparkR::withColumn(hf, new_name, avg_bins)
       # Delete Original Column
       eval(parse(text=paste0("hf$", name, " <- NULL")))
       # Rename new column
-      hf = SparkR:::withColumnRenamed(hf, existingCol=new_name, newCol=name)
+      hf = SparkR::withColumnRenamed(hf, existingCol=new_name, newCol=name)
       
       # Rearrange columns
       hf = as.hydrar.frame(SparkR::select(hf, hf_colnames))

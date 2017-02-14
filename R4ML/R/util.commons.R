@@ -429,4 +429,30 @@ hydrar.parseSurvivalArgsFromFormulaTree <- function(formula, dataset, directory)
   return(survTSFList)
 }
 
+#' Find NA columns
+#' 
+#' A function to find columns in a hydrar.frame which have NA values. This
+#' function can be very costly for large datasets.
+#' @param hf a hydrar.frame
+#' @export
+hydrar.which.na.cols <- function(hf) {
+ logSource <- "hydrar.which.na.cols"
+  
+ if (!inherits(hf, "SparkDataFrame")) {
+   hydrar.err(logSource, "data type not supported")
+ }
+ cols <- SparkR::columns(hf)
+ rows <- SparkR::nrow(hf)
+ 
+ na_cols <- c()
+ 
+ for (col in cols) {
+   hf2 <- SparkR::dropna(x = hf, cols = col)
+   if (SparkR::nrow(hf2) < rows) {
+     na_cols <- c(na_cols, col)
+   }
+   
+ }
+ return(na_cols)
+}
 

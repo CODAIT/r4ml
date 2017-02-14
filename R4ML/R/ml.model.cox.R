@@ -202,7 +202,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.coxph", def =
                   #@TODO check that only dummy coded columns can be baseline
                   dmlArgs <- c(dmlArgs, R = baselineMatrix)
                   } else {
-                    model@featureNames <- data@colnames[featureIds]
+                    model@featureNames <- SparkR::colnames(data)[featureIds]
                   }
                 
                 if (!missing(tolerance)) {

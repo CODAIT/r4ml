@@ -102,7 +102,6 @@
 #'                      \tab\emph{/Bin}\tab binning metadata\cr
 #'                      \tab\emph{/Scale}\tab scaling metadata\cr
 #'  }
-# @TODO implement the na find func @seealso link{hydrar.which.na.cols}
 #' @export
 #' @examples \dontrun{
 #' 
@@ -110,7 +109,7 @@
 #' irisBF <- as.hydrar.frame(iris)
 #' 
 #' # Find out which columns have NA values
-#' #TBD hydrar.which.na.cols(irisBF)
+#' hydrar.which.na.cols(irisBF)
 #' 
 #' # Create a hydrar.matrix object from the dataset. Column Species will be automatically recoded.
 #' # as it is of type character. Since the dataset doesn't have missing values, no further
@@ -128,7 +127,7 @@
 #' irisBF <- as.hydrar.frame(iris2)
 #' 
 #' # Find out which columns have NA values
-#' # hydrar.which.na.cols(irisBF) #TODO implement this function
+#' hydrar.which.na.cols(irisBF)
 #' 
 #' # Create a hydrar.matrix after dummycoding, binning, and scaling some attributes. Missing values
 #' # must be handled accordingly.
@@ -137,7 +136,7 @@
 #'             binningAttrs = c("Sepal_Length", "Sepal_Width"),
 #'             numBins = 4,
 #'             missingAttrs = c("Petal_Length", "Sepal_Width"),
-#'             omit.na = "Petal_Width",
+#'             omit.na = c("Petal_Width"),
 #'             scalingAttrs = c("Petal_Length")
 #'  )
 #'                                                                            
@@ -160,7 +159,7 @@ hydrar.ml.preprocess <- function(
   dummycodeAttrs = NULL,
   scalingAttrs = NULL, 
   scalingMethod = "mean-subtraction",
-  omit.na = NULL)
+  omit.na = colnames(hf))
 {
   logSource <- "hydrar.ml.preprocess"
  .hydrar.transform.argumentsPreconditions(
@@ -266,9 +265,10 @@ hydrar.ml.preprocess <- function(
   proxy.omit.na <- function(hf) {
     rhf = hf
     if (is.omit.na) {
-      rhf <- as.hydrar.frame(SparkR::dropna(hf), repartition = FALSE)
+      rhf <- as.hydrar.frame(SparkR::dropna(hf, cols = omit.na), repartition = FALSE)
+      ignore <- cache(rhf)
     }
-    metadata <- list();
+    metadata <- list()
     list(data=rhf, metadata=metadata)
   }
   #2.
@@ -363,6 +363,7 @@ hydrar.ml.preprocess <- function(
   next_frame <- curr_frame
   metadata = list(order=pp_order)
   for (pp in pp_order) {
+    hydrar.info(logSource, paste("running", pp))
     curr_frame <- next_frame
     pp_res_info <- do.call(pp, list(curr_frame))
     next_frame <- pp_res_info$data

@@ -48,4 +48,16 @@ test_that("hydrar.ml.preprocess", {
   
   showDF(iris_transform$data, n = 154)  
 })
-# end hydrar.ml.preprocess
+
+test_that("hydrar.ml.preprocess omit.na", {
+  iris_hf <- iris
+  iris_hf$Petal.Width[5] <- NA
+  iris_hf <- as.hydrar.frame(iris_hf)
+  
+  iris_transform <- hydrar.ml.preprocess(
+    iris_hf,
+    transformPath = tempdir(),
+    omit.na = c("Petal_Width")
+  )
+  expect_equal(nrow(iris_transform$data), 149)
+})
