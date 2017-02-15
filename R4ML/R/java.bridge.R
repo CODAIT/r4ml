@@ -30,7 +30,7 @@ NULL
 #'        along with java ref corresponding to jvm
 #' @examples
 #' \dontrun{
-#'    logger$setLevel("WARN")
+#'    jlogger$setLevel("WARN")
 #' }
 #'
 
@@ -44,16 +44,9 @@ log4j.Logger <- setRefClass("log4j.Logger",
         level_jref
       }
       env$jref <<-SparkR:::callJStatic("org.apache.log4j.Logger", "getLogger", name)
-      levels <- c("INFO", "ERROR", "WARN", "DEBUG", "ALL", "OFF")
+      levels <- c("ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF")
       level_jobjs <- sapply(levels, createLogger)
-      #names(level_jobjs) <- levels
       sapply(levels, function(level) {assign(level, level_jobjs[[level]], env)})
-      #env$INFO <<- SparkR:::callJStatic("org.apache.log4j.Level", "toLevel", "INFO")
-      #env$ERROR <<- SparkR:::callJStatic("org.apache.log4j.Level", "toLevel", "ERROR")
-      #env$WARN <<- SparkR:::callJStatic("org.apache.log4j.Level", "toLevel", "WARN")
-      #env$DEBUG <<- SparkR:::callJStatic("org.apache.log4j.Level", "toLevel", "DEBUG")
-      #env$ALL <<- SparkR:::callJStatic("org.apache.log4j.Level", "toLevel", "ALL")
-      #env$OFF <<- SparkR:::callJStatic("org.apache.log4j.Level", "toLevel", "OFF")
     },
 
     finalize = function() { # cleanup is not necessary
@@ -66,7 +59,7 @@ log4j.Logger <- setRefClass("log4j.Logger",
        }'
       level_jref = get(level, .self$env)
       SparkR:::callJMethod(env$jref, "setLevel", level_jref)
-      logger$getLevel()
+      .self$getLevel()
     },
 
     getLevel = function() {

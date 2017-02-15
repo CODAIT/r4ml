@@ -27,7 +27,7 @@ test_that("hydrar.session", {
   hydrar.session()
   
   expect_true(hydrar.env$HYDRAR_SESSION_EXISTS)
-  expect_true("logger" %in% ls(.GlobalEnv))
+  expect_true("hydrar.logger" %in% ls(.GlobalEnv))
   expect_true("sc" %in% ls(.GlobalEnv))
   expect_true("sysml.RDDUtils" %in% ls(.GlobalEnv))
   expect_true("sysmlSparkContext" %in% ls(.GlobalEnv))

@@ -204,8 +204,8 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       #DEBUG browser()
       out_jref <- NULL
       
-      previous_log_level <- logger$getLevel()
-      invisible(logger$setLevel(hydrar.env$SYSML_LOG_LEVEL))
+      previous_log_level <- jlogger$getLevel()
+      invisible(jlogger$setLevel(hydrar.env$SYSML_LOG_LEVEL))
       
       if (is.file) {
         if (is_namedargs) {
@@ -237,7 +237,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
         }
       }
       
-      invisible(logger$setLevel(previous_log_level))
+      invisible(jlogger$setLevel(previous_log_level))
       
       #@TODO. get sysmlSqlContext from the ctor
       outputs <- sysml.MLOutput$new(out_jref, sysmlSqlContext)
@@ -351,7 +351,7 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
 #' airrt <- airr$Distance
 #' airrt[is.na(airrt)] <- 0
 #' airrtd <- as.data.frame(airrt)
-#' air_dist <- createDataFrame(sysmlSqlContext, airrtd)
+#' air_dist <- createDataFrame(airrtd)
 #' 
 #' X_cnt <- SparkR::count(air_dist)
 #' X_mc <- HydraR:::sysml.MatrixCharacteristics$new(X_cnt, 1, 10, 1)

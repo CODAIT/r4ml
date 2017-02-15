@@ -18,7 +18,6 @@ library(testthat)
 context("Testing util.io\n")
 
 test_that("hydrar.fs", {
-
   if(HydraR:::hydrar.fs() == "local") {
     expect_true(HydraR:::hydrar.fs.local())
     expect_false(HydraR:::hydrar.fs.cluster())
@@ -32,7 +31,6 @@ test_that("hydrar.fs", {
 })
 
 test_that("hydrar.hdfs.exist", {
-  
   if (HydraR:::hydrar.fs.cluster()) { # only need to run this test in cluster mode
 
     warning("test hydrar.fs.cluster() is not implemented yet")
@@ -42,7 +40,6 @@ test_that("hydrar.hdfs.exist", {
 })
 
 test_that("hydrar.read.csv", {
-
   if (HydraR:::hydrar.fs.local()) {
     
     seperators <- c(" ", ",", ":", "|")
@@ -63,4 +60,24 @@ test_that("hydrar.read.csv", {
     #@TODO
   }
   
+})
+
+
+test_that("Logging", {
+  
+  log <- HydraR:::Logging$new();
+  
+  # default levels
+  level <- log$getLevel();
+  expect_equal(level, "INFO")
+  
+  # change the log level
+  log$setLevel("FATAL")
+  expect_equal("FATAL", log$getLevel())
+  
+  # java and hydraR level should change
+  expect_equal("FATAL", log$getLevel())
+  expect_equal("ERROR", log$getLevel(is_java=TRUE))
+  
+  log$setLevel(level)
 })

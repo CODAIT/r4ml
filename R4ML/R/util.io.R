@@ -21,13 +21,26 @@ NULL
 #
 #
 
-##logging info
+##logging err # in future may be don't do the stop and just err
 hydrar.err <- function(source, message) {
+  if (!hydrar.logger$isLoggable("ERROR")) {
+    return
+  }
   stop("HydraR[" %++% source %++% "]: " %++% message, call. = FALSE)
 }
 
+## fatal 
+hydrar.fatal <- function(source, message) {
+  if (!hydrar.logger$isLoggable("FATAL")) {
+    return
+  }
+  stop("HydraR[" %++% source %++% "]: " %++% message, call. = FALSE)
+}
 # Prints a warning message
 hydrar.warn <- function(source, message, immediate.=FALSE) {
+  if (!hydrar.logger$isLoggable("WARN")) {
+    return
+  }
   if (missing(source)) {
     source <- ""
   }
@@ -42,6 +55,50 @@ hydrar.warn <- function(source, message, immediate.=FALSE) {
 
 # Prints an information message
 hydrar.info <- function(source, message) {
+  if (!hydrar.logger$isLoggable("INFO")) {
+    return
+  }
+  if (missing(source)) {
+    source <- ""
+  }
+  if (missing(message)) {
+    message <- ""
+  }
+  infoBit <- trunc(hydrar.env$LOG_LEVEL / 4) %% 2
+  if (infoBit == 1) {
+    if (length(message) == 1) {
+      message("INFO[" %++% source %++% "]: " %++% message)
+    } else {
+      message("INFO[" %++% source %++% "]: [vector]: " %++% paste(message, collapse=", "))
+    }
+  }
+}
+
+
+hydrar.infoShow <- function(source, message) {
+  if (!hydrar.logger$isLoggable("INFO")) {
+    return
+  }
+  if (missing(source)) {
+    source <- ""
+  }
+  if (missing(message)) {
+    message <- ""
+  }
+  infoBit <- trunc(hydrar.env$LOG_LEVEL / 4) %% 2
+  if (infoBit == 1) {
+    cat("INFO[" %++% source %++% "]: ")
+    show(message)
+    cat("\n")
+  }
+}
+
+
+# debug msg
+hydrar.debug <- function(source, message) {
+  if (!hydrar.logger$isLoggable("DEBUG")) {
+    return
+  }
   if (missing(source)) {
     source <- ""
   }
@@ -55,21 +112,6 @@ hydrar.info <- function(source, message) {
     } else {
       message("DEBUG[" %++% source %++% "]: [vector]: " %++% paste(message, collapse=", "))
     }
-  }
-}
-
-hydrar.infoShow <- function(source, message) {
-  if (missing(source)) {
-    source <- ""
-  }
-  if (missing(message)) {
-    message <- ""
-  }
-  infoBit <- trunc(hydrar.env$LOG_LEVEL / 4) %% 2
-  if (infoBit == 1) {
-    cat("INFO[" %++% source %++% "]: ")
-    show(message)
-    cat("\n")
   }
 }
 
@@ -161,3 +203,79 @@ hydrar.read.csv <- function(
         )
   return(df)
 }
+
+#' HydraR Logging class
+#' 
+#' @docType class
+#' @importFrom R6 R6Class
+#' @format A Unified logging utility which control HydraR, SparkR, SystemML log levels
+#' @section Methods:
+#' \describe{
+#'   \item{\code{isValidLevel(logLevel))}}
+#'      {check if the log level is valid. Valid log levels are"ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"}
+#'   \item{\code{setLevel(logLevel, force_java=TRUE))}}
+#'      {set the HydraR logger to the specified level. force_java=FALSE will not update the java log level}
+#'  \item{\code{getLevel(is_java=FALSE))}}
+#'      {get the HydraR loglevel. If is_java is TRUE then return the jvm log level. Usually both of them will be in sync but there is no gurantee}
+#'  \item{\code{isLoggable(logLevel))}}
+#'      {See if this log level will log the message or not}
+#'}      
+#' 
+#' @examples \dontrun{
+#'   mylogger <- HydraR:::Logging$new();
+#'   # default levels
+#'   level <- mylogger$getLevel();
+#'   # change the log level
+#'   log$setLevel("ERROR")
+#'   mylogger$setLevel(level)
+#' }
+#' 
+Logging <- R6::R6Class(
+  "Logging",
+  public = list(
+    name = "",
+    level = "INFO",
+    levels = c("ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"),
+    jlogger = NA,
+    initialize = function(name = "HydraR", level = "INFO") {
+      self$name <- name
+      self$level <- level
+      self$jlogger <- get("jlogger", .GlobalEnv)
+    },
+    isValidLevel = function(val) {
+      return (val %in% self$levels)
+    },
+    setLevel = function(val, force_java=FALSE) {
+      if (!self$isValidLevel(val)) {
+        msg = paste("invalid levels only ", levels , " supported")
+        warning(msg)
+      }
+      if (force_java) { 
+         self$jlogger$setLevel(val)
+      }
+      self$level <- val
+    },
+    getLevel = function(is_java=FALSE) {
+      if(!is_java) {
+        self$level
+      } else {
+        self$jlogger$getLevel()
+      }
+    },
+    compare = function(level1, level2) {
+      if (!self$isValidLevel(level1) || !(self$isValidLevel(level2))) {
+         return(NA)
+      }
+      i1 <- match(level1, self$levels)
+      i2 <- match(level2, self$levels)
+      return (i1 - i2);
+    },
+    isLoggable = function(level) {
+      cmp <- self$compare(self$level, level)
+      if (!is.na(cmp) && cmp <= 0) {
+        return(TRUE)
+      } else {
+        return(FALSE)
+      }
+    }
+))

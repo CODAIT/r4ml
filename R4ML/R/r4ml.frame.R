@@ -25,7 +25,7 @@ requireNamespace("SparkR")
 #'
 #' @examples \dontrun{
 #'
-#'  spark_df <- SparkR::createDataFrame(sysmlSqlContext, iris)
+#'  spark_df <- SparkR::createDataFrame(iris)
 #'  hydrar_frame <- new("hydrar.frame", sdf=spark_df@@sdf, isCached=spark_df@@env$isCached)
 #'
 #' }
@@ -110,7 +110,7 @@ hydrar.calc.num.partitions <- function(object_size) {
 #' @export
 #' @examples \dontrun{
 #'    hf1 <- as.hydrar.frame(iris)
-#'    hf2 <- as.hydrar.frame(SparkR::createDataFrame(sysmlSqlContext, iris))
+#'    hf2 <- as.hydrar.frame(SparkR::createDataFrame(iris))
 #' }
 setGeneric("as.hydrar.frame", function(object, repartition = TRUE,
                                        numPartitions = NA,
@@ -155,7 +155,7 @@ setMethod("as.hydrar.frame",
       repartition <- FALSE
     }
 
-    spark_df <- SparkR::createDataFrame(sysmlSqlContext, object)
+    spark_df <- SparkR::createDataFrame(object)
 
     if (repartition) {
 

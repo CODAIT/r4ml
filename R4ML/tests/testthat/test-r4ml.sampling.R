@@ -45,15 +45,19 @@ test_that("hydrar.sampling for number of samples\n", {
 # test that we can randomly partition the data into two split
 test_that("hydrar.sampling 2 split\n", {
   cat("testing sampling 2 split\n")
-  iris_hf <- as.hydrar.frame(iris)
   # Randomly split the data into training (70%) and test (30%) sets
+  iris_hf <- as.hydrar.frame(iris)
   iris_sample_arr <- hydrar.sample(iris_hf, c(0.7, 0.3))
   train_ratio <- nrow(iris_sample_arr[[1]]) / nrow(iris_hf)
   test_ratio <- nrow(iris_sample_arr[[2]]) / nrow(iris_hf)
+
+  # since the data set is small our tolerance is high
   cat("train_ratio => {expected=0.7, got=" %++% train_ratio %++% "}\n")
-  expect_equal(train_ratio, 0.7, tolerance = 0.2)
+  expect_equal(train_ratio, 0.7, tolerance = 0.3)
+
+  # since the data set is small our tolerance is high
   cat("test_ratio => {expected=0.3, got=" %++% test_ratio %++% "}\n")
-  expect_equal(test_ratio, 0.3, tolerance = 0.2)
+  expect_equal(test_ratio, 0.3, tolerance = 0.3)
   cat("\n")
 })
 

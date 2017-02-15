@@ -12,6 +12,7 @@ Depends:
     R(>= 3.0.0),
     SparkR(>= 2.0.0),
 Imports:
+    R6,
     readr,
     survival
 Suggests:

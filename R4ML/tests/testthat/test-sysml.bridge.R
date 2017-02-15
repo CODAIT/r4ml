@@ -147,7 +147,7 @@ test_that("sysml.MLContext Long", {
     airrt <- airr$Distance
     airrt[is.na(airrt)] <- 0
     airrtd <- as.data.frame(airrt)
-    air_dist <- createDataFrame(sysmlSqlContext, airrtd)
+    air_dist <- createDataFrame(airrtd)
 
     X_cnt <- SparkR::count(air_dist)
     #X_rdd <- SparkR:::toRDD(air_dist)
