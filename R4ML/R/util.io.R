@@ -177,11 +177,22 @@ hydrar.read.csv <- function(
     if (!is.null(schema)) {
       hydrar.err(logSource, "Can't have the schema in the local mode")
     }
-    df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors, sep = sep, na.strings = na.strings)
+    df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors,
+                          sep = sep, na.strings = na.strings, ...)
     return(df)
   }
   
   # we need to pass in these arguments as strings
+  if (!typeof(header) == "logical") {
+    hydrar.err(logSource, "!header : invalid argument type")
+  }
+  if (!typeof(stringsAsFactors) == "logical") {
+    hydrar.err(logSource, "!stringsAsFactors : invalid argument type")
+  }
+  if (!typeof(inferSchema) == "logical") {
+    hydrar.err(logSource, "!inferSchema : invalid argument type")
+  }
+
   header_val <- ifelse(header, "true", "false")
   stringsAsFactors_val <- ifelse(stringsAsFactors, "true", "false")
   inferSchema_val <- ifelse(inferSchema, "true", "false")
@@ -199,7 +210,9 @@ hydrar.read.csv <- function(
           source = source,
           header = header_val,
           inferSchema = inferSchema_val,
-          na.strings = na.strings
+          na.strings = na.strings,
+          delimiter = sep,
+          ...
         )
   return(df)
 }
