@@ -86,3 +86,44 @@ test_that("hydrar.lm predict_scoring", {
   #stopifnot(mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) - 5 < .001)		
   expect_true(mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) - 5 < .001)		
 })
+
+test_that("hydrar.lm accuracy", {
+
+  hf <- as.hydrar.frame(datasets::cars)
+  hf_transform <- hydrar.ml.preprocess(hf, transformPath = tempdir())
+
+  hf_transform$data <- as.hydrar.matrix(hf_transform$data)
+
+  hydrar_lm <- hydrar.lm(dist ~ ., hf_transform$data, intercept = FALSE)
+  hydrar_lm_icpt <- hydrar.lm(dist ~ ., hf_transform$data, intercept = TRUE)
+
+  expect_false(hydrar_lm@intercept)
+  expect_true(hydrar_lm_icpt@intercept)
+
+  r_lm <- lm(dist ~ speed - 1, cars)
+  r_lm_icpt <- lm(dist ~ speed, cars)
+
+  expect_equal(coef(hydrar_lm)[[1]], coefficients(r_lm)[[1]], tolerance = .01)
+
+  expect_equal(coef(hydrar_lm_icpt)["speed", "beta_out"],
+               coef(r_lm_icpt)["speed"][[1]], tolerance = .01)
+
+  expect_equal(coef(hydrar_lm_icpt)[hydrar.env$INTERCEPT, "beta_out"],
+               coef(r_lm_icpt)[hydrar.env$INTERCEPT][[1]], tolerance = .01)
+
+  hydrar_pred <- predict.hydrar.lm(hydrar_lm, hf_transform$data)
+  hydrar_pred <- SparkR::as.data.frame(hydrar_pred$predictions)
+
+  hydrar_pred_icpt <- predict.hydrar.lm(hydrar_lm_icpt, hf_transform$data)
+  hydrar_pred_icpt <- SparkR::as.data.frame(hydrar_pred_icpt$predictions)
+
+  r_pred <- predict.lm(r_lm, datasets::cars)
+  r_pred <- as.data.frame(r_pred)
+
+  r_pred_icpt <- predict.lm(r_lm_icpt, datasets::cars)
+  r_pred_icpt <- as.data.frame(r_pred_icpt)
+
+  expect_equal(hydrar_pred$preds, r_pred$r_pred)
+  expect_equal(hydrar_pred_icpt$preds, r_pred_icpt$r_pred)
+
+})

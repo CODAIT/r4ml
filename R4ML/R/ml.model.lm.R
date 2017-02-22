@@ -161,7 +161,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.lm", def =
       model@shiftAndRescale <- shiftAndRescale
 
       if (args$intercept == TRUE) {
-        model@featureNames <- c("(intercept)", model@featureNames)
+        model@featureNames <- c(model@featureNames, hydrar.env$INTERCEPT)
       }
 
       #coefPath <- model@modelPath %++% "/coefficients.csv"
