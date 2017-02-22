@@ -72,7 +72,10 @@ test_that("sysml.MLContext sample data",{
   cat("output dataframe")
   SparkR:::showDF(o1)
   o2=SparkR:::collect(o1)
-  expect_equivalent(sort(2*v), sort(o2$O))
+  # in some machine this is needed but I think it is fixed and 
+  # keep it here so that we get failure if any
+  #expect_equivalent(sort(2*v), sort(o2$O))
+  expect_equivalent(2*v, o2$O)
 })
 
 # test the Bridge to the SystemML MLContext . To be removed eventually

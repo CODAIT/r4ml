@@ -322,11 +322,20 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
       }'
       stopifnot(class(colname) == "character")
       df_jref <- SparkR:::callJMethod(env$jref, "getDF", env$sysmlSqlContext, colname)
-      df <- new("SparkDataFrame", sdf=df_jref, isCached=FALSE)
-      # drop the id,
+
+      df_unsorted <- new("SparkDataFrame", sdf=df_jref, isCached=FALSE)
+      # since sysML create the extra internal __INDEX column, which is used to 
+      # manage global order we do the sort sort wrt to _INDEX first
+      # note that SparkR::arrange i.e spark.sort is efficiency implemented using merge
+      # algo
+      index_col <- hydrar.env$SYSML_MATRIX_INDEX_COL
+      df <- SparkR::arrange(df_unsorted, index_col)
+
+      # note that the sysml internal order col is not needed by user and hence
+      # drop the index id
       # rename the remaining column to 'colname'
       oldnames <- SparkR:::colnames(df)
-      no_ids <- oldnames[oldnames != "__INDEX"]
+      no_ids <- oldnames[oldnames != index_col]
       df_noid <- SparkR:::select(df, no_ids)
       newnames <- as.vector(sapply(no_ids, function(x) colname))
       SparkR:::colnames(df_noid) <- newnames

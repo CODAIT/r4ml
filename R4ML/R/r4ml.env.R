@@ -77,8 +77,19 @@ with(hydrar.env, {
 
   SUPPORTED_DATA_TYPES <- c("character", "numeric", "integer", "logical")
 
-  #
+  # This controls, the block size of the system-ML internal binary # block matrix.
+  # The decision on 1000x1000 blocks (in dense format = 8 MB) # is done after 
+  # detailed experiments. based on 
+  #   1) cache-consciousness of different operators
+  #   2) Tradeoff between communication cost and computation cost.
+  #   3) Is the blocks large enough to exploit cache locality ?
+  #   4) Sparsity exploitation tradeoff. (sparsity at block-level.)
+  #   5) Since each thread operate at a block-level in distributed spark mode,
+  #      way larger blocks might reduce the degree of parallelism across the cluster.
   SYSML_BLOCK_MATRIX_SIZE <- list("nrows" = 1000, "ncols" = 1000)
+
+  # Internall SystemML can reshuffle the row maintain the global index for order
+  SYSML_MATRIX_INDEX_COL <- "__INDEX"
 
   # The number of rows returned by head and tail methods
   DEFAULT_HEAD_ROWS <- 6
