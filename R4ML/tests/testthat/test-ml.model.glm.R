@@ -18,8 +18,6 @@
 context("Testing hydrar.glm\n")
 
 # test hydra GLM model
-# currently only the test for running is done but
-#@TODO create accuracy test
 test_that("hydrar.glm", {
   data("airquality")
   aq_ozone <- airquality[c("Ozone", "Temp", "Wind")]
@@ -81,4 +79,39 @@ test_that("predict.hydrar.glm", {
   
   a <- predict(aq_glm, test2)
   collect(a$predictions)
+})
+
+test_that("hydrar.glm accuracy", {
+  hf <- as.hydrar.frame(datasets::cars)
+  hf_transform <- hydrar.ml.preprocess(hf, transformPath = tempdir())
+  hf_transform$data <- as.hydrar.matrix(hf_transform$data)
+
+  h_glm <- hydrar.glm(formula = dist ~ ., data = hf_transform$data,
+                      intercept = FALSE)
+  r_glm <- glm(formula = dist ~ . - 1, data = datasets::cars)
+
+  expect_equal(coef(h_glm)[[1]], coef(r_glm)[[1]], tol = .01)
+
+  h_glm_icpt <- hydrar.glm(formula = dist ~ ., data = hf_transform$data,
+                           intercept = TRUE)
+  r_glm_icpt <- glm(formula = dist ~ ., data = datasets::cars)
+
+  expect_equal(h_glm_icpt@coefficients$`(Intercept)`,
+               r_glm_icpt$coefficients[["(Intercept)"]], tol = .01)
+
+  expect_equal(h_glm_icpt@coefficients$speed,
+               r_glm_icpt$coefficients[["speed"]], tol = .01)
+
+  h_predict <- predict.hydrar.glm(h_glm, hf_transform$data)
+  r_predict <- predict.glm(r_glm, datasets::cars)
+
+  expect_equal(SparkR::as.data.frame(h_predict$predictions)$means,
+               as.data.frame(r_predict)$r_predict, tol = .01)
+
+  h_predict_icpt <- predict.hydrar.glm(h_glm_icpt, hf_transform$data)
+  r_predict_icpt <- predict.glm(r_glm_icpt, datasets::cars)
+
+  expect_equal(SparkR::as.data.frame(h_predict_icpt$predictions)$means,
+               as.data.frame(r_predict_icpt)$r_predict, tol = .01)
+
 })

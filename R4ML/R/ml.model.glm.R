@@ -199,7 +199,7 @@ setMethod(
         model@shiftAndRescale <- shiftAndRescale
         
         if (args$intercept == TRUE) {
-          model@featureNames <- c("(intercept)", model@featureNames)
+          model@featureNames <- c(hydrar.env$INTERCEPT, model@featureNames)
         }
         
         statsPath <- file.path(hydrar.env$WORKSPACE_ROOT("hydrar.glm"), "stats.csv")

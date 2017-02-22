@@ -62,3 +62,39 @@ test_that("hydrar.coxph", {
   #predict(cox_fit, type = "risk", se.fit = TRUE)
   #predict(cox_fit, type = "terms", se.fit = TRUE)
   })
+
+test_that("hydrar.coxph accuracy", {
+  df <- survival::lung
+  df$inst <- NULL
+  df$sex <- NULL
+  df <- stats::na.omit(df)
+  colnames(df) <- c("time", "status", "age", "ph_ecog", "ph_karno", "pat_karno",
+                    "meal_cal", "wt_loss")
+
+  hf <- as.hydrar.matrix(df)
+
+  library("survival")
+  cox_formula <- Surv(time, status) ~ age + ph_karno + pat_karno + wt_loss
+
+  h_cox <- hydrar.coxph(hf, cox_formula)
+  r_cox <- coxph(formula = cox_formula, data = df)
+
+  h_cm <- h_cox@coxModel
+
+  expect_equal(h_cm["age", "coef"], r_cox$coefficients["age"][[1]], tol = .01)
+
+  expect_equal(h_cm["ph_karno", "coef"], r_cox$coefficients["ph_karno"][[1]],
+               tol = .01)
+
+  expect_equal(h_cm["pat_karno", "coef"], r_cox$coefficients["pat_karno"][[1]],
+               tol = .01)
+
+  expect_equal(h_cm["wt_loss", "coef"], r_cox$coefficients["wt_loss"][[1]],
+               tol = .01)
+
+  h_predict <- predict(h_cox, data = hf)
+  r_predict <- predict(r_cox, data = df)
+
+  #@TODO fix cox predict and create accuracy test
+
+})
