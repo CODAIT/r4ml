@@ -17,27 +17,27 @@
 
 context("Testing hydrar.svm\n")
 
+# @NOTE: this will eventually be the function on SparkR
+# for now this is the helper function
+# we will also have the transform functionality later
+recode <- function (x) {
+  if (typeof(x) == "list") {
+    x <- x[[1]]
+  } 
+  v <- as.vector(x)
+  f <- as.factor(v)
+  levels(f) <- 1:length(levels(f))
+  r <- as.numeric(f)
+  r
+}
+
 
 # test hydra linear model
 # currently only the test for running is done but
 # accuracy test can be done later
 # this is multi class svm
-test_that("hydrar.svm direct", {
-  
-  # @NOTE: this will eventually be the function on SparkR
-  # for now this is the helper function
-  # we will also have the transform functionality later
-  recode <- function (x) {
-    if (typeof(x) == "list") {
-      x <- x[[1]]
-    } 
-    v <- as.vector(x)
-    f <- as.factor(v)
-    levels(f) <- 1:length(levels(f))
-    r <- as.numeric(f)
-    r
-  }
-  
+test_that("hydrar.svm multiclass", {
+
   data("iris")
   iris_inp <- as.data.frame(iris)
   iris_inp$Species <- recode(iris_inp$Species)
@@ -67,28 +67,14 @@ test_that("hydrar.svm direct", {
   # Get the overall accuracy
   #preds$accuracy
   
-  cat("testing svm done")
+  cat("testing svm multiclass done\n")
 })
 
 # test hydra linear model
 # currently only the test for running is done but
 # accuracy test can be done later
 # this is binary class svm
-test_that("hydrar.svm direct", {
-  
-  # @NOTE: this will eventually be the function on SparkR
-  # for now this is the helper function
-  # we will also have the transform functionality later
-  recode <- function (x) {
-    if (typeof(x) == "list") {
-      x <- x[[1]]
-    } 
-    v <- as.vector(x)
-    f <- as.factor(v)
-    levels(f) <- 1:length(levels(f))
-    r <- as.numeric(f)
-    r
-  }
+test_that("hydrar.svm binary class", {
   
   data("iris")
   iris_inp <- as.data.frame(iris)
@@ -123,6 +109,46 @@ test_that("hydrar.svm direct", {
   # Get the overall accuracy
   #preds$accuracy
   
-  message("testing svm done")
+  cat("testing svm binary class done\n")
+  
+})
+
+# test hydra svm binary classification model predictions
+test_that("hydrar.svm accuracy", {
+  
+  data("iris")
+  iris_inp <- as.data.frame(iris)
+  # drop one class for binary classification
+  iris_inp <- iris_inp[iris_inp$Species != "setosa", ]
+  iris_inp$Species <- recode(iris_inp$Species)
+
+  # we're not doing train/test split to avoid randomness in the test.
+  iris_inp_df <- as.hydrar.frame(iris_inp)
+  iris_inp_mat <- as.hydrar.matrix(iris_inp_df)
+  
+  ml.coltypes(iris_inp_mat) <- c("scale", "scale", "scale", "scale", "nominal")
+  iris_svm <- hydrar.svm(Species ~ . , data = iris_inp_mat, is.binary.class = TRUE)
+  preds <- predict(iris_svm, iris_inp_mat)
+
+  # Get the confusion matrix
+  cm <- preds$ctable
+  TP <- cm[1,1]
+  FN <- cm[1,2]
+  FP <- cm[2,1]
+  TN <- cm[2,2]
+
+  precision <- TP/(TP + FP)
+  recall <- TP/(TP + FN)
+  accuracy <- as.numeric(preds$accuracy)
+  FPR <- FP/(FP + TN)
+  FNR <- FN/(TP + FN)
+  
+  expect_equal(precision, 0.94, tolerance=1e-3)
+  expect_equal(recall, 0.97917, tolerance=1e-3)
+  expect_equal(accuracy, 96.0,  tolerance=1e-3)
+  expect_equal(FPR, 0.05769231, tolerance=1e-3)
+  expect_equal(FNR, 0.02083333, tolerance=1e-3)
+  
+  cat("testing svm accuracy done\n")
   
 })
