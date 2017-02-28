@@ -25,11 +25,7 @@ with(hydrar.env, {
   PACKAGE_NAME <- "HydraR"
 
   # LOG LEVEL constants
-  INFO_LOG_LEVEL <- 4
-  WARN_LOG_LEVEL <- 2
-  ERR_LOG_LEVEL <- 1
-  NO_LOG_LEVEL <- 0
-  DEFAULT_LOG_LEVEL <- ERR_LOG_LEVEL + WARN_LOG_LEVEL
+  DEFAULT_LOG_LEVEL <- "INFO"
   LOG_LEVEL <- DEFAULT_LOG_LEVEL
   
   # the log level when dml is executing
@@ -307,34 +303,15 @@ with(hydrar.env, {
 }
 
   
-  FS_ROOT <- function() {
-    if(hydrar.fs.cluster()) {
-      if (is.null(Sys.getenv("USER")) || Sys.getenv("USER") == "") {
-        stop("environmental variable USER not defined")
-      }
-      return (file.path("", "user", Sys.getenv("USER")))
-    }
-    if(hydrar.fs.local()) {
-      if (is.null(Sys.getenv("HOME")) || Sys.getenv("HOME") == "") {
-        stop("environmental variable HOME not defined")
-      }
-      return (Sys.getenv("HOME"))
-    }
-  }
-  
   # utility to find the location of the scratch workspace
   # this location is used for temporaty storage
   WORKSPACE_ROOT <- function(subdir="") {
-      workspace <- file.path(FS_ROOT(), PACKAGE_NAME, "scratch_workspace", subdir)
-      if (!file.exists(workspace)) {
-        if(hydrar.fs.cluster()) {
-          system(paste("hdfs dfs -mkdir -p", workspace))
-        } else if(hydrar.fs.local()) {
-          system(paste("mkdir -p", workspace))
-        }
-      }
-      return(workspace)
+    fs_root <- hydrar.fs$user.home()
+    ws_root <- file.path(fs_root, PACKAGE_NAME, "scratch_workspace", subdir)
+    workspace <- hydrar.fs$tempdir(prefix=ws_root)
+    return(workspace)
   }
+  
   
   TESTTHAT_LONGTEST <- function() {
     # if TRUE unit test that take a long time will be run

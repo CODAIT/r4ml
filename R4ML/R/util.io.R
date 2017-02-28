@@ -21,140 +21,164 @@ NULL
 #
 #
 
-##logging err # in future may be don't do the stop and just err
-hydrar.err <- function(source, message) {
-  if (!hydrar.logger$isLoggable("ERROR")) {
-    return
-  }
-  stop("HydraR[" %++% source %++% "]: " %++% message, call. = FALSE)
-}
-
-## fatal 
-hydrar.fatal <- function(source, message) {
-  if (!hydrar.logger$isLoggable("FATAL")) {
-    return
-  }
-  stop("HydraR[" %++% source %++% "]: " %++% message, call. = FALSE)
-}
-# Prints a warning message
-hydrar.warn <- function(source, message, immediate.=FALSE) {
-  if (!hydrar.logger$isLoggable("WARN")) {
-    return
-  }
-  if (missing(source)) {
-    source <- ""
-  }
-  if (missing(message)) {
-    message <- ""
-  }
-  warnBit <- trunc(hydrar.env$LOG_LEVEL / 2) %% 2
-  if (warnBit == 1) {
-    warning("[" %++% source %++% "]: " %++% message, call. = FALSE, immediate.=immediate.)
-  }
-}
-
-# Prints an information message
-hydrar.info <- function(source, message) {
-  if (!hydrar.logger$isLoggable("INFO")) {
-    return
-  }
-  if (missing(source)) {
-    source <- ""
-  }
-  if (missing(message)) {
-    message <- ""
-  }
-  infoBit <- trunc(hydrar.env$LOG_LEVEL / 4) %% 2
-  if (infoBit == 1) {
-    if (length(message) == 1) {
-      message("INFO[" %++% source %++% "]: " %++% message)
+## hydrar.msg returns the formated string
+hydrar.gen.logger <- function(ilevel) {
+  force(ilevel)
+  ilevel <- ifelse(missing(ilevel), "", ilevel)
+  def_logsrc <- hydrar.env$PACKAGE_NAME
+  force(def_logsrc)
+  
+  function(src, ...) {
+    
+    # cleanin the input
+    msg <- unlist(list(...))
+    src <- ifelse(missing(src), def_logsrc, src)
+    if (missing(msg)) {
+      msg <- ""
+    }
+    
+    if (exists("hydrar.logger", envir=.GlobalEnv)) {
+      if (hydrar.logger$isLoggable(ilevel)) {
+        # if hydrar logger has been initialized user it
+        code.logging <- sprintf("hydrar.logger$%s(msg, src)", tolower(ilevel))
+        eval(parse(text=code.logging))
+      }
     } else {
-      message("INFO[" %++% source %++% "]: [vector]: " %++% paste(message, collapse=", "))
+      # we are in the initialization of hydrar, so this covers the special case
+      
+      # unify the messages
+      nmsg <- ""
+      if (length(msg) == 1) {
+        nmsg <- sprintf("%s[%s]: %s", ilevel, src, msg)
+      } else {
+        nmsg <- sprintf("%s[%s]: [vector]: %s ", ilevel, src, paste(msg, collapse=", "))
+      }
+      
+      # find the function to be called for delegating
+      f_name <- switch(ilevel,
+                  "TRACE" = "message",
+                  "DEBUG" = "message",
+                  "INFO" = "message",
+                  "WARN" = "warning",
+                  "ERROR" = "stop",
+                  "FATAL" = "stop"
+                )
+      call_pat <- ""
+      if (f_name == "warning" || f_name == "stop") {
+        call_pat <- ", call. = FALSE"
+      }
+      code.logging <- sprintf("%s(nmsg %s)", f_name, call_pat)
+      
+      # run the delegated code
+      eval(parse(text=code.logging))
     }
   }
 }
 
+# various logger generated from gen
+hydrar.trace <- hydrar.gen.logger("TRACE")
+hydrar.debug <- hydrar.gen.logger("DEBUG")
+hydrar.info <- hydrar.gen.logger("INFO")
+hydrar.warn <- hydrar.gen.logger("WARN")
+hydrar.err <- hydrar.gen.logger("ERROR")
+hydrar.fatal <- hydrar.gen.logger("FATAL")
 
+# in case we want to show the whole object. This might go away in future
 hydrar.infoShow <- function(source, message) {
-  if (!hydrar.logger$isLoggable("INFO")) {
-    return
-  }
-  if (missing(source)) {
-    source <- ""
-  }
-  if (missing(message)) {
-    message <- ""
-  }
-  infoBit <- trunc(hydrar.env$LOG_LEVEL / 4) %% 2
-  if (infoBit == 1) {
-    cat("INFO[" %++% source %++% "]: ")
-    show(message)
-    cat("\n")
-  }
+  if (exists("hydrar.logger", envir=.GlobalEnv)) {
+    if (!hydrar.logger$isLoggable("INFO")) {
+      return
+    }
+  } 
+  source <- ifelse(missing(source), "", source)
+  message <- ifelse(missing(message), "", message)
+  
+  cat(sprintf("INFO[%s]", source))
+  show(message)
+  cat("\n")
 }
 
-
-# debug msg
-hydrar.debug <- function(source, message) {
-  if (!hydrar.logger$isLoggable("DEBUG")) {
-    return
-  }
-  if (missing(source)) {
-    source <- ""
-  }
-  if (missing(message)) {
-    message <- ""
-  }
-  infoBit <- trunc(hydrar.env$LOG_LEVEL / 4) %% 2
-  if (infoBit == 1) {
-    if (length(message) == 1) {
-      message("DEBUG[" %++% source %++% "]: " %++% message)
-    } else {
-      message("DEBUG[" %++% source %++% "]: [vector]: " %++% paste(message, collapse=", "))
+# in case we want to show the whole object. This might go away in future
+hydrar.debugShow <- function(source, message) {
+  if (exists("hydrar.logger", envir=.GlobalEnv)) {
+    if (!hydrar.logger$isLoggable("DEBUG")) {
+      return
     }
   }
+  source <- ifelse(missing(source), "", source)
+  message <- ifelse(missing(message), "", message)
+
+  cat(sprintf("DEBUG[%s]", source))
+  show(message)
+  cat("\n")
 }
 
-hydrar.fs <- function() {
+# create the hydrar.fs object
+create.hydrar.fs <- function() {
   logSource <- "hydrar.fs"
+  
+  fs.obj <- NA
+  if (hydrar.fs.mode() == "local") {
+    fs.obj <- LinuxFS$new()
+  } else if (hydrar.fs.mode() == "cluster") {
+    fs.obj <- HadoopFS$new()
+  } else {
+    hydrar.fatal(logSource, "Unknown file system")
+  }
+  
+  return(fs.obj)
+}
 
+# find the fs mode of hydrar
+hydrar.fs.mode <- function() {
+  logSource <- "hydrar.fs.mode"
+
+  # yarn client and yarn both are the cluster mode
   if (SparkR::sparkR.conf()$spark.master == "yarn-client") {
     return("cluster")
   }
   if (SparkR::sparkR.conf()$spark.master == "yarn") {
     return("cluster")
   }
+  
+  # also if user specify the master url, then it is the cluster mode too
   if (substr(SparkR::sparkR.conf()$spark.master, 1, 8) == "spark://") {
     return("cluster")
   }
+  
+  #user input or env has local[*] kind of settings
   if (substr(SparkR::sparkR.conf()$spark.master, 1, 5) == "local") {
     return("local")
   }
   
   # if the input is not one of the above it is most liklely some other kind of spark cluster
+  # TODO discuss, if it has to be local?
   hydrar.warn(logSource, "Unable to determine file system. Defaulting to cluster mode.")
   return("cluster")
 }
 
-hydrar.fs.local <- function() {
-  return (ifelse(hydrar.fs()=="local", TRUE, FALSE))
+# predicate to check if it is the local mode
+# TODO discuss if we want it to be based on class hierarchy of FileSystem class
+is.hydrar.fs.local <- function() {
+  return (ifelse(hydrar.fs.mode()=="local", TRUE, FALSE))
 }
 
-hydrar.fs.cluster <- function() {
-  return (ifelse(hydrar.fs()=="cluster", TRUE, FALSE))
+# predicate to check if it is the cluster mode
+# TODO discuss if we want it to be based on class hierarchy of FileSystem class
+is.hydrar.fs.cluster <- function() {
+  return (ifelse(hydrar.fs.mode()=="cluster", TRUE, FALSE))
 }
 
-hydrar.hdfs.exist <- function(file) {
-  logSource <- "hydrar.hdfs.exist"
-  if(hydrar.fs.local()) {
-    hydrar.warn(logSource, "Not in cluster mode!") 
+# check if we have the valid file system
+is.hydrar.fs.valid <- function() {
+  fs_mode <- hydrar.fs.mode()
+  if (fs_mode == "cluster") {
+    return(TRUE)
+  } else if (fs_mode == "local") {
+    return(TRUE)
+  } else {
     return(FALSE)
-  }
-  
-  # hdfs commands can take a few seconds to return a result. try to avoid calling this function if possible
-  exists <- (length(as.character(system(paste0("(hdfs dfs -test -e \"", file, "\") || echo \"fail\""), intern=TRUE)))==0)
-  
-  return(exists)
+  }  
 }
 
 #' hydrar.read.csv
@@ -174,7 +198,13 @@ hydrar.read.csv <- function(
 ){
   logSource <- "hydrar.read.csv"
   
-  if(hydrar.fs.local()) {
+  # extra check to make sure that we have one of the valid mode
+  if (!is.hydrar.fs.valid()) {
+    hydrar.err(logSource, "Invalid hydrar filesystem found")  
+  }
+  
+  # in the local mode, we just delegate to the R's read.csv
+  if(is.hydrar.fs.local()) {
     if (!is.null(schema)) {
       hydrar.err(logSource, "schema not supported in local mode")
     }
@@ -205,10 +235,10 @@ hydrar.read.csv <- function(
   #                       header = header_val,
   #                       stringsAsFactors = stringsAsFactors_val,
   #                       inferSchema = inferSchema_val)
-  source = "csv" # we always default to csv user can use read.df for other things
+  src = "csv" # we always default to csv user can use read.df for other things
   df <- SparkR::read.df(
           file,
-          source = source,
+          source = src,
           header = header_val,
           inferSchema = inferSchema_val,
           na.strings = na.strings,
@@ -222,17 +252,41 @@ hydrar.read.csv <- function(
 #' 
 #' @docType class
 #' @importFrom R6 R6Class
-#' @format A Unified logging utility which control HydraR, SparkR, SystemML log levels
+#' @format A Unified logging utility which control HydraR, SparkR, SystemML 
+#' log levels.The various log levels that are supported are "ALL", "TRACE",
+#' "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF" in the increasing priority.
+#' Like other log services, setting a log level to say WARN enables all the
+#' higher level logging (i.e ERROR FATAL) but disables lower level logging
+#' (i.e TRACE, DEBUG, INFO).
+#' NOTE: ALL and OFF are used to enable all the logs or disable all the logs
+#' respectively. Since SystemML and Spark related JVM logging level is for 
+#' higer level debug, user have different ways to control jvm and R logging 
+#' seperately.
 #' @section Methods:
 #' \describe{
-#'   \item{\code{isValidLevel(logLevel))}}
+#'   \item{\code{isValidLevel(logLevel)}}
 #'      {check if the log level is valid. Valid log levels are"ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"}
-#'   \item{\code{setLevel(logLevel, force_java=TRUE))}}
+#'   \item{\code{setLevel(logLevel, force_java = TRUE)}}
 #'      {set the HydraR logger to the specified level. force_java=FALSE will not update the java log level}
-#'  \item{\code{getLevel(is_java=FALSE))}}
+#'  \item{\code{getLevel(is_java = FALSE)}}
 #'      {get the HydraR loglevel. If is_java is TRUE then return the jvm log level. Usually both of them will be in sync but there is no gurantee}
-#'  \item{\code{isLoggable(logLevel))}}
+#'  \item{\code{isLoggable(logLevel)}}
 #'      {See if this log level will log the message or not}
+#'  \item{\code{trace(msg, root = "")}}
+#'      {trace level logging for message with the a given root name}
+#'  \item{\code{debug(msg, root = "")}}
+#'      {debug level logging for message with the a given root name}
+#'  \item{\code{info(msg, root = "")}}
+#'      {info level logging for message with the a given root name}
+#'  \item{\code{warn(msg, root = "")}}
+#'      {warn level logging for message with the a given root name}
+#'  \item{\code{error(msg, root = "")}}
+#'      {error level logging for message with the a given root name}
+#'  \item{\code{fatal(msg, root = "")}}
+#'      {fatal level logging for message with the a given root name}
+#'  \item{\code{message(msg, root = "", ilevel = "")}}
+#'      {this is helper routine for other logger. It can be use for debug also
+#'       It returns the string that will be printed by other logger}
 #'}      
 #' 
 #' @examples \dontrun{
@@ -247,28 +301,45 @@ hydrar.read.csv <- function(
 Logging <- R6::R6Class(
   "Logging",
   public = list(
-    name = "",
+    # name of the instance
+    name = "Logging",
+    
+    # default current level
     level = "INFO",
+    
+    # all the valid levels. note: this is same as the java so that we can control from the same api
     levels = c("ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"),
+    
+    # ptr to the java logger
     jlogger = NA,
+    
+    # ctor
     initialize = function(name = "HydraR", level = "INFO") {
       self$name <- name
       self$level <- level
       self$jlogger <- get("jlogger", .GlobalEnv)
     },
+    
+    # is current string representation represent correct level
     isValidLevel = function(val) {
       return (val %in% self$levels)
     },
+    
+    # set the current log level. note: hydrar and java may have different levels
     setLevel = function(val, force_java=FALSE) {
       if (!self$isValidLevel(val)) {
-        msg = paste("invalid levels only ", levels , " supported")
+        levels_str <- paste(self$levels, collapse = ",", sep = ",")
+        msg <- sprintf("invalid level '%s'.Only %s levels are supported", val, levels_str)
         warning(msg)
+        return
       }
       if (force_java) { 
          self$jlogger$setLevel(val)
       }
       self$level <- val
     },
+    
+    # get the current level. note: hydrar and java may have different levels
     getLevel = function(is_java=FALSE) {
       if(!is_java) {
         self$level
@@ -276,6 +347,8 @@ Logging <- R6::R6Class(
         self$jlogger$getLevel()
       }
     },
+    
+    # logically compare two levels
     compare = function(level1, level2) {
       if (!self$isValidLevel(level1) || !(self$isValidLevel(level2))) {
          return(NA)
@@ -284,6 +357,8 @@ Logging <- R6::R6Class(
       i2 <- match(level2, self$levels)
       return (i1 - i2);
     },
+    
+    # check if current level is loggable
     isLoggable = function(level) {
       cmp <- self$compare(self$level, level)
       if (!is.na(cmp) && cmp <= 0) {
@@ -291,5 +366,307 @@ Logging <- R6::R6Class(
       } else {
         return(FALSE)
       }
+    },
+    
+    # returns the string representation of the user msg for log's root and log's level
+    message = function(msg, root="", ilevel="") {
+      if (!self$isLoggable(ilevel)) { return}
+      nmsg <- ""
+      if (length(msg) == 1) {
+        nmsg <- sprintf("%s[%s]: %s", ilevel, root, msg)
+      } else {
+        nmsg <- sprintf("%s[%s]: [vector]: %s", ilevel, root, paste(msg, collapse=", "))
+      }
+      nmsg 
+    },
+    
+    # trace level logging
+    trace = function(msg, root="") {
+      message(self$message(msg, root, "TRACE"))
+    },
+    
+    # debug level logging
+    debug = function(msg, root="") {
+      message(self$message(msg, root, "DEBUG"))
+    },
+    
+    # info level logging
+    info = function(msg, root="") {
+      message(self$message(msg, root, "INFO"))
+    },
+    
+    # warn level logging
+    warn = function(msg, root="") {
+      warning(self$message(msg, root, "WARN"), call. = FALSE)
+    },
+    
+    # error level logging
+    error = function(msg, root="") {
+      stop(self$message(msg, root, "ERROR"), call. = FALSE)
+    },
+    
+    # fatal level logging
+    fatal = function(msg, root="") {
+      stop(self$message(msg, root, "FATAL"), call. = FALSE)
     }
+    
 ))
+
+# There is the need for support for various file system i.e Hadoop and Linux.
+# This class creates the abstraction around the fileSystem. This will be the core
+# and will be used in many applications
+
+#' HydraR FileSystem Class
+#' 
+#' @docType class
+#' @importFrom R6 R6Class
+#' @format There is the need for support for various file system i.e Hadoop and Linux.
+#' This class creates the abstraction around the fileSystem. This will be the 
+#' core and will be used in many applications. This is an abstract class, 
+#' so users are advised to use the concrete implementation i.e
+#' HydraR:::LinuxFS and HydraR::HadoopFS (see examples below)
+#' @section Methods:
+#' \describe{
+#'   \item{\code{create(file_path, is_dir=TRUE)}}
+#'      {Create the zero length file or directory. 
+#'       Returns TRUE on sucess and FALSE on failure}
+#'   \item{\code{remove(file_path)}}
+#'      {remove the file_path (file/dir) from the FileSystem}
+#'  \item{\code{exists(file_path)}}
+#'      {check if the file_path (file/dir) exists on the FileSystem}
+#'  \item{\code{sh.exec()}}
+#'      {system execution of a unix like shell cmd, Note that in all the filesystem,
+#'       this is always call the underlying os}
+#'  \item{\code{user.home()}}
+#'      {Every filesystem has it's own home dir defined, so this creates the uniform interface}
+#'  \item{\code{uu_name()}}
+#'      {universal unique file full path: note files are not created. see also tempdir()}  
+#'  \item{\code{tempdir()}}
+#'      {create the universal unique file full path: note this uses internall uu_name()}    
+#' }      
+#' 
+#' @examples \dontrun{
+#'   my.hydrar.fs <- NA
+#'   if (hydrar.fs.local()) {
+#'     my.hydrar.fs <- HydraR:::LinuxFS$new()
+#'   } else if (HydraR:::hydrar.fs.cluster) {
+#'     my.hydrar.fs <- HydraR:::HadoopFS$new()
+#'   } else {
+#'     stop("Unknown file system")
+#'   }
+#'   
+#'   # create the unique file name
+#'   uu_name <- my.hydrar.fs$uu_name();
+#'   cat("testing universal unique file name: ", uu_name)
+#'
+#'   # create the uniq file, it should return TRUE
+#'   my.hydrar.fs$create(uu_name)
+#'
+#'   # check if the file exists, it should return TRUE
+#'   my.hydrar.fs$exists(uu_name)
+#'
+#'   # remove the file, it should return TRUE
+#'   my.hydrar.fs$remove(uu_name)
+#'
+#'   # check again, this time the file shouldn't exists and should return FALSE
+#'   my.hydrar.fs$exists(uu_name)
+#'
+#'   # the file/dir must be deleted later automatically on sys.exit
+#'   temp_dir <- my.hydrar.fs$tempdir()
+#'   
+#'   # returns the home dir of the user
+#'   user_home <- my.hydrar.fs$user.home()
+#' }
+#'
+FileSystem <- R6::R6Class(
+  "FileSystem",
+  public = list(
+    
+    name = "FileSystem",
+    
+    # ctor
+    initialize = function() {
+       private$TEMPS <- new.env(parent=emptyenv())
+       private$reg.removeTempsOnExit(private$TEMPS)
+    },
+    
+    # remove the file 
+    remove = function(f) {
+      hydrar.fatal("", "FileSystem$remove not implemented in abstract class")
+    },
+    
+    # check for existence
+    exists = function(f) {
+      hydrar.fatal("", "FileSystem$exists not implemented in abstract class")
+    },
+    
+    # create the file
+    create = function(f, is_dir = TRUE) {
+      hydrar.fatal("", "FileSystem$create not implemented in abstract class")
+    },
+    
+    # user home dir
+    user.home = function() {
+      hydrar.fatal("", "FileSystem$user.home not implemented in abstract class")
+    },
+    
+    # universal unique file name: note files are not created
+    uu_name = function(prefix = "/tmp", suffix = "") {
+      # create uniq directory with the prefix
+      fuuid <- uuid::UUIDgenerate()
+      tdir <- file.path(prefix, fuuid, suffix)
+      tdir
+    },
+    
+   # temp dir which which will be automatically deleted on sys exit  
+   tempdir = function(prefix = "/tmp", suffix = "") {
+      # create uniq directory with the prefix
+      tdir <- self$uu_name(prefix, suffix)
+      
+      # create the directory on the filesystem
+      self$create(tdir, is_dir = TRUE)
+      
+      # register it to be deleted automatically on exit
+      private$removeOnSysExit(tdir)
+      tdir
+    },
+    
+    # system execution of a cmd
+    sh.exec = function(cmd) {
+      hydrar.debug("Executing the shell cmd: " %++% cmd)
+      
+      # execute the system call
+      status <- system(cmd)
+      
+      if (status != 0) {
+        hydrar.warn("Failed to execute shell cmd: " %++% cmd)
+      }
+      
+      ifelse(status == 0, TRUE, FALSE)
+    }
+  ),
+  
+  private = list(
+    TEMPS = "",
+    
+    # register the file to be cleaned later
+    removeOnSysExit = function(f) {
+      # update the list of tempfiles to be removed on exit
+      assign(f, class(self), envir=private$TEMPS)
+    },
+    
+    # clean registrater 
+    reg.removeTempsOnExit = function(f2rm_env) {
+      # register the temp directory to be cleaned at the time of 
+      # system exit
+      reg.finalizer(
+        f2rm_env, 
+        function(temps) {
+          fs_name <- class(self)[1]
+          pkg <- hydrar.env$PACKAGE_NAME
+          logsrc <- sprintf("%s.%s", pkg, fs_name)
+          hydrar.trace(logsrc,"Deleting the temporary fileSystem Resources")
+          files <- ls(temps)
+          for (f in files) {
+            if (self$exists(f)) {
+              hydrar.info(logsrc, sprintf("Deleting the [%s] temporary resource '%s'",fs_name, f))
+              self$remove(f)
+            } else {
+              hydrar.warn(logsrc, sprintf("[%s] temporary resource '%s' doesn't exists : ", fs_name, f))
+            } 
+          }
+        },
+        onexit = TRUE)
+    }
+  )
+)
+
+# Linux based FileSystem. It is a derived class implementing factory method. 
+# see HydraR:::FileSystem class too
+LinuxFS <- R6::R6Class(
+  "LinuxFS",
+  inherit = FileSystem,
+  public = list(
+    
+    name = "LinuxFS",
+    
+    # override base. remove the linux file/dir 
+    remove = function(f) {
+      hydrar.debug(self$name, "removing file/dir " %++% f)
+      status <- base::unlink(f, recursive = TRUE)
+      ifelse(status == 0, TRUE, FALSE)
+    },
+    
+    # override base. check for existence of linux file/dir
+    exists = function(f) {
+      hydrar.debug(self$name, "checking for file existence:" %++% f)
+      base::file.exists(f)
+    },
+    
+    # override base. create the linux file/dir
+    create = function(f, is_dir = TRUE) {
+      if (is_dir) {
+        hydrar.debug(self$name, "creating dir" %++% f)
+        base::dir.create(f, recursive = TRUE)
+      } else {
+        hydrar.debug(self$name, "creating file" %++% f)
+        base::file.create(f)
+      }
+    },
+    
+    # user home dir
+    user.home = function() {
+      if (is.null(Sys.getenv("HOME")) || Sys.getenv("HOME") == "") {
+        stop("environmental variable HOME not defined")
+      }
+      return (Sys.getenv("HOME"))
+    }
+  )
+)
+
+# Hadoop based file system. It is a derived class implementing factory method. 
+# see HydraR:::FileSystem class too
+HadoopFS <- R6::R6Class(
+  "HadoopFS",
+  inherit = FileSystem,
+  public = list(
+    
+    name = "HadoopFS",
+    
+    # override base. remove the hadoop file/dir
+    remove = function(f) {
+      hydrar.debug(self$name, " removing file:" %++% f)
+      hcmd <- sprintf("hdfs dfs -rm -r %s", f)
+      self$sh.exec(hcmd)
+    },
+    
+    # override base. check for existence of hadoop file/dir
+    exists = function(f) {
+      hydrar.debug(self$name, "checking for file existence:" %++% f)
+      hcmd <- sprintf("(hdfs dfs -test -d %s) || (hdfs dfs -test -d %s)", f, f)
+      self$sh.exec(hcmd)
+    },
+    
+    # override base. create hadoop file/dir
+    create = function(f, is_dir = TRUE) {
+      if (is_dir) {
+        hydrar.debug(self$name, "creating dir" %++% f)
+        hcmd <- sprintf("hdfs dfs -mkdir -p %s", f)
+        self$sh.exec(hcmd)
+      } else {
+        hydrar.debug(self$name, "creating file" %++% f)
+        hcmd <- sprintf("hdfs dfs -touchz %s", f)
+        self$sh.exec(hcmd)
+      }
+    },
+    
+    # user home dir
+    user.home = function() {
+      if (is.null(Sys.getenv("USER")) || Sys.getenv("USER") == "") {
+        stop("environmental variable USER not defined")
+      }
+      return (file.path("", "user", Sys.getenv("USER")))
+    }
+  )
+)
+

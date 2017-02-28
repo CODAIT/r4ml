@@ -54,7 +54,6 @@ test_that("hydrar.kaplan.meier none", {
   km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
                             test=1, rho="none")
   summary = summary.hydrar.kaplan.meier(km)
-  test = hydrar.kaplan.meier.test(km)
   
   expect_equal(sum(summary[grep("50", names(summary))][[1]]), 9)
   

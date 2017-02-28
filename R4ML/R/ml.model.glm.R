@@ -155,7 +155,7 @@ setMethod(
           hydrar.err(logSource, "Given training dataset must have at least two columns.")
         }
         
-        hydrar.info(logSource, "Parameters checked")
+        hydrar.debug(logSource, "Parameters checked")
         
         return(model)
       })
@@ -176,10 +176,10 @@ setMethod(
         linkFunction <- familyInfo$linkFunction
         powerOfLink <- familyInfo$powerOfLink
         
-        hydrar.info(logSource, "\ndistFamily: " %++% distFamily)
-        hydrar.info(logSource, "\npowerOfVariance: " %++% powerOfVariance)
-        hydrar.info(logSource, "\nlinkFunction: " %++% linkFunction)
-        hydrar.info(logSource, "\npowerOfLink: " %++% powerOfLink)                      
+        hydrar.debug(logSource, "\ndistFamily: " %++% distFamily)
+        hydrar.debug(logSource, "\npowerOfVariance: " %++% powerOfVariance)
+        hydrar.debug(logSource, "\nlinkFunction: " %++% linkFunction)
+        hydrar.debug(logSource, "\npowerOfLink: " %++% powerOfLink)                      
         
         # Compute the value for parameter icpt, which combines both intercept and shiftAndRescale
         icpt = if(intercept && !shiftAndRescale) {

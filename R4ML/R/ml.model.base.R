@@ -103,7 +103,7 @@ setMethod("initialize", "hydrar.model",
     logSource <- "hydrar.model.initialize"
 
    objectClass <- class(.Object)
-    hydrar.info(logSource, "Initializing model: " %++% objectClass)
+    hydrar.debug(logSource, "Initializing model: " %++% objectClass)
 
     # Obtain the corresponding value for each argument name
     argValues <- hydrar.getFunctionArguments(match.call(), sys.parent())
@@ -127,7 +127,7 @@ setMethod("initialize", "hydrar.model",
     .Object@modelType <- modelType
 
     # Validation of common parameters
-    hydrar.info(logSource, "Common parameter validation...")
+    hydrar.debug(logSource, "Common parameter validation...")
     .hydrar.checkParameter(logSource, data, inheritsFrom="hydrar.matrix", isOptional=T)
     .hydrar.checkParameter(logSource, formula, "formula", isOptional=T, isNullOK=T)
 
@@ -147,7 +147,7 @@ setMethod("initialize", "hydrar.model",
     }
 
     if(isFeatureExtraction == TRUE) {
-      hydrar.info(logSource, "Feature Extraction is true, assigning data as INPUT param...")
+      hydrar.debug(logSource, "Feature Extraction is true, assigning data as INPUT param...")
       # place holder for future feature-extraction specific code
       #@TODO
     }
@@ -162,7 +162,7 @@ setMethod("initialize", "hydrar.model",
     #if(nrow(data) < 2) hydrar.err(logSource, "Given training dataset must have at least two rows")
 
     # Validate algorithm-specific parameters invoking abstract method
-    hydrar.info(logSource, "Algorithm-specific parameter validation...")
+    hydrar.debug(logSource, "Algorithm-specific parameter validation...")
     .Object <- hydrar.model.validateTrainingParameters(.Object, argValues)
 
     # Check that method hydrar.model.validateTrainingParameters did return a hydrar.model object
@@ -177,7 +177,7 @@ setMethod("initialize", "hydrar.model",
     # dummycoded to Species_setosa, Species_virginica, etc., yColname will still be "Species"
     .Object@yColname <-
       if (isSupervised == TRUE) {
-         hydrar.info(logSource, "Getting response variable...")
+         hydrar.debug(logSource, "Getting response variable...")
          hydrar.model.getResponseVariable(formula=formula, data=data, model=.Object)
       } else {
          as.character(NA)
@@ -206,7 +206,7 @@ setMethod("initialize", "hydrar.model",
     # Assign additional common attributes
 
     # Invoke abstract method to build the list of DML arguments
-    hydrar.info(logSource, "Building argument list...")
+    hydrar.debug(logSource, "Building argument list...")
     .Object <- hydrar.model.buildTrainingArgs(.Object, argValues)
     #browser()
     # Check that method hydrar.model.buildTrainingArgs returned a hydrar.model object
@@ -217,8 +217,8 @@ setMethod("initialize", "hydrar.model",
     dmlArgs <- .Object@dmlArgs
 
     # Run the corresponding DML script and capture potential errors
-    hydrar.info(logSource, "Running DML...")
-    hydrar.infoShow(logSource, dmlArgs)
+    hydrar.debug(logSource, "Running DML...")
+    hydrar.debugShow(logSource, dmlArgs)
     outputs <- do.call("sysml.execute", dmlArgs)
     .Object@dmlOuts$sysml.execute <- outputs
     .Object <- hydrar.model.postTraining(.Object)
@@ -271,7 +271,7 @@ setMethod("hydrar.model.getResponseVariable", signature="hydrar.model", definiti
 # Split a matrix into X and Y
 hydrar.model.splitXY <- function(data, yColname) {
   logSource <- "hydrar.model.splitXY"
-  hydrar.info(logSource, "Splitting X and Y...")
+  hydrar.debug(logSource, "Splitting X and Y...")
 
   numCols <- 1
   #@TODO do it later
@@ -308,10 +308,10 @@ hydrar.getFunctionArguments <- function(call, env) {
   argStrings <- names(argNames)
   argValues <- list()
 
-  hydrar.info(logSource, "Length of argStrings: " %++% length(argStrings))
-  hydrar.info(logSource, "Length of argValues: " %++% length(argValues))
-  hydrar.info(logSource, "Length of argNames: " %++% length(argNames))
-  hydrar.infoShow(logSource,  argStrings)
+  hydrar.debug(logSource, "Length of argStrings: " %++% length(argStrings))
+  hydrar.debug(logSource, "Length of argValues: " %++% length(argValues))
+  hydrar.debug(logSource, "Length of argNames: " %++% length(argNames))
+  hydrar.debugShow(logSource,  argStrings)
   for (i in 3 : length(argNames)) {
     #env <- sys.parent()
     if (!.hydrar.isNullOrEmpty(argStrings[[i]])) {
@@ -323,7 +323,7 @@ hydrar.getFunctionArguments <- function(call, env) {
         # If the error was that the parameter is missing, treat it as
         # a missing parameter
         if (.hydrar.contains(errMsg, "is missing, with no default")) {
-   hydrar.info(logSource, "Missing argument: " %++% argStrings[[i]])
+   hydrar.debug(logSource, "Missing argument: " %++% argStrings[[i]])
    # Empty symbol will be later on recognized as a missing parameter value
    hydrar.emptySymbol()
         } else {
@@ -458,7 +458,7 @@ hydrar.getFunctionArguments <- function(call, env) {
     if (class(data) != "hydrar.frame" & !inherits(data, "hydrar.matrix")) {
       hydrar.err(logSource, "Parameter data must be a hydrar.frame or a subclass of hydrar.matrix in order to compute boxplot or histogram statistics.")
     }
-    hydrar.info(logSource, "targetColname: " %++% targetColname)
+    hydrar.debug(logSource, "targetColname: " %++% targetColname)
 
     # Obtain column id's
     targetColId <- match(targetColname, SparkR::colnames(data))
