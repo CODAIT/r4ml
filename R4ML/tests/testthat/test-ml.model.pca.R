@@ -82,3 +82,42 @@ test_that("hydrar.pca k_lessThan_features", {
   expect_that(hydrar.pca(train, center=T, scale=T, k=k, projData=T), throws_error("k must be less"))
   
 })
+
+test_that("hydrar.pca accuracy", {
+  
+  #Load Iris dataset to HDFS
+  train <- as.hydrar.matrix(iris[, -5]) 
+  
+  #Create a hydrar.pca model on Iris
+  h_pca <- hydrar.pca(train, center = TRUE, scale = TRUE, projData = FALSE)
+  
+  #Get the eigen vectors from hydrar pca model
+  h_pca_ev <- h_pca@eigen.vectors
+  
+  #Create Pca model using prcomp
+  train <- data.matrix(iris[, -5])
+  r_pca <- prcomp(train, center = TRUE, scale = TRUE)
+  
+  #Get the eigen vectors from r pca model
+  r_pca_ev <- data.frame(r_pca$rotation)
+  
+  #Comparing eigen vectors
+  cols <- SparkR::ncol(h_pca_ev)
+  
+  for(cnt in 1:cols){
+    temp_hydra_vector <- as.vector(h_pca_ev[, cnt])
+    temp_r_vector <- as.vector(r_pca_ev[, cnt])
+    
+    #Since the Eigen Vectors obtained by different algorithms maybe a mirror  
+    #images of each other, we are ensuring that they are parallel to each other 
+    expect_true(isTRUE(all.equal(temp_hydra_vector,temp_r_vector)) || 
+                  isTRUE(all.equal(temp_hydra_vector,-temp_r_vector)))
+  }
+  
+  #Comparing Standard deviations
+  h_pca_sd <- h_pca@std.deviations
+  r_pca_sd <- r_pca$sdev
+  expect_true(isTRUE(all.equal(as.vector(h_pca_sd[, 1]), r_pca_sd)))
+  
+})
+
