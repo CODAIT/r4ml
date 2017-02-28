@@ -80,17 +80,17 @@ test_that("hydrar.coxph accuracy", {
   r_cox <- coxph(formula = cox_formula, data = df)
 
   h_cm <- h_cox@coxModel
+  r_cm <- r_cox$coefficients
 
-  expect_equal(h_cm["age", "coef"], r_cox$coefficients["age"][[1]], tol = .01)
+  # use this as the R 3.1 version's subpackage testthat 0.9.1 can't handle 
+  # expect_equal. And some of our customer might be using 3.1
+  expect_true(abs(h_cm["age", "coef"]-r_cm["age"][[1]]) <= 0.01)
 
-  expect_equal(h_cm["ph_karno", "coef"], r_cox$coefficients["ph_karno"][[1]],
-               tol = .01)
+  expect_true(abs(h_cm["ph_karno", "coef"]-r_cm["ph_karno"][[1]])<= 0.01)
 
-  expect_equal(h_cm["pat_karno", "coef"], r_cox$coefficients["pat_karno"][[1]],
-               tol = .01)
+  expect_true(abs(h_cm["pat_karno", "coef"]-r_cm["pat_karno"][[1]]) <= 0.01)
 
-  expect_equal(h_cm["wt_loss", "coef"], r_cox$coefficients["wt_loss"][[1]],
-               tol = .01)
+  expect_true(abs(h_cm["wt_loss", "coef"]-r_cm["wt_loss"][[1]]) <= 0.01)
 
   h_predict <- predict(h_cox, data = hf)
   r_predict <- predict(r_cox, data = df)
