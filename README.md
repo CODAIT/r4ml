@@ -1,156 +1,45 @@
-# <img src="HydraR/inst/images/hydraR-logo.png" alt="IMAGE ALT TEXT HERE" width="340" height="250" />
+# <img src="HydraR/inst/images/hydraR-logo.png" alt="HydraR Logo"/>
 
-# Table of Contents
+# __**What is HydraR?**__
 
--[How to install](#how-to-install)
+<span style="color:red"> HydraR: A scalable, hybrid approach to ML/Stats using R, SystemML and Apache Spark </span>
 
-&nbsp;&nbsp;-[Install Dependencies](#install-dependencies)
+## __**HydraR Key Features**__
 
-&nbsp;&nbsp;&nbsp;&nbsp;-[SparkR](#sparkr)
-
-&nbsp;&nbsp;&nbsp;&nbsp;-[R packages](#r-packages)
-
-&nbsp;&nbsp;-[Install HydraR](#install-hydrar)
-
-&nbsp;&nbsp;&nbsp;&nbsp;-[HydraR development and usages](#hydrar-development-and_usages)
-
-&nbsp;&nbsp;&nbsp;&nbsp;-[HydraR usages](#hydrar-usages)
-
--[How to Use HydraR](#how-to-use-hydrar)
+ - <span style="color:green"> HydraR is git downloadable open source R pacakge from IBM </span>
+ - <span style="color:green"> Created on top of Apache SparkR and SystemML (so it supports features from both </span>
+ - <span style="color:green"> Act as the R bridge between SparkR and SystemML. </span>
+ - <span style="color:green"> Provides a collection of canned algorithms. </span>
+ - <span style="color:green"> Ability to create custom ML algorithm. </span>
+ - <span style="color:green"> User gets both SparkR and HydraR functionality </span>
+ - <span style="color:green"> APIs are more friendlier to the R user. </span>
 
 
-## How to install
+## __**HydraR Architecture**__
 
-### Install Dependencies
+<img src="HydraR/inst/images/hydrar_architecture_simplified.png" alt="HydraR Simple Architecture" width="340" height="250"/>
 
-#### SparkR
-
-   1) If not installed, run the following scripts
-
-   ```
-   mkdir -p $HOME/apache
-   pushd $HOME/apache
-   # 2.0 maintenance branch with stability fixes on top of Spark 2.0.0
-   git clone git://github.com/apache/spark.git -b branch-2.0
-   cd spark
-   mvn -DskipTests -Pnetlib-lgpl -Psparkr clean package
-   cd ..
-   popd
-   ```
-
-   2) first get the existing system library path by running on the terminal
-   ```
-    Rscript -e "paste(.libPaths(), collapse=':')"
-   ```
-   
-   3) Add the following lines in `$HOME/.Renviron` (note: replace `<OUTPUT_FROM_PREVIOUS_CODE>` appropriately
-   ```
-   R_LIBS=<OUTPUT_FROM_PREVIOUS_CODE>:<HOME>/apache/spark/R/lib:$R_LIBS
-   ```
-
-#### R packages
-
-   Install all the package which have dependencies and suggestion in the DESCRIPTION file using the 
-
-   `install.packages(pkgname)` command in R
-   One can see the content as follows
-   ```
-   cat HydraR/DESCRIPTION
-   ```
+## __**How to install**__
   
+  HydraR installation involves, it's dependencies (R and SparkR) installation.
+  Detail instructin is provided at [HydraR Installation](./docs/hydrar-install.md).
 
-### Install HydraR
-One can follow one of the following instructions...
+## __**How to Use HydraR**__
 
-#### HydraR development and usages
-  1) clone github and load it without installing
+  Once you have installed HydraR, it is time to use it for scalable machine learning and 
+  data analysis. Look at the section on [HydraR Examples](./docs/hydrar-examples.md).
 
-   ```
-   mkdir -p $HOME/apache
-   git clone https://github.com/SparkTC/spark-hydrar
-   cd spark-hydrar
-   bin/install-all.sh
-   cd ..
-   ```
+## __**HydraR apis**__
 
-  2) Add the following path to the R_LIBS in the `$HOME/.Renviron` file
+ 
+ After you follow the instruction at 'How to install', you can point your browser to 
+ ```
+ $HYDRAR_INSTALLED_LOCATION/spark-hydrar/HydraR/html/00Index.html .
+ ```
 
-   ```
-  R_LIBS=<PREVIOUS_PATH_FOR_R_LIBRARY>:<PATH_FOR_SPARKR_LIB>:<HOME>/apache/spark-hydrar/lib:$R_LIBS 
-   ```
+ For example, if you have installed in the /home/data-scientist/sparktc then open a 
+ web browser and type in the following in the url
 
-
-#### HydraR usages
-
-   1) Direct download as explained in the previous steps
-
-    Same as the previous instruction step 1 i.e run the following command
-
-   ```
-   mkdir -p $HOME/apache
-   git clone https://github.com/SparkTC/spark-hydrar
-   pushd spark-hydrar
-   bin/install-all.sh
-   popd
-   ```
-
-   After that one can use the install packages to install into library
-
-   ```
-   pushd spark-hydrar
-   Rscript -e 'install.packages("./lib/HydraR",repos=NULL, type="source")'
-   popd
-   ```
-    
-
-
-   2) github install (Currently not recommended as it will not install all the docs)
-
-    Note that this will install in the standard R installation folder 
-
-    ```
-    library(devtools)
-    install_github("sparkTC/spark-hydrar", subdir="HydraR")
-    ```
-
-
-## How to Use HydraR
-
-   1) We have the comprehensive examples at [examples folder](./HydraR/inst/examples)
-
-   2) Here is very simple example of running the linear model by R script
-
-   ```
-    # load HydraR library
-    library(HydraR)
-    
-    sparkR.session(master = "local[*]", sparkHome = "/path/to/apache/spark")
-
-    # data cleanup and pre-processing
-    df <- iris
-    df <- hydrar.ml.preprocess(as.hydrar.frame(df),
-             transformPath = "/tmp",
-             recodeAttrs="Species")$data
-    iris_df <- as.hydrar.frame(df)
-    iris_mat <- as.hydrar.matrix(iris_df)
-    ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-
-    # split into train and test data set
-    s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
-    test <- s[[1]]
-    train <- s[[2]]
-    y_test <- as.hydrar.matrix(test[, 1])
-    y_test = SparkR:::as.data.frame(y_test)
-    test <- as.hydrar.matrix(test[, c(2:5)])
-
-    # create the linear model
-    iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
-
-    # check for the model accuracy by predicting on the test data set
-    preds <- predict(iris_lm, test)
-    preds
-    
-    sparkR.session.stop()
-   ```
-
-  
+ ```
+ file:///home/data-scientist/sparktc/spark-hydrar/HydraR/html/00Index.html
+ ```

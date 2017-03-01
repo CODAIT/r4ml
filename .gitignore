@@ -12,16 +12,20 @@ target/
 *.iws
 *.class
 *.log
-# Others
-.checkstyle
-.fbExcludeFilterFile
+#R and RStudio
+.Rbuildignore
 .Rproj.user
-log4j.spark.log*
 *.Rproj
-*.Rcheck/
+*.Rcheck
+# HydraR gen files/dir
 lib/
 html/
 man/
+# Others
+.checkstyle
+.fbExcludeFilterFile
+log4j.spark.log*
 doc/
 metastore_db/
 README.html
+
