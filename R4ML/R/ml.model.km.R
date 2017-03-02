@@ -19,8 +19,8 @@
 setClass("hydrar.kaplan.meier",
          representation(
            conf.int = "numeric",
-           kmSummaryPath = "character",
-           medianPath = "character",
+           summary = "list",
+           median = "hydrar.matrix",
            testPath = "character",
            dataColNames = "vector",
            groupNames = "vector",
@@ -49,8 +49,8 @@ setClass("hydrar.kaplan.meier",
 #'              while the right side indicates the grouping column(s) if any.
 #' @param strata (list) A list of stratum columns
 #' @param conf.int (numeric) Regularization parameter
-#' @param conf.type (character) Confidence type: accepted values are 'plain', 'log', or 'log-log' 
-#' @param type (character) Error type: accepted values are 'greenwood' or 'peto'
+#' @param conf.type (character) Confidence type: accepted values are 'plain', 'log' (the default), or 'log-log' 
+#' @param type (character) Parameter to specify the error type according to "greenwood" (the default) or "peto"
 #' @param rho (character) Test type: accepted values are 'none', 'log-rank', or 'wilcoxon'
 #' @param test (numeric) Indicates whether the tests should be calculated (test=1) or not (test=0)
 #' @param directory (character) The path to save the Kaplan-Meier model if input data is specified. 
@@ -58,7 +58,7 @@ setClass("hydrar.kaplan.meier",
 #' 
 #'  \tabular{rlll}{
 ##'  \tab\code{conf.int}   \tab (numeric) \tab The level of two-sided confidence interval. The default value is 0.95.\cr
-##'  \tab\code{kmSummaryPath}  \tab (character) \tab location where the kaplan-meier summary data is stored\cr
+##'  \tab\code{summary}  \tab (character) \tab kaplan-meier summary data\cr
 ##'  \tab\code{testPath}    \tab (character) \tab location where Kaplan-Meier tests are stored \cr
 ##'  \tab\code{groupNames}  \tab (vector) \tab A list of column names which are used in grouping \cr
 ##'  \tab\code{strataNames} \tab (vector) \tab A list of column names which are used as strata \cr
@@ -102,7 +102,8 @@ hydrar.kaplan.meier <- function(data, formula, strata, conf.int, conf.type, type
       directory=directory, formula=formula, strata=strata, conf.int=conf.int, conf.type=conf.type, type=type, rho=rho, test=test)
 }
 
-setMethod("hydrar.model.validateTrainingParameters", signature="hydrar.kaplan.meier", def = 
+setMethod("hydrar.model.validateTrainingParameters",
+          signature = "hydrar.kaplan.meier", definition =  
   function(model, args) {
     logSource <- "hydrar.model.validateTrainingParameters"
     with(args, {
@@ -115,7 +116,7 @@ setMethod("hydrar.model.validateTrainingParameters", signature="hydrar.kaplan.me
       .hydrar.checkParameter(logSource, test, inheritsFrom=c("integer","numeric"), isOptional=T)
       
       if (!missing(conf.type) && !(conf.type %in% c("plain","log","log-log"))) {
-        hydrar.err(logSource, "Parameter conf.int must be either plain(the default), log or log-log")
+        hydrar.err(logSource, "Parameter conf.type must be either plain(the default), log or log-log")
       }
       if (!missing(conf.int) && (conf.int < 0 || conf.int > 1)) {
         hydrar.err(logSource, "Parameter conf.int must be a positive integer between 0 and 1.")
@@ -134,27 +135,23 @@ setMethod("hydrar.model.validateTrainingParameters", signature="hydrar.kaplan.me
   }
 )
 
-setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.kaplan.meier", def = 
-  function(model, args) {
+setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.kaplan.meier",
+          definition = function(model, args) {
     logSource <- "hydrar.model.buildTrainingArgs"
     with(args,  {
       # Defining output directories
       if (missing(directory)){
         directory <- hydrar.env$WORKSPACE_ROOT("hydrar.ml.model.kaplan.meier")
       }
-      KM <- directory %++% hydrar.env$DML_KM_MODEL
-      ME <- directory %++% hydrar.env$DML_KM_MEDIANCONFINTERVAL
+
       TESTS <- directory %++% hydrar.env$DML_KM_TESTS
       
       #adding column names to the model
       model@dataColNames <- SparkR::colnames(data)
-      model@medianPath <- ME
-      model@kmSummaryPath <- KM
 
-      
       dmlPath <- file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_KM_SCRIPT)
       # @TODO - Find a way to get the timestamps index to the DML script automatically
-      dmlArgs <- list(X = data, dml = dmlPath, O=KM, M=ME,"KM", fmt='CSV') 
+      dmlArgs <- list(X = data, dml = dmlPath, "M", "KM", fmt = 'CSV') 
       groupIds <- list()
       
       # time_status and groupid paths
@@ -216,11 +213,12 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.kaplan.meier", def
       }     
       
       if (!missing(conf.int)) {
-        dmlArgs <- c(dmlArgs, alpha=(1-conf.int))
         model@conf.int <- conf.int
-      }else{
-        model@conf.int <- 0.05 # default value
+      } else {
+        model@conf.int <- 0.95 # default value
       }
+      dmlArgs <- c(dmlArgs, alpha = (1 - model@conf.int))
+      
       if (!missing(type)) {
         dmlArgs <- c(dmlArgs, etype=type)
       }
@@ -228,37 +226,122 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.kaplan.meier", def
         dmlArgs <- c(dmlArgs, ctype=conf.type)
       }
       model@dmlArgs <- dmlArgs
-      return (model)
+      return(model)
     })
   }                  
 )
 
-setMethod("hydrar.model.postTraining", signature = "hydrar.kaplan.meier", def =
-  function (model) {
+setMethod("hydrar.model.postTraining", signature = "hydrar.kaplan.meier",
+          definition = function(model) {
+    ### model@median ###
+    median_colnames <- c("n", "events", "median",
+                         (1 - model@conf.int) %++% "%LCL",
+                         (1 - model@conf.int) %++% "%UCL")
+    
+    if (!is.na(model@groupNames) && length(model@groupNames) > 0) {
+      median_colnames <- c(model@groupNames, median_colnames)
+    }
+
+    if (!is.na(model@strataNames) && length(model@strataNames) > 0) {
+      median_colnames <- c(model@strataNames, median_colnames)
+    }
+    
+    median <- model@dmlOuts$sysml.execute$M
+    SparkR::colnames(median) <- median_colnames
+    median <- as.hydrar.matrix(median)
+
+    model@median <- median
+
+    ### model@summary ###
+
+    start <- 1
+    if (!is.na(model@strataNames) || !is.na(model@groupNames)) {
+      temp <- model@median
+      values <- SparkR::as.data.frame(temp)
+      }
+    
+    if (!is.na(model@groupNames) && length(model@groupNames) > 0) {
+      groupHeaders_n <- length(model@groupNames)
+      groupValues <- values[, 1:groupHeaders_n]
+      if (groupHeaders_n == 1) {
+        groupValues <- SparkR::as.data.frame(groupValues)
+        }
+      start <- groupHeaders_n + 1
+      }
+    if (!is.na(model@strataNames) && length(model@strataNames) > 0) {
+      strataHeaders_n <- length(model@strataNames)
+      end <- start + strataHeaders_n - 1
+      strataValues <- values[, start:end]
+      if (strataHeaders_n == 1) {
+        strataValues <- SparkR::as.data.frame(strataValues)
+      }
+    }
+
+    km_colnames <- c("time", "n.risk", "n.event", "survival", "std.err",
+                     (1 - model@conf.int) %++% "%LCL",
+                     (1 - model@conf.int) %++% "%UCL")
+    km_full <- SparkR::as.data.frame(model@dmlOuts$sysml.execute$KM)
+    i <- 1
+    list_ind <- 1
+    km_summary_list <- list()
+    while (i < ncol(km_full)) {
+      j <- i + 6
+      km7 <- km_full[, i:j]
+      SparkR::colnames(km7) <- km_colnames
+      # Adding caption for groups
+      start <- 1
+      km7_caption <- c()
+      if (!is.na(model@groupNames) && length(model@groupNames) > 0) {
+        groupValuesRow <- SparkR::as.data.frame(groupValues[list_ind,])
+        groupValuesRow_n <- ncol(groupValuesRow)
+        for (i2 in start:groupValuesRow_n) {
+          grp_colname <- model@groupNames[i2]
+          str <- grp_colname %++% "=" %++% as.character(groupValuesRow[1, i2])
+          km7_caption <- paste(km7_caption, str)
+          }
+        
+        # updating the starting point for strata
+        start <- groupValuesRow_n + 1
+      }
+      
+      #Adding caption for stratum
+      
+      if (!is.na(model@strataNames) && length(model@strataNames) > 0) {
+        strataValuesRow <- SparkR::as.data.frame(strataValues[list_ind, ])
+        for (i2 in 1:ncol(strataValuesRow)) {
+          str_colname <- model@strataNames[i2]
+          str <- str_colname %++% "=" %++% as.character(strataValuesRow[1, i2])
+          km7_caption <- paste(km7_caption, str)
+        }
+        
+        start <- 1
+        }
+      
+      if (is.na(model@groupNames) && is.na(model@strataNames)) {
+        km_summary_list[list_ind] <-  km7
+        } else {
+          km_summary_list[km7_caption] <-  km7
+          }
+      
+      i <- i + 7
+      list_ind <- list_ind + 1
+    }
+    
+    model@summary <- km_summary_list
     return(model)
-  }
+    }
 )
 
 setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
   function(object) {
     logSource <- "show.hydrar.kaplan.meier"
     callNextMethod()
-    median_colnames <- c()
 
-    if (!is.na(object@groupNames) && length(object@groupNames) > 0) {
-      median_colnames <- c(median_colnames, object@groupNames)
-    }
-    if (!is.na(object@strataNames) && length(object@strataNames) > 0) {
-      median_colnames <- c(median_colnames, object@strataNames)
-    }
-    median_colnames <- c(median_colnames, c("n", "events", "median",(1-object@conf.int) %++% "%LCL", (1-object@conf.int) %++%"%UCL"))
+    cat("Survival Median\n")
 
-    cat("\n\nSurvival Median\n")
-    # colnames=median_colnames
-    median <- as.hydrar.frame(hydrar.read.csv(file.path(object@medianPath)),
-                              repartition = FALSE)
-    SparkR::colnames(median) <- median_colnames
-    print(SparkR::take(median, 50))
+    median <- object@median
+
+    SparkR::head(median, num = hydrar.env$DEFAULT_HEAD_ROWS)
   }
 )
 
@@ -301,74 +384,18 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 #' @seealso \link{hydrar.kaplan.meier.test}
 summary.hydrar.kaplan.meier <- function(object) {
   logSource <- "hydrar.kaplan.meier"
-  transPath <- object@transformPath
-  dataColNames <- object@dataColNames
-  start <- 1
-  if (!is.na(object@strataNames) || !is.na(object@groupNames)) {
-    temp <- hydrar.read.csv(file.path(object@medianPath),
-                            header=FALSE)
-    values <- SparkR::as.data.frame(temp)
-  }
-  if (!is.na(object@groupNames) && length(object@groupNames) > 0) {
-    groupHeaders_n = length(object@groupNames)
-    groupValues <- values[, 1:groupHeaders_n]
-    if (groupHeaders_n == 1) {
-      groupValues <- SparkR::as.data.frame(groupValues)
-    }
-    start <- groupHeaders_n + 1
-  }
-  if (!is.na(object@strataNames) && length(object@strataNames) > 0) {
-    strataHeaders_n = length(object@strataNames)
-    end <- start+strataHeaders_n-1
-    strataValues <- values[, start:end]
-    if (strataHeaders_n == 1) {
-      strataValues <- SparkR::as.data.frame(strataValues)
-    }
-  }
 
-  km_colnames <- c("time", "n.risk", "n.event", "survival", "std.err", (1-object@conf.int) %++% "%LCL", (1-object@conf.int) %++%"%UCL")
-  km_full <- SparkR::as.data.frame(object@dmlOuts$sysml.execute$KM)
-  i <- 1
-  list_ind <- 1
-  km_summary_list <- list()
-  while (i < ncol(km_full)) {
-    j <- i + 6
-    km7 <- km_full[, i:j]
-    SparkR::colnames(km7) <- km_colnames
-    # Adding caption for groups
-    start <- 1
-    km7_caption <- c()
-    if (!is.na(object@groupNames) && length(object@groupNames) > 0) {
-      groupValuesRow <- SparkR::as.data.frame(groupValues[list_ind,])
-      groupValuesRow_n <- ncol(groupValuesRow)
-      for (i2 in start:groupValuesRow_n) {
-        grp_colname <- object@groupNames[i2]
-        str <- grp_colname %++% "=" %++% as.character(groupValuesRow[1,i2])
-        km7_caption <- paste(km7_caption, str, sep=" ")
-      }
-      # updating the starting point for strata
-      start <- groupValuesRow_n + 1
-    }
-    #Adding caption for stratum
-    if (!is.na(object@strataNames) && length(object@strataNames) > 0) {
-      strataValuesRow <- SparkR::as.data.frame(strataValues[list_ind,])
-      for (i2 in 1:ncol(strataValuesRow)) {
-        str_colname <- object@strataNames[i2]
-        str_colabel <- substr(str_colname,8,nchar(str_colname)-1)
-        str <- str_colname %++% "=" %++% as.character(strataValuesRow[1,i2])
-        km7_caption <- paste(km7_caption, str, sep=" ")
-      }
-      start <- 1
-    }
-    if (is.na(object@groupNames) && is.na(object@strataNames)) {
-      km_summary_list[list_ind] <-  km7
-    } else {
-      km_summary_list[km7_caption] <-  km7
-    }
-    i <- i + 7
-    list_ind <- list_ind + 1
+  summary <- object@summary
+  median <- object@median
+  
+  km_summary_list <- SparkR::as.data.frame(median)
+  km_summary_list$time <- NA
+  
+  for (i in 1:nrow(km_summary_list)) {
+    km_summary_list$time[i] <- summary[[i]]
   }
-  return (km_summary_list)
+  
+  return(km_summary_list)
 }
 
 #' @title Kaplan-Meier Test

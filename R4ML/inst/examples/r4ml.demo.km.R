@@ -46,7 +46,7 @@ km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
                          test=1, rho="none")
                          
 # Produce Summary                          
-summary = summary.hydrar.kaplan.meier(km)
+summary <- summary(km)
 
 # Compute Test Statistics
 test = hydrar.kaplan.meier.test(km)

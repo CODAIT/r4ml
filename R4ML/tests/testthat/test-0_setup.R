@@ -17,6 +17,8 @@
 library(testthat)
 context("Setting up test\n")
 
+library("SparkR")
+
 if (!hydrar.env$HYDRAR_SESSION_EXISTS) {
   hydrar.session()
 }

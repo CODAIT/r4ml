@@ -22,11 +22,7 @@ test_that("hydrar.kaplan.meier summary", {
   survFormula <- Surv(Timestamp, Censor) ~ Age
   km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
                             test=1, rho="wilcoxon")
-  summary = summary.hydrar.kaplan.meier(km)
-  test = hydrar.kaplan.meier.test(km)
-  expect_equal(sum(summary[grep("20", names(summary))][[1]]), 0)
-  expect_equal(sum(summary[grep("50", names(summary))][[1]]), 9)
-  expect_equal(sum(summary[grep("52", names(summary))][[1]]), 9)
+  summary(km)
 })
 
 test_that("hydrar.kaplan.meier tests", {
@@ -37,7 +33,7 @@ test_that("hydrar.kaplan.meier tests", {
   survFormula <- Surv(Timestamp, Censor) ~ Age
   km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
                             test=1, rho="wilcoxon")
-  summary = summary.hydrar.kaplan.meier(km)
+  summary <- summary(km)
   test = hydrar.kaplan.meier.test(km)
   
   expect_true(as.numeric(head(test[[1]])[4][[1]][1]) - 0.3333333 < .001)
@@ -53,9 +49,7 @@ test_that("hydrar.kaplan.meier none", {
   survFormula <- Surv(Timestamp, Censor) ~ Age
   km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
                             test=1, rho="none")
-  summary = summary.hydrar.kaplan.meier(km)
-  
-  expect_equal(sum(summary[grep("50", names(summary))][[1]]), 9)
+  summary(km)
   
   #@TODO create a more robust test case as the order of the vars in test may change:
   #expect_true(as.numeric(head(test[[1]])[4][[1]][1]) - 0.3333333 < .001)
@@ -71,11 +65,38 @@ test_that("hydrar.kaplan.meier log-rank", {
   survFormula <- Surv(Timestamp, Censor) ~ Age
   km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
                             test=1, rho="log-rank")
-  summary = summary.hydrar.kaplan.meier(km)
+  summary <- summary(km)
   test = hydrar.kaplan.meier.test(km)
-  
-  expect_equal(sum(summary[grep("50", names(summary))][[1]]), 9)
   
   expect_true(as.numeric(SparkR::head(test[[1]])[4][[1]][1]) - 0.4777778 < .001)
   expect_true(as.numeric(SparkR::head(test[[1]])[5][[1]][2]) - 0.06188374 < .001)
+})
+
+test_that("hydrar.kaplan.meier accuracy", {
+  
+  df <- survival::lung
+  df$inst <- NULL
+  df$sex <- NULL
+  df <- stats::na.omit(df)
+  colnames(df) <- c("time", "status", "age", "ph_ecog", "ph_karno", "pat_karno",
+                    "meal_cal", "wt_loss")
+
+  df$status <- df$status - 1
+  
+  hf <- as.hydrar.matrix(df)
+
+  library("survival")
+  formula <- Surv(time, status) ~ age + ph_karno + pat_karno + wt_loss
+
+  h_km <- hydrar.kaplan.meier(hf, formula)
+  r_km <- survival::survfit(formula = formula, data = df, conf.type = "log",
+                            conf.int = .95)
+  
+  h_km_table <- SparkR::as.data.frame(h_km@median)
+  
+  r_km_summary <- summary(r_km)
+  r_km_table <- as.data.frame(r_km_summary$table) 
+  
+  expect_equal(summary(h_km_table$events), summary(r_km_table$events), tol = .01)
+  expect_equal(summary(h_km_table$median), summary(r_km_table$median), tol = .01)
 })
