@@ -46,7 +46,7 @@
 #'              The resulting matrix and the transform metadata will be returned and it's user's responsibility to store the data
 #'             \code{transformPath}). The transform metadata can be  
 #'              used to perform the same set of transformations on another \code{hydrar.frame}, through parameter \code{applyTransformPath}.
-#' @param hf (hydrar.frame) The data to be transformed.
+#' @param data (hydrar.frame) The data to be transformed.
 #' @param transformPath (character) Path on HDFS where the transform metadata (e.g., recode maps, dummy-code maps, etc.) will be stored.
 #' @param applyTransformPath (character) Path of an existing transform metadata folder. 
 #'                                       If specified, \code{hydrar.ml.preprocess()} will apply the same transformations to \code{bf}.
@@ -146,7 +146,7 @@
 #'                           transformPath = "/tmp")
 #' }
 hydrar.ml.preprocess <- function(
-  hf,
+  data,
   transformPath,
   applyTransformPath = NULL, 
   recodeAttrs = NULL,
@@ -159,11 +159,11 @@ hydrar.ml.preprocess <- function(
   dummycodeAttrs = NULL,
   scalingAttrs = NULL, 
   scalingMethod = "mean-subtraction",
-  omit.na = colnames(hf))
+  omit.na = colnames(data))
 {
   logSource <- "hydrar.ml.preprocess"
  .hydrar.transform.argumentsPreconditions(
-    hf, 
+    data, 
     transformPath,
     applyTransformPath, 
     recodeAttrs,
@@ -184,7 +184,7 @@ hydrar.ml.preprocess <- function(
   if (!is.null(dummycodeAttrs) && (dummycodeAttrs == "")) dummycodeAttrs <- NULL
   if (!is.null(scalingAttrs) && (scalingAttrs == "")) scalingAttrs <- NULL
   
-  characterCols <- SparkR::colnames(hf)[SparkR::coltypes(hf) %in% c("character", "logical")]
+  characterCols <- SparkR::colnames(data)[SparkR::coltypes(data) %in% c("character", "logical")]
   recodeAttrs <- c(recodeAttrs, characterCols[!(characterCols %in% recodeAttrs)])
   
   if (length(imputationMethod) == 1 && length(missingAttrs) > 1) {
@@ -193,7 +193,7 @@ hydrar.ml.preprocess <- function(
   
   
   .hydrar.transform.validateTransformOptions(
-    hf,
+    data,
     transformPath,
     recodeAttrs,
     missingAttrs,
@@ -208,22 +208,22 @@ hydrar.ml.preprocess <- function(
     omit.na)
   
   #if (is.null(omit.na)) {
-  #    omit.na <- setdiff (colnames(hf), missingAttrs)
+  #    omit.na <- setdiff (colnames(data), missingAttrs)
   #}
   
   # @TODO create the meta for output
   #writeBigFrameMtdFile(bf)
-  #colnamesFilePath <- writeColnames(hf)
+  #colnamesFilePath <- writeColnames(data)
   
   # @TODO ALOK comment this out and we will have it in future, when we have applyTransform
   # if (!is.null(applyTransformPath) && (applyTransformPath!="")) {
-  #  return(hydrar.apply.transform(hf, outData, transformPath, applyTransformPath))
+  #  return(hydrar.apply.transform(data, outData, transformPath, applyTransformPath))
   #}
   
   # @TODO BEGIN dml_transform
   # in future, we might use the dml transform or may be not. The decision is open yet
   # transformSpecPath <- writeTransformSpec(
-  #                       hf,
+  #                       data,
   #                       transformPath,
   #                       recodeAttrs,
   #                       missingAttrs, 
@@ -262,19 +262,19 @@ hydrar.ml.preprocess <- function(
   
   is.omit.na <- !missing(omit.na)
   
-  proxy.omit.na <- function(hf) {
-    rhf = hf
+  proxy.omit.na <- function(data) {
+    rhf = data
     if (is.omit.na) {
-      rhf <- as.hydrar.frame(SparkR::dropna(hf, cols = omit.na), repartition = FALSE)
+      rhf <- as.hydrar.frame(SparkR::dropna(data, cols = omit.na), repartition = FALSE)
       ignore <- cache(rhf)
     }
     metadata <- list()
     list(data=rhf, metadata=metadata)
   }
   #2.
-  proxy.impute <- function(hf) {
+  proxy.impute <- function(data) {
     logSource <- "proxy.impute"
-    rhf <- hf
+    rhf <- data
     rmd <- NULL
     if (length(missingAttrs) > 0) {
       iargs <- list()
@@ -290,65 +290,65 @@ hydrar.ml.preprocess <- function(
           hydrar.err(logSource, "unknown method")
         }
       }
-      hf_info <- do.call("hydrar.impute", list(hf, iargs))
+      hf_info <- do.call("hydrar.impute", list(data, iargs))
       #hf_info <- hydrar.impute(unlist(iargs))
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
-      rhf <- hf
+      rhf <- data
       rmd <- NULL
     }
     list(data=rhf, metadata=rmd)
   }
   #3.
   #hf3 = hydrar.scale(hf2$data)
-  proxy.normalize <- function(hf) {
+  proxy.normalize <- function(data) {
     if (length(scalingAttrs) > 0) {
-      hf_info <- hydrar.normalize(hf, scalingAttrs)
+      hf_info <- hydrar.normalize(data, scalingAttrs)
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
-      rhf <- hf
+      rhf <- data
       rmd <- NULL
     }
     list(data=rhf, metadata=rmd)
   }
   #4.
-  proxy.binning <- function(hf) {
+  proxy.binning <- function(data) {
     if (length(binningAttrs) > 0) {
-      hf_info <- hydrar.binning(hf, binningAttrs, numBins)
+      hf_info <- hydrar.binning(data, binningAttrs, numBins)
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
-      rhf <- hf
+      rhf <- data
       rmd <- NULL
     }
     list(data=rhf, metadata=rmd)
   }
   #5.
-  proxy.recode <- function(hf) {
+  proxy.recode <- function(data) {
     if (length(recodeAttrs) > 0) {
-      rargs <- list(hf, recodeAttrs)
-      hf_info <- hydrar.recode(hf, recodeAttrs)
+      rargs <- list(data, recodeAttrs)
+      hf_info <- hydrar.recode(data, recodeAttrs)
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
-      rhf <- hf
+      rhf <- data
       rmd <- NULL
     }
     list(data=rhf, metadata=rmd)
   }
   #6.
-  proxy.onehot <- function(hf) {
+  proxy.onehot <- function(data) {
     if (length(dummycodeAttrs) > 0) {
       # now by this time everything should be convertable to 
       # matrix
-      hf_m <- as.hydrar.matrix(hf)
+      hf_m <- as.hydrar.matrix(data)
       hf_info <- hydrar.onehot(hf_m, dummycodeAttrs)
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
-      rhf <- hf
+      rhf <- data
       rmd <- NULL
     }  
     list(data=rhf, metadata=rmd)
@@ -359,7 +359,7 @@ hydrar.ml.preprocess <- function(
   pp_order <- c("proxy.omit.na", "proxy.impute", "proxy.normalize",
                 "proxy.binning", "proxy.recode", "proxy.onehot")
   
-  curr_frame <- hf
+  curr_frame <- data
   next_frame <- curr_frame
   metadata = list(order=pp_order)
   for (pp in pp_order) {
@@ -378,7 +378,7 @@ hydrar.ml.preprocess <- function(
 
 
 .hydrar.transform.argumentsPreconditions <- function(
-  hf, 
+  data, 
   transformPath,
   applyTransformPath, 
   recodeAttrs,
@@ -404,7 +404,7 @@ hydrar.ml.preprocess <- function(
                       must not be specified when applyTransformPath is provided.")
     }
   }
-  .hydrar.checkParameter(logSource, hf, "hydrar.frame")
+  .hydrar.checkParameter(logSource, data, "hydrar.frame")
   .hydrar.checkParameter(logSource, transformPath, "character", checkExistence=T, expectedExistence=F)
   .hydrar.checkParameter(logSource, applyTransformPath, "character", isNullOK=T, isOptional=T, checkExistence=T, expectedExistence=T)
   .hydrar.checkParameter(logSource, recodeAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
@@ -431,7 +431,7 @@ hydrar.ml.preprocess <- function(
 }
 
 .hydrar.transform.validateTransformOptions <- function(
-  hf, 
+  data, 
   transformPath, 
   recodeAttrs,
   missingAttrs, 
@@ -446,7 +446,7 @@ hydrar.ml.preprocess <- function(
   omit.na) {
   
   logSource <- "validateTransformOptions"
-  columnNames <- SparkR::colnames(hf)
+  columnNames <- SparkR::colnames(data)
   if (!is.null(recodeAttrs) && any(is.na(match(recodeAttrs, columnNames)))) {
     hydrar.err(logSource, "One or more columns specified in recodeAttrs do not exist in the dataset. [" %++%
                paste(recodeAttrs, sep=",") %++% "].")
@@ -457,7 +457,7 @@ hydrar.ml.preprocess <- function(
     }
     missingAttrsIndex <- 1
     for (missingAttr in missingAttrs) {
-      coltype <- SparkR::coltypes(hf)[SparkR::colnames(hf) %in% missingAttr]
+      coltype <- SparkR::coltypes(data)[SparkR::colnames(data) %in% missingAttr]
       if (!coltype  %in% c("integer", "double", "numeric")) {
         if(!any(imputationMethod[missingAttrs %in% missingAttr] == c("constant"))){
           hydrar.err(logSource, "Only 'constant' imputation method is supported on non-numeric columns [" %++% missingAttr %++% "].")
@@ -492,7 +492,7 @@ hydrar.ml.preprocess <- function(
   
   if (!is.null(binningAttrs)) {
     if (!is.null(numBins)) {
-      rows <- nrow(hf)
+      rows <- nrow(data)
       if (rows < max(numBins)) {
         hydrar.err(logSource, "Number of bins is larger than the number of rows in the dataset [" %++% rows %++% "].")
       }
@@ -506,7 +506,7 @@ hydrar.ml.preprocess <- function(
       hydrar.err(logSource, "One or more columns specified in dummycodeAttrs do not exist in the dataset.")
     }
     
-    #         if(isAnyAttrOfType(hm = hf, attrs = dummycodeAttrs, type = "numeric")) {
+    #         if(isAnyAttrOfType(hm = data, attrs = dummycodeAttrs, type = "numeric")) {
     #             hydrar.err(logSource, "Numeric attributes are not allowed to be dummy coded.")
     #         }
   }
@@ -526,7 +526,7 @@ hydrar.ml.preprocess <- function(
       }
     }
   
-    if(isAnyAttrOfType(hf, scalingAttrs, "character")) {
+    if(isAnyAttrOfType(data, scalingAttrs, "character")) {
       hydrar.err(logSource, "Scaling can not be performed on nominal columns.")
     }
     if (!is.null(recodeAttrs)) {
@@ -559,7 +559,7 @@ hydrar.ml.preprocess <- function(
   }
   
   # generate the vector of recode columns
-  columnTypes <- SparkR::coltypes(hf)
+  columnTypes <- SparkR::coltypes(data)
   strbools <- (columnTypes == "character" | columnTypes == "logical")
   seedList <- columnNames[strbools]     
   rcdList <- union(seedList, recodeAttrs)

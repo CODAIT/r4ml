@@ -35,43 +35,7 @@ with(hydrar.env, {
   
   HYDRAR_SESSION_EXISTS <- FALSE
 
-  # hadoop fs
-  HYDRAR_DEFAULT_FS <- ""
-
-  # hydrar.dataset constants
-  # Possible data sources
-  TEXT_FILE <- "DEL"
-  DEL <- "DEL"
-  LINE_FILE <- "LINE"
-  JSON <- "JSON"
-  TRANSFORM <- "TRANSF" # When a hydrar.dataset is the result of a transformation (e.g., projection or filtering)
-
-  EMPTY_TABLE_EXPRESSION <- "[[]]"
-
   EMPTY_STRING_RECODE <- "hydrar::__empty_string__"
-
-  # A list of supported data formats
-  DATA_SOURCES <- c(TEXT_FILE, JSON, TRANSFORM, LINE_FILE)
-
-  # Supported data types
-  DATA_TYPES <- c(character="string",
-                  character="varchar",
-                  character="timestamp",
-                  character="array",
-                  numeric="double",
-                  numeric="float",
-                  numeric="real",
-                  numeric="numeric",
-                  numeric="decimal",
-                  numeric="bigint",
-                  integer="long",
-                  integer="tinyint",
-                  integer="smallint",
-                  integer="int",
-                  logical="boolean",
-                  factor="string")
-
-  SUPPORTED_DATA_TYPES <- c("character", "numeric", "integer", "logical")
 
   # This controls, the block size of the system-ML internal binary # block matrix.
   # The decision on 1000x1000 blocks (in dense format = 8 MB) # is done after 
@@ -87,74 +51,9 @@ with(hydrar.env, {
   # Internall SystemML can reshuffle the row maintain the global index for order
   SYSML_MATRIX_INDEX_COL <- "__INDEX"
 
-  # The number of rows returned by head and tail methods
-  DEFAULT_HEAD_ROWS <- 6
-
   # The number of rows returned by show method
   DEFAULT_SHOW_ROWS <- 20
 
-  # The default delimiter for text files
-  DEFAULT_DELIMITER <- ","
-
-  # NA string
-  DEFAULT_NA_STRING <- ""
-
-  # Local processing
-  DEFAULT_LOCAL_PROCESSING <- TRUE
-
-  # If no rows are returned by a query
-  #EMPTY_DATA <- data.frame()
-
-  # hydrar.vector constants
-
-  # hydrar.frame constants
-
-  # The default column names if none specified
-  DEFAULT_COLNAMES <- c("V1")
-  UNKNOWN_COLNAMES <- 1
-
-  # The default column types if none specified
-  DEFAULT_COLTYPES <- c("character")
-  DEFAULT_NBINS <- 10
-
-  # Aggregate functions for numeric columns
-  ALL_AGGREGATE_FUNCTIONS <- c("count", "countNA", "countnonNA", "min", "max", "sum", "avg", "mean", "sd", "var")
-  RESERVED_WORDS <- c(ALL_AGGREGATE_FUNCTIONS)
-  ALL_NOMINAL_AGGREGATE_FUNCTIONS <- c("count", "countNA", "countnonNA", "min", "max")
-
-  # Default aggregate functions for numeric columns
-  DEFAULT_NUMERIC_AGGREGATE_FUNCTIONS <- c("countnonNA", "min", "max", "sum", "mean")
-
-  # Aggregate functions for nominal columns
-  DEFAULT_NOMINAL_AGGREGATE_FUNCTIONS <- c("countnonNA", "min", "max")
-
-  # The list of aggregate functions which always return a numeric value
-  NUMERIC_TYPE_AGGREGATE_FUNCTIONS <- c("count", "sum", "mean", "countNA", "countnonNA")
-  ALL_COLUMNS <- "."
-
-  # hydrar.function constants
-  REGISTERED_FUNCTIONS <- list()
-
-  # hydrar.sampling constants
-  RANDOM_SEED <- 71
-
-  # warnings and errors log file
-  LOGDIR <- ""
-  LOGFILE <- ""
-  LOGCOLTYPE <- c()
-  LOGCOLNAME <- c()
-
-  # RNG support
-  #DEFAULT_RNG <- "hydrar.default.rng"
-
-  # A list of temporary files to be removed by the finalizers
-  TEMP_FILES <- list()
-
-  # A list of temporary files to be removed when the exit from hydrar.err
-  DELETE_ON_ERROR_FILES <- list()
-
-  # default DML path
-  DML_ALGORITHMS_PATH <- file.path("algorithms", "")
   DML_DATA_TYPES <- c("scale", "nominal", "ordinal", "dummy")
 
   # DML script names
@@ -188,15 +87,6 @@ with(hydrar.env, {
   DML_KM_SCRIPT <- "KM.dml"
   DML_COX_SCRIPT <- "Cox.dml"
   DML_COX_PREDICT_SCRIPT <- "Cox-predict.dml"
-  DML_SCALE_TYPE <- 1
-  DML_NOMINAL_TYPE <- 2
-  DML_UNIVARIATE_STATS_LIST <- c("Min.", "Max.", "Range", "Mean", "Var", "SD", "SEM", "CoV",
-                                 "Skewness", "Kurtosis", "SES", "SEK", "Median", "IQM", "# cat.", "Mode", "# modes")
-  DML_BIVARIATE_STATS_NN <- c("Chi_sq", "DF", "P_value", "Cramer's_V")
-  DML_BIVARIATE_STATS_NS <- c("Eta", "F_statistic", "P_value", "SumOfSquares_bw", "SumOfSquares_within", "DF_bw", "DF_within",
-                              "Mean_Sq_bw", "Mean_Sq_within")
-  DML_BIVARIATE_STATS_SS <- c("Pearson's_r", "Covar", "SD(X)", "SD(Y)")
-  DML_BIVARIATE_STATS_OO <- c("Spearman's rank cor. coeff.")
   UNIVARIATE_STATS_SUFFIX <- ".univar.stats"
   BIVARIATE_STATS_SUFFIX <- ".bivar.stats"
   STRAT_BIVARIATE_STATS_SUFFIX <- ".strat.stats"
@@ -214,40 +104,17 @@ with(hydrar.env, {
   DML_KM_STRATUM <- file.path("", "km.stratum")
   DML_TRANSFORM_SCRIPT <- "transform_old.dml"
   DML_APPLY_TRANSFORM_SCRIPT <- "apply-transform_old.dml"
-  DML_MATRIX_FORMAT_BINARY <- "binary"
-  DML_MATRIX_FORMAT_CSV <- "csv"
-  SPLIT_DUMMYCODE_MAPS <- file.path("", "splitDummyCodeMaps.csv")
-  TRANSFORM_INFO <- file.path("", "transform.info")
   DOT_MAP <- ".map"
-  DOT_BIN <- ".bin"
-  X_MTX <- "x.mtx"
-  Y_MTX <- "y.mtx"
   ACCURACY <- file.path("", "accuracy.csv")
   MODEL_METADATA <- file.path("", "model.json")
   DEBUG_LOG <- file.path("", "debug.log")
 
   #SVM specific constants
   COEFFICIENTS <- file.path("", "coefficients.csv")
-  SUPPORT_VECTORS <- file.path("", "support_vectors.csv")
-  RECODE_MAPS <- file.path("", "recode_maps")
-  PREDICTIONS <- file.path("", "predictions.csv")
-  CONFUSION <- file.path("", "confusion.csv")
-  SCORES <- file.path("", "scores.csv")
   INTERCEPT <- "(Intercept)"
-  DEFAULT_LAPLACE_CORRECTION <- 1
-  PRIOR <- file.path("", "prior.csv")
   CONDITIONALS <- file.path("", "conditionals.csv")
   CSV <- "csv"
-  DECISIONTREE <- file.path("", "decisiontree.csv")
-  RANDOMFOREST <- file.path("", "randomforest.csv")
-  RANDOM_FOREST_COUNT <- file.path("", "counts.csv")
-  RANDOM_FOREST_OOB <- file.path("", "OOB.csv")
-  PROBABILITIES <- file.path("", "probabilities.csv")
 
-  #Logistic Regression specific constants
-  BETA <- file.path("", "beta.csv")
-  STATISTICS <- file.path("", "statistics.csv")
-  
   # the minimum partition size in bytes for automatic repartitioning
   MIN_PARTITION_SIZE <- 128000000
   

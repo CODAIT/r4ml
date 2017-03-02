@@ -48,8 +48,8 @@ setClass("hydrar.frame", contains="SparkDataFrame")
 #'
 #' @examples \dontrun{
 #'
-#'    hf <- as.hydrar.frame(as.data.frame(iris))
-#'    is.hydrar.numeric(hf) #This is FALSE
+#'    data <- as.hydrar.frame(as.data.frame(iris))
+#'    is.hydrar.numeric(data) #This is FALSE
 #'    hf2=as.hydrar.frame(iris[c("Sepal.Length", "Sepal.Width")])
 #'    is.hydrar.numeric(hf2) # This is TRUE
 #'
@@ -168,9 +168,9 @@ setMethod("as.hydrar.frame",
       spark_df <- SparkR::repartition(spark_df, numPartitions = numPartitions)
     }
     
-    hf <- as.hydrar.frame(spark_df, ...)
+    data <- as.hydrar.frame(spark_df, ...)
     
-    return(hf)
+    return(data)
   }
 )
 
@@ -209,12 +209,12 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
 #' @description Imputes a missing value with either the mean of the feature or a user supplied constant.
 #' @details List parameter takes a named list with columns to impute for as the names and either "mean", empty (in which case mean will be assumed), or a constant to impute as the values
 #' 
-#' @param hf (hydrar.frame) A hydrar.frame to be impute values with.
+#' @param data (hydrar.frame) A hydrar.frame
 #' @param ... (list) A named list with names that represent the columns to be fitted, values are imputed.
 #' 
 #'@examples \dontrun{
 #'  # Load Dataset
-#'  df <- as.DataFrame(sysmlSqlContext, airquality)
+#'  df <- as.DataFrame(airquality)
 #'  head(df)
 #'  
 #'  df <- as.hydrar.frame(df)
@@ -237,13 +237,14 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
 #'}
 # NOTE: add the more specific arguement to ...
 # NOTE: output must contain at least same or more columns as input
-setGeneric("hydrar.impute", function(hf, ...) {
+setGeneric("hydrar.impute", function(data, ...) {
   standardGeneric("hydrar.impute")
 })
 
 setMethod("hydrar.impute",
-  signature(hf = "hydrar.frame"),
-  function(hf, df_columns){
+  signature(data = "hydrar.frame"),
+  function(data, df_columns){
+    logSource <- "hydrar.impute"
     strings <- list()
     df_columns <- as.list(df_columns)
     name <- names(df_columns)
@@ -252,7 +253,7 @@ setMethod("hydrar.impute",
     constant_names <- list()
     
     for(col in names(df_columns)){
-      if(!is.hydrar.numeric(as.hydrar.frame(SparkR::select(hf, col)))){
+      if(!is.hydrar.numeric(as.hydrar.frame(SparkR::select(data, col)))){
         hydrar.err(logSource, "Column for imputation must be numeric")
       }
     }
@@ -261,7 +262,7 @@ setMethod("hydrar.impute",
     if (is.null(name)){
       column_names <- df_columns
       for(i in df_columns){
-        strings <- c(strings, (paste0("SparkR::mean(hf$", i, ")")))
+        strings <- c(strings, (paste0("SparkR::mean(data$", i, ")")))
       }
       # If there are names in named list, parse list to determine mean vs. constant as well as column names
     } else {
@@ -269,11 +270,11 @@ setMethod("hydrar.impute",
         # If the name is empty, use the mean
         if(name[i] == "" ){
           column_names <- c(column_names, df_columns[i])
-          strings <- c(strings, (paste0("SparkR::mean(hf$", name[i], ")")))
+          strings <- c(strings, (paste0("SparkR::mean(data$", name[i], ")")))
           # If the list element is "mean", use mean imputation
         } else if(df_columns[i] == "mean") {
           column_names <- c(column_names, name[i])
-          strings <- c(strings, (paste0("SparkR::mean(hf$", name[i], ")")))
+          strings <- c(strings, (paste0("SparkR::mean(data$", name[i], ")")))
           # If the list element is a constant, don't make call to mean
         } else if (as.logical(lapply(df_columns[i], is.numeric))[1]){
           constant_names <- c(constant_names, name[i])
@@ -281,7 +282,7 @@ setMethod("hydrar.impute",
           # Default to mean imputation otherwise
         } else {
           column_names <- c(column_names, i)
-          strings <- c(strings, (paste0("SparkR::mean(hf$", name[i], ")")))
+          strings <- c(strings, (paste0("SparkR::mean(data$", name[i], ")")))
         } 
       }
     }
@@ -289,7 +290,7 @@ setMethod("hydrar.impute",
     values <- list()
     # If there are means to collect from workers, parallelize mean calls with aggregate
     if(length(strings) > 0){
-      for_call = list(hf)
+      for_call <- list(data)
       for (i in strings){
         # Use eval to convert the strings into function calls
         for_call <- c(for_call, SparkR::column(eval(parse(text=i))@jc))
@@ -304,7 +305,7 @@ setMethod("hydrar.impute",
     
     # Convert values list to metadata
     metadata <- list2env(values, parent=emptyenv())
-    return_df = as.hydrar.frame(SparkR::fillna(x=hf, value=values))
+    return_df <- as.hydrar.frame(SparkR::fillna(x = data, value = values))
     
     return(list(data=return_df, metadata=metadata))
   }
@@ -318,7 +319,7 @@ setMethod("hydrar.impute",
 #'  values "Low", "Medium", and "High", these will be mapped to 1, 2, and 3. 
 #'  \strong{Note}: All columns of type character will be automatically recoded.
 #'  The order of the recoded values is non-deterministic.
-#' @param hf a hydrar.frame
+#' @param data a hydrar.frame
 #' @param ... list of columns to be recoded. If no columns are given all 
 #'      the columns are recoded
 #' @details The transformed dataset will be returned as a \code{hydrar.frame}
@@ -330,8 +331,8 @@ setMethod("hydrar.impute",
 #' @export
 #'      
 #' @examples \dontrun{
-#'  hf <- as.hydrar.frame(as.data.frame(iris))
-#'  hf_rec <- hydrar.recode(hf, c("Species"))
+#'  data <- as.hydrar.frame(iris)
+#'  hf_rec <- hydrar.recode(data, c("Species"))
 #'
 #'  # make sure that recoded value is right
 #'  rhf_rec <- SparkR::as.data.frame(hf_rec$data)
@@ -341,19 +342,19 @@ setMethod("hydrar.impute",
 #'  rhf_md$Species$setosa # check one of the recoded value
 #' }
 #'
-setGeneric("hydrar.recode", function(hf, ...) {
+setGeneric("hydrar.recode", function(data, ...) {
   standardGeneric("hydrar.recode")
 })
 
 
 setMethod("hydrar.recode",
-  signature(hf = "hydrar.frame"),
-  function(hf, ...) {
+  signature(data = "hydrar.frame"),
+  function(data, ...) {
     logSource <- "hydrar.recode"
 
     # get the list of all input columns and set default (if needed)
-    icols <- unlist(list(...), recursive = T)
-    hf_colnames <- SparkR::colnames(hf)
+    icols <- unlist(list(...), recursive = TRUE)
+    hf_colnames <- SparkR::colnames(data)
     if (missing(icols) || length(icols) == 0) {
       icols <- hf_colnames
     }
@@ -368,7 +369,7 @@ setMethod("hydrar.recode",
     icol2rec_env = new.env(hash=TRUE, parent = emptyenv())
     for (icol in icols) {
       hydrar.debug(logSource, paste("on column", icol))
-      icol_df <- SparkR::select(hf, icol)
+      icol_df <- SparkR::select(data, icol)
       uicol_df <- SparkR::distinct(icol_df)
       uicol_nr <- SparkR::nrow(uicol_df)
       if (uicol_nr > nurow_max) {
@@ -408,7 +409,7 @@ setMethod("hydrar.recode",
     # create the new RDD of the recoded columns, note that all the recoding
     # is done in single pass
     new_row_rdd <- SparkR:::lapply(
-      hf,
+      data,
       function(row) {
         ret = list()
         for (i in 1:length(hf_colnames)) {
@@ -436,7 +437,7 @@ setMethod("hydrar.recode",
     )
    
     #calculate the new schema
-    old_sch <- SparkR::schema(hf)
+    old_sch <- SparkR::schema(data)
     old_sch_flds <- old_sch$fields()
     new_sf = list()
     for (i in 1:length(hf_colnames)) {
@@ -453,7 +454,8 @@ setMethod("hydrar.recode",
       new_sf[[length(new_sf)+1]] <- new_sch_fld
     }
     new_row_rdd_sch <- do.call(SparkR::structType, as.list(new_sf))
-    res_hf <- as.hydrar.frame(SparkR::as.DataFrame(sysmlSqlContext, new_row_rdd, new_row_rdd_sch))
+    res_hf <- as.hydrar.frame(SparkR::as.DataFrame(new_row_rdd,
+                                                   schema = new_row_rdd_sch))
     meta_db <- icol2rec_env
     list(data=res_hf, metadata=meta_db)
   }
@@ -464,7 +466,7 @@ setMethod("hydrar.recode",
 #' @description Specified scale columns will be 
 #'  shifting by mean and divided by it's sample standard deviation. In case, 
 #'  we do only the shifting by mean. 
-#' @param hf a hydrar frame
+#' @param data a hydrar frame
 #' @param ... list of columns to be normalized. If no columns are given all 
 #'      the columns are recoded
 #' @details The transformed dataset will be returned as a \code{hydrar.frame}
@@ -475,26 +477,26 @@ setMethod("hydrar.recode",
 #' @export
 #'      
 #' @examples \dontrun{
-#'  hf <- as.hydrar.frame(as.data.frame(iris))
-#'  hf_norm_info = hydrar.normalize(hf, c("Sepal_Width", "Petal_Length"))
+#'  data <- as.hydrar.frame(as.data.frame(iris))
+#'  data_norm_info <- hydrar.normalize(data, c("Sepal_Width", "Petal_Length"))
 #'
 #'  # make sure that recoded value is right
-#'  hf_norm <- hf_norm_info$data
-#'  hf_md <- hf_norm_info$metadata # metadata associated with the normalization
-#'  show(hf_norm)
-#'  ls.str(hf_md) # check the metadata corresponding to norm ops
+#'  data_norm <- data_norm_info$data
+#'  data_md <- data_norm_info$metadata # metadata associated with the normalization
+#'  show(data_norm)
+#'  ls.str(data_md) # check the metadata corresponding to norm ops
 #' }
 #'
-setGeneric("hydrar.normalize", function(hf, ...) {
+setGeneric("hydrar.normalize", function(data, ...) {
   standardGeneric("hydrar.normalize")
 })
 
 setMethod("hydrar.normalize",
-  signature(hf = "hydrar.frame"),
-  function(hf, ...) {
+  signature(data = "hydrar.frame"),
+  function(data, ...) {
     logSource <- "hydrar.normalize"
-    hfnames <- SparkR::colnames(hf)
-    hftypes <- SparkR::coltypes(hf)
+    hfnames <- SparkR::colnames(data)
+    hftypes <- SparkR::coltypes(data)
     
     args <- list(...)
     if (length(args) == 0) {
@@ -523,14 +525,14 @@ setMethod("hydrar.normalize",
     }
     
     # dynamically create command to be executed later
-    rstr <- "SparkR::agg(hf"
+    rstr <- "SparkR::agg(data"
     for (iname in inames) {
       
-      mean_str <- paste("SparkR::", "mean" , "(as.sparkr.column(hf$", iname, "))", sep="")
+      mean_str <- paste("SparkR::", "mean" , "(as.sparkr.column(data$", iname, "))", sep="")
       ndfname <- paste("mean_", iname, sep="")
       rstr <- paste(rstr, ", ", ndfname, " = ", mean_str, sep="")
       
-      sd_str <- paste("SparkR::", "sd" , "(as.sparkr.column(hf$", iname, "))", sep="")
+      sd_str <- paste("SparkR::", "sd" , "(as.sparkr.column(data$", iname, "))", sep="")
       ndfname <- paste("stddev_", iname, sep="")
       rstr <- paste(rstr, ", ", ndfname, " = ", sd_str, sep="")
       
@@ -543,7 +545,7 @@ setMethod("hydrar.normalize",
     rhfstats <- eval(parse(text=rstr))
     hfstats <- SparkR::as.data.frame(rhfstats)
     
-    mstr <- "SparkR::mutate(hf"
+    mstr <- "SparkR::mutate(data"
     for (iname in inames) {
       new_col <- "new_" %++% iname
       mean <- hfstats[['mean_' %++% iname]]
@@ -554,7 +556,7 @@ setMethod("hydrar.normalize",
         # divide by zero. instead have the default 1.0
         sd <- 1
       }
-      mstr <- mstr %++% sprintf(", %s = (as.sparkr.column(hf$%s)-%s)/(2*%s)", new_col, iname, mean, sd)
+      mstr <- mstr %++% sprintf(", %s = (as.sparkr.column(data$%s)-%s)/(2*%s)", new_col, iname, mean, sd)
     }
     mstr <- mstr %++% ")"
     
@@ -589,7 +591,7 @@ setMethod("hydrar.normalize",
 #' @title Binning
 #' @export
 #' @description Takes a column and a number of bins and returns a new column with the average value of the bin each value has been placed into.
-#' @param hf (hydrar.frame) The hydrar.frame to bin columns for.
+#' @param data (hydrar.frame) The hydrar.frame to bin columns for.
 #' @param columns (list) List of column names to create bins with.
 #' @param number (numeric) Number of bins to create.
 #' 
@@ -605,18 +607,18 @@ setMethod("hydrar.normalize",
 #'
 # NOTE: add the more specific arguement to ...
 # NOTE: output must contain at least same or more columns as input
-setGeneric("hydrar.binning", function(hf, ...) {
+setGeneric("hydrar.binning", function(data, ...) {
   standardGeneric("hydrar.binning")
 })
 
 setMethod("hydrar.binning",
-  signature(hf = "hydrar.frame"),
-  function(hf, columns, number){
+  signature(data = "hydrar.frame"),
+  function(data, columns, number){
     metadata <- new.env(parent=emptyenv())
     for(name in as.list(columns)){
-      column = hf[[name]]
+      column <- data[[name]]
       
-      if(!is.hydrar.numeric(as.hydrar.frame(SparkR::select(hf, name)))){
+      if(!is.hydrar.numeric(as.hydrar.frame(SparkR::select(data, name)))){
         hydrar.err(logSource, "Must provide numeric columns.")
       }
       
@@ -627,7 +629,7 @@ setMethod("hydrar.binning",
       } else {}
       
       # Grab min/max, collect will be fine since this will only return min max
-      minmax = SparkR::collect(SparkR::agg(hf, min(icolumn), max(icolumn)))
+      minmax <- SparkR::collect(SparkR::agg(data, min(icolumn), max(icolumn)))
       minimum = minmax[1][[1]]
       maximum = minmax[2][[1]]
       range = ((maximum-minimum)/number) 
@@ -639,7 +641,7 @@ setMethod("hydrar.binning",
       # Re-add the minimum to get the floor of binned values, add range/2 to get average
       avg_bins = ((int_bins*range+minimum) + range/2)
       # Grab initial colnames for eventual rearrange
-      hf_colnames = SparkR::colnames(hf)
+      hf_colnames <- SparkR::colnames(data)
 
       # Create original column name
       new_name <- paste0(name, "_new")
@@ -648,20 +650,20 @@ setMethod("hydrar.binning",
       }
       
       # Establish outputs
-      hf = SparkR::withColumn(hf, new_name, avg_bins)
+      data <- SparkR::withColumn(data, new_name, avg_bins)
       # Delete Original Column
-      eval(parse(text=paste0("hf$", name, " <- NULL")))
+      eval(parse(text = paste0("data$", name, " <- NULL")))
       # Rename new column
-      hf = SparkR::withColumnRenamed(hf, existingCol=new_name, newCol=name)
+      data <- SparkR::withColumnRenamed(data, existingCol = new_name, newCol = name)
       
       # Rearrange columns
-      hf = as.hydrar.frame(SparkR::select(hf, hf_colnames))
+      data <- as.hydrar.frame(SparkR::select(data, hf_colnames))
       metadata[[name]] = list(featureName=name,
                               minValue=minimum,
                               maxValue=maximum,
                               binWidth=range,
                               numBins=number)
     }
-    list(data=hf, metadata=metadata)
+    list(data = data, metadata = metadata)
   }
 )
