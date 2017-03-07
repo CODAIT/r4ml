@@ -14,36 +14,43 @@
    4) Here is very simple example of running the linear model by R script
 
    ```
+    # In this example, we're going to use iris data set, and we'll use linear regression
+    # model to predict Sepal Length using the rest of the fearures as predictors.
+
     # load HydraR library
     library(HydraR)
-    
-    sparkR.session(master = "local[*]", sparkHome = "/path/to/apache/spark")
 
-    # data cleanup and pre-processing
-    df <- iris
-    df <- hydrar.ml.preprocess(as.hydrar.frame(df),
-             transformPath = "/tmp",
-             recodeAttrs="Species")$data
-    iris_df <- as.hydrar.frame(df)
-    iris_mat <- as.hydrar.matrix(iris_df)
-    ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
+    hydrar.session(master = "local[*]", sparkHome = "/path/to/apache/spark")
 
-    # split into train and test data set
-    s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
+    # create hydrar dataframe from iris data
+    iris.df <- as.hydrar.frame(iris)
+
+    # We need to dummycode Species for regression model using preprocessing
+    # this returns a list containing $data $metadata
+    pp <- hydrar.ml.preprocess(iris.df, transformPath = "/tmp",
+                               dummycodeAttrs = c("Species"))
+
+    # convert preprocessed data to hydrar.matrix
+    iris.mat <- as.hydrar.matrix(pp$data)
+
+    # create train/test split
+    ml.coltypes(iris.mat) <- c("scale", "scale", "scale", "scale",
+                               "nominal", "nominal", "nominal")
+    s <- hydrar.sample(iris.mat, perc=c(0.2,0.8))
     test <- s[[1]]
     train <- s[[2]]
-    y_test <- as.hydrar.matrix(test[, 1])
-    y_test = SparkR:::as.data.frame(y_test)
-    test <- as.hydrar.matrix(test[, c(2:5)])
 
-    # create the linear model
-    iris_lm <- hydrar.lm(Sepal_Length ~ . , data = train, method ="iterative")
+    # fit linear regression model.
+    iris.model <- hydrar.lm(Sepal_Length ~ . , data = train, intercept = TRUE)
 
-    # check for the model accuracy by predicting on the test data set
-    preds <- predict(iris_lm, test)
-    preds
-    
-    sparkR.session.stop()
+    # we can check the coefficients of model by using coef function
+    coef(iris.model)
+
+    # we can now make predictions using test data set
+    preds <- predict(iris.model, test)
+
+    # the predict function calculates several statitics just like hydrar.lm.
+    preds$statistics
+
+    hydrar.session.stop()
    ```
-
-  
