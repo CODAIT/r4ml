@@ -147,7 +147,7 @@
 #' }
 hydrar.ml.preprocess <- function(
   data,
-  transformPath,
+  transformPath = NULL,
   applyTransformPath = NULL, 
   recodeAttrs = NULL,
   missingAttrs = NULL, 
@@ -405,7 +405,7 @@ hydrar.ml.preprocess <- function(
     }
   }
   .hydrar.checkParameter(logSource, data, "hydrar.frame")
-  .hydrar.checkParameter(logSource, transformPath, "character", checkExistence=T, expectedExistence=F)
+  .hydrar.checkParameter(logSource, transformPath, "character", isNullOK=T, isOptional=T, checkExistence=T, expectedExistence=F)
   .hydrar.checkParameter(logSource, applyTransformPath, "character", isNullOK=T, isOptional=T, checkExistence=T, expectedExistence=T)
   .hydrar.checkParameter(logSource, recodeAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
   .hydrar.checkParameter(logSource, missingAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
@@ -418,10 +418,12 @@ hydrar.ml.preprocess <- function(
   .hydrar.checkParameter(logSource, scalingMethod, "character", c("mean-subtraction", "z-score"), isNullOK=T, isOptional=T, isSingleton=F)
   .hydrar.checkParameter(logSource, omit.na, "character", isNullOK=T, isOptional=T, isSingleton=F)
   
-  
-  if (transformPath == "") {
-    hydrar.err(logSource, "Parameter 'transformPath' is not a valid path.")
-  }
+
+  #Disabling tranformPath checking for now
+  hydrar.debug(logSource,"Disabling transformPath checking for now")  
+  #if (transformPath == "") {
+  #  hydrar.err(logSource, "Parameter 'transformPath' is not a valid path.")
+  #}
   
   if (!is.null(applyTransformPath) && (applyTransformPath == "")) applyTransformPath <- NULL
   # @TODO ALOK in the future

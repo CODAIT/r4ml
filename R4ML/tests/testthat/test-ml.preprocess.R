@@ -61,3 +61,25 @@ test_that("hydrar.ml.preprocess omit.na", {
   )
   expect_equal(nrow(iris_transform$data), 149)
 })
+
+#Execute ml.preprocess without transformPath parameter
+test_that("hydrar.ml.preprocess excludetransformPath", {
+  
+  data("iris")
+  iris_hf <- as.hydrar.frame(as.data.frame(iris))
+  
+  iris_transform <- hydrar.ml.preprocess(
+    iris_hf, dummycodeAttrs = "Species",
+    binningAttrs = c("Sepal_Length", "Sepal_Width"),
+    numBins=4,
+    missingAttrs = c("Petal_Length", "Sepal_Width"),
+    imputationMethod = c("global_mean", "constant"),
+    imputationValues = list("Sepal_Width" = 40),
+    omit.na="Petal_Width",
+    recodeAttrs=c("Species"),
+    scalingAttrs=c("Petal_Length")
+    )
+  
+  showDF(iris_transform$data, n = 154) 
+})
+
