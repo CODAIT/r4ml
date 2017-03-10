@@ -39,14 +39,13 @@
 #' survFormula <- Surv(Timestamp, Censor) ~ Age
 #' 
 #' # Run kaplan meier on generated data
-#' km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
-#'                           test=1, rho="none")
+#' km <- hydrar.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
 #'                           
 #' # Produce Summary                          
 #' summary <- summary(km)
 #' 
 #' # Compute Test Statistics
-#' test = hydrar.kaplan.meier.test(km)
+#' test <- hydrar.kaplan.meier.test(km)
 #' 
 #' }
 hydrar.data.gen.km <- function(N, P=3, weibA=1.5, weibB=100,

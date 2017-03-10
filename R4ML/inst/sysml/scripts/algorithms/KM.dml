@@ -94,6 +94,7 @@ fileM = $M;
 
 # Default values of some parameters
 fileT = ifdef ($T, " ");                  # $T=" "
+fileT_G_OE = ifdef ($T_G_OE, " ");
 
 fileG = ifdef ($G, " ");                 # $G=" "
 fileS = ifdef ($S, " ");                 # $S=" "
@@ -622,7 +623,7 @@ write (KM, fileO, format=fmtO);
 if (test_type != "none") {
 	if (num_groups > 1 & fileT != " ") { 
 		write (TEST, fileT, format=fmtO);
-		write (TEST_GROUPS_OE, fileT+".groups.oe", format=fmtO);
+		write (TEST_GROUPS_OE, fileT_G_OE, format=fmtO);
 	} else {
 		print (str);
 	}	

@@ -42,8 +42,7 @@ ignore <- cache(survMatrix)
 survFormula <- Surv(Timestamp, Censor) ~ Age
 
 # Run kaplan meier on generated data
-km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
-                         test=1, rho="none")
+km <- hydrar.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
                          
 # Produce Summary                          
 summary <- summary(km)

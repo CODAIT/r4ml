@@ -50,10 +50,12 @@ setClass("hydrar.kaplan.meier",
 #' @param strata (list) A list of stratum columns
 #' @param conf.int (numeric) Regularization parameter
 #' @param conf.type (character) Confidence type: accepted values are 'plain', 'log' (the default), or 'log-log' 
-#' @param type (character) Parameter to specify the error type according to "greenwood" (the default) or "peto"
-#' @param rho (character) Test type: accepted values are 'none', 'log-rank', or 'wilcoxon'
-#' @param test (numeric) Indicates whether the tests should be calculated (test=1) or not (test=0)
+#' @param error.type (character) Parameter to specify the error type according to "greenwood" (the default) or "peto"
+#' @param test.type (character) If survival data for multiple groups is available
+#'            specifies which test to perform for comparing survival data across
+#'            multiple groups: "none" (the default), "log-rank", or "wilcoxon"
 #' @param directory (character) The path to save the Kaplan-Meier model if input data is specified. 
+#' @param input.check (logical) if FALSE parameter validation is skipped
 #' @return An S4 object of class \code{hydrar.kaplan.meier} which contains the arguments above as well as the following additional fields:
 #' 
 #'  \tabular{rlll}{
@@ -84,8 +86,7 @@ setClass("hydrar.kaplan.meier",
 #' survformula <- Surv(Timestamp, Censor) ~ Age
 #'
 #' # Create survival model
-#' km <- hydrar.kaplan.meier(survformula, data=survmat, test=1, rho="log-rank", 
-#'                             directory = "/tmp")
+#' km <- hydrar.kaplan.meier(survformula, data = survmat, test.type = "log-rank")
 #' 
 #' # Show summary
 #' summary(km)
@@ -97,9 +98,13 @@ setClass("hydrar.kaplan.meier",
 #' @seealso \link{summary.hydrar.kaplan.meier}
 #' @seealso \link{hydrar.kaplan.meier.test}
 #'
-hydrar.kaplan.meier <- function(data, formula, strata, conf.int, conf.type, type, rho, test, directory) {
+hydrar.kaplan.meier <- function(data, formula, strata, conf.int, conf.type,
+                                error.type, test.type = "none", directory,
+                                input.check = TRUE) {
   new("hydrar.kaplan.meier", modelType="other", data=data, 
-      directory=directory, formula=formula, strata=strata, conf.int=conf.int, conf.type=conf.type, type=type, rho=rho, test=test)
+      directory = directory, formula = formula, strata = strata,
+      conf.int = conf.int, conf.type = conf.type, error.type = error.type, test.type = test.type,
+      input.check = input.check)
 }
 
 setMethod("hydrar.model.validateTrainingParameters",
@@ -111,24 +116,37 @@ setMethod("hydrar.model.validateTrainingParameters",
       .hydrar.checkParameter(logSource, strata, inheritsFrom="list", isOptional=T)
       .hydrar.checkParameter(logSource, conf.int, inheritsFrom=c("integer","numeric"), isOptional=T)
       .hydrar.checkParameter(logSource, conf.type, inheritsFrom="character", isOptional=T)
-      .hydrar.checkParameter(logSource, type, inheritsFrom="character", isOptional=T)
-      .hydrar.checkParameter(logSource, rho, inheritsFrom="character", isOptional=T)
-      .hydrar.checkParameter(logSource, test, inheritsFrom=c("integer","numeric"), isOptional=T)
+      .hydrar.checkParameter(logSource, error.type, inheritsFrom = "character",
+                             isOptional = TRUE)
+      .hydrar.checkParameter(logSource, test.type, inheritsFrom = "character",
+                             isOptional = TRUE)
+      .hydrar.checkParameter(logSource, input.check, inheritsFrom = "logical",
+                             isOptional = TRUE)
       
       if (!missing(conf.type) && !(conf.type %in% c("plain","log","log-log"))) {
-        hydrar.err(logSource, "Parameter conf.type must be either plain(the default), log or log-log")
+        hydrar.err(logSource, "Parameter conf.type must be either plain (the default), log or log-log")
       }
       if (!missing(conf.int) && (conf.int < 0 || conf.int > 1)) {
         hydrar.err(logSource, "Parameter conf.int must be a positive integer between 0 and 1.")
       }
-      if (!missing(type) && !(type %in% c("greenwood","peto"))) {
-        hydrar.err(logSource, "Parameter type must be either greenwood or peto")
+      if (!missing(error.type) && !(error.type %in% c("greenwood","peto"))) {
+        hydrar.err(logSource, "Parameter error.type must be either greenwood (the default) or peto")
       }
-      if (!missing(rho) && !(rho %in% c("none","log-rank","wilcoxon"))) {
-        hydrar.err(logSource, "Parameter type must be either none (the default), log-rank or wilcoxon")
+      if (!missing(test.type) && !(test.type %in% c("none","log-rank","wilcoxon"))) {
+        hydrar.err(logSource, "Parameter test.type must be either none (the default), log-rank, or wilcoxon")
       }
-      if (!missing(test) && test !=0 && test != 1) {
-        hydrar.err(logSource, "Parameter test must be either 0 or 1")
+     if (!missing(input.check) && input.check) {
+
+       distinct_vals <- SparkR::distinct(data[, 2])
+
+       if (SparkR::nrow(distinct_vals) != 2) {
+         hydrar.err(logSource, "Event status must only contain values 0 and 1")
+       }
+
+       distinct_vals <- SparkR::as.data.frame(distinct_vals)
+       if (all(sort(distinct_vals[, 1]) != c(0, 1))) {
+         hydrar.err(logSource, "Event status must contain values 0 and 1")
+       }
       }
     })
     return(model)
@@ -144,8 +162,6 @@ setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.kaplan.meier",
         directory <- hydrar.env$WORKSPACE_ROOT("hydrar.ml.model.kaplan.meier")
       }
 
-      TESTS <- directory %++% hydrar.env$DML_KM_TESTS
-      
       #adding column names to the model
       model@dataColNames <- SparkR::colnames(data)
 
@@ -202,15 +218,11 @@ setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.kaplan.meier",
         }
       }
       
-      if (!missing(test) && test == 1) {
-        dmlArgs <- c(dmlArgs, T=TESTS)
-        model@testPath <- TESTS
-        if (!missing(rho)) {
-          dmlArgs <- c(dmlArgs, ttype=rho)
-        }else{
-          dmlArgs <- c(dmlArgs, ttype="log-rank")
-        }
-      }     
+      dmlArgs <- c(dmlArgs, ttype = test.type)
+      
+      if (!missing(test.type) & test.type != "none") {
+        dmlArgs <- c(dmlArgs, "TEST", "TEST_GROUPS_OE")
+      }
       
       if (!missing(conf.int)) {
         model@conf.int <- conf.int
@@ -219,8 +231,8 @@ setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.kaplan.meier",
       }
       dmlArgs <- c(dmlArgs, alpha = (1 - model@conf.int))
       
-      if (!missing(type)) {
-        dmlArgs <- c(dmlArgs, etype=type)
+      if (!missing(error.type)) {
+        dmlArgs <- c(dmlArgs, etype=error.type)
       }
       if (!missing(conf.type)) {
         dmlArgs <- c(dmlArgs, ctype=conf.type)
@@ -319,9 +331,9 @@ setMethod("hydrar.model.postTraining", signature = "hydrar.kaplan.meier",
       
       if (is.na(model@groupNames) && is.na(model@strataNames)) {
         km_summary_list[list_ind] <-  km7
-        } else {
-          km_summary_list[km7_caption] <-  km7
-          }
+      } else {
+        km_summary_list[km7_caption] <-  km7
+      }
       
       i <- i + 7
       list_ind <- list_ind + 1
@@ -341,7 +353,7 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 
     median <- object@median
 
-    SparkR::head(median, num = hydrar.env$DEFAULT_HEAD_ROWS)
+    print(SparkR::head(median, num = hydrar.env$DEFAULT_HEAD_ROWS))
   }
 )
 
@@ -369,7 +381,7 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 #' survformula <- Surv(Timestamp, Censor) ~ Age
 #' 
 #' # Create survival model
-#' km <- hydrar.kaplan.meier(survformula, data=survmat, test=1, rho="log-rank", 
+#' km <- hydrar.kaplan.meier(survformula, data=survmat, test.type="log-rank", 
 #'                             directory = "/tmp")
 #' 
 #' # Show summary
@@ -420,7 +432,7 @@ summary.hydrar.kaplan.meier <- function(object) {
 #' survformula <- Surv(Timestamp, Censor) ~ Age
 #' 
 #' # Create survival model
-#' km <- hydrar.kaplan.meier(survformula, data=survmat, test=1, rho="log-rank", 
+#' km <- hydrar.kaplan.meier(survformula, data=survmat, test.type = "log-rank", 
 #'                             directory = "/tmp")
 #' 
 #' # Show summary
@@ -432,22 +444,24 @@ summary.hydrar.kaplan.meier <- function(object) {
 #'
 #' @export
 #' @seealso \link{summary.hydrar.kaplan.meier}
-#' @seealso \link{hydrar.kaplan.meier.test}
 hydrar.kaplan.meier.test <- function(object) {
   logSource <- "hydrar.kaplan.meier.test"
 
+  if (length(object@dmlArgs$ttype) == 0 || object@dmlArgs$ttype == "none") {
+    hydrar.err(logSource, "KM object does not incude a test")
+  }
+  
   # colnames -> N Observed Expected (O-E)^2/E (O-E)^2/V
   km_test_colnames <- c("N", "Observed", "Expected", "(O-E)^2/E", "(O-E)^2/V")
   km_test_chsqr_colnames <- c("n","degree of freedom", "chsqr", "p-value")
 
   # generating header for tests
   test_colnames <- c()
-  dataColNames <- object@dataColNames
 
-  if (!is.na(object@groupNames) && length(object@groupNames) > 0) {
+  if (!is.na(object@groupNames) && length(object@groupNames) > 1) {
     test_colnames <- c(test_colnames, object@groupNames)
-  }else{
-    hydrar.err(logSource, "Tests should specify at least one group")
+  } else {
+    hydrar.err(logSource, "Hypothesis testing requires at least two groups")
   }
   if (!is.na(object@strataNames) && length(object@strataNames) > 0) {
     test_colnames <- c(test_colnames, object@strataNames)
@@ -455,18 +469,16 @@ hydrar.kaplan.meier.test <- function(object) {
 
   km_test_colnames <- c(test_colnames, km_test_colnames)
   ### end generating header
-  km_test_full <- as.hydrar.frame(hydrar.read.csv(file.path(object@testPath),
-                                                  header=FALSE),
-                                  repartition = FALSE)
+  km_test_full <- as.hydrar.frame(object@dmlOuts$sysml.execute$TEST)
   SparkR::colnames(km_test_full) <- km_test_colnames
 
-  km_test_chsqr_path <- object@testPath %++% hydrar.env$DML_KM_TESTS_GRPS_OE_SUFFIX
-  km_test_chsqr <- as.hydrar.frame(hydrar.read.csv(file.path(km_test_chsqr_path),
-                                                   header=FALSE),
-                                   repartition = FALSE)
+  km_test_chsqr <- as.hydrar.frame(object@dmlOuts$sysml.execute$TEST_GROUPS_OE)
   SparkR::colnames(km_test_chsqr) <- km_test_chsqr_colnames
 
   #chisqr <- "Chisq=" %++% km_test_chsqr[,3] %++% " on " %++% as.character(km_test_chsqr[,2]) %++% " degrees of freedom, p= " %++% as.character(km_test_chsqr[,4])
   #  Chisq= 4.4  on 5 degrees of freedom, p= 0.499
-  return (list(km_test_full,km_test_chsqr))
+  output <- c()
+  output$km_test_full <- km_test_full
+  output$km_test_chsqr <- km_test_chsqr
+  return(output)
 }

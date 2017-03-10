@@ -20,24 +20,31 @@ test_that("hydrar.kaplan.meier summary", {
   survMatrix <- as.hydrar.matrix(survFrame)
   ml.coltypes(survMatrix) <- c("scale", "nominal", "nominal", "scale", "nominal") 
   survFormula <- Surv(Timestamp, Censor) ~ Age
-  km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
-                            test=1, rho="wilcoxon")
+  km <- hydrar.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
   summary(km)
 })
 
 test_that("hydrar.kaplan.meier tests", {
-  surv <- data.frame(Timestamp=c(1,2,3,4,5,6,7,8,9), Censor=c(1,0,0,1,1,0,0,1,0),Race=c(1,0,0,2,6,2,0,0,0),Origin=c(2,0,0,15,0,2,0,0,0),Age=c(50,52,50,52,52,50,20,50,52))
+  surv <- data.frame(Timestamp = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                     Censor = c(1, 0, 0, 1, 1, 0, 0, 1, 0),
+                     Race = c(1, 0, 0, 2, 6, 2, 0, 0, 0),
+                     Age = c(50, 52, 50, 52, 52, 50, 20, 50, 52))
+
   survFrame <- as.hydrar.frame(surv, repartition = FALSE)
   survMatrix <- as.hydrar.matrix(survFrame)
-  ml.coltypes(survMatrix) <- c("scale", "nominal", "nominal", "scale", "nominal") 
-  survFormula <- Surv(Timestamp, Censor) ~ Age
-  km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
-                            test=1, rho="wilcoxon")
+
+  survFormula <- Surv(Timestamp, Censor) ~ Race + Age
+
+  km <- hydrar.kaplan.meier(survFormula, data = survMatrix,
+                            test.type = "wilcoxon")
   summary <- summary(km)
-  test = hydrar.kaplan.meier.test(km)
-  
-  expect_true(as.numeric(head(test[[1]])[4][[1]][1]) - 0.3333333 < .001)
-  expect_true(as.numeric(head(test[[1]])[5][[1]][2]) - 0.04938272 < .001)
+  test <- hydrar.kaplan.meier.test(km)
+
+  km_test_full <- SparkR::as.data.frame(test$km_test_full)
+  km_test_chsqr <- SparkR::as.data.frame(test$km_test_chsqr)
+
+  expect_equal(dim(km_test_full), c(7, 7))
+  expect_equal(dim(km_test_chsqr), c(1, 4))
 })
 
 
@@ -47,29 +54,34 @@ test_that("hydrar.kaplan.meier none", {
   survMatrix <- as.hydrar.matrix(survFrame)
   ml.coltypes(survMatrix) <- c("scale", "nominal", "nominal", "scale", "nominal") 
   survFormula <- Surv(Timestamp, Censor) ~ Age
-  km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
-                            test=1, rho="none")
-  summary(km)
+  km <- hydrar.kaplan.meier(survFormula, data = survMatrix, test.type = "none")
+  summary <- summary(km)
   
-  #@TODO create a more robust test case as the order of the vars in test may change:
-  #expect_true(as.numeric(head(test[[1]])[4][[1]][1]) - 0.3333333 < .001)
-  #expect_true(as.numeric(head(test[[1]])[5][[1]][2]) - 0.04938272 < .001)
+  expect_error(hydrar.kaplan.meier.test(km))
 })
 
-
 test_that("hydrar.kaplan.meier log-rank", {
-  surv <- data.frame(Timestamp=c(1,2,3,4,5,6,7,8,9), Censor=c(1,0,0,1,1,0,0,1,0),Race=c(1,0,0,2,6,2,0,0,0),Origin=c(2,0,0,15,0,2,0,0,0),Age=c(50,52,50,52,52,50,20,50,52))
-  survFrame <- as.hydrar.frame(surv)
+  surv <- data.frame(Timestamp = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                     Censor = c(1, 0, 0, 1, 1, 0, 0, 1, 0),
+                     Race = c(1, 0, 0, 2, 6, 2, 0, 0, 0),
+                     Age = c(50, 52, 50, 52, 52, 50, 20, 50, 52))
+
+  survFrame <- as.hydrar.frame(surv, repartition = FALSE)
   survMatrix <- as.hydrar.matrix(survFrame)
-  ml.coltypes(survMatrix) <- c("scale", "nominal", "nominal", "scale", "nominal") 
-  survFormula <- Surv(Timestamp, Censor) ~ Age
-  km <- hydrar.kaplan.meier(survFormula, data=survMatrix,
-                            test=1, rho="log-rank")
+
+  survFormula <- Surv(Timestamp, Censor) ~ Race + Age
+
+  formula <- Surv(time, status) ~ age + ph_karno + pat_karno + wt_loss
+  km <- hydrar.kaplan.meier(survFormula, data = survMatrix,
+                            test.type = "log-rank")
   summary <- summary(km)
   test = hydrar.kaplan.meier.test(km)
   
-  expect_true(as.numeric(SparkR::head(test[[1]])[4][[1]][1]) - 0.4777778 < .001)
-  expect_true(as.numeric(SparkR::head(test[[1]])[5][[1]][2]) - 0.06188374 < .001)
+  km_test_full <- SparkR::as.data.frame(test$km_test_full)
+  km_test_chsqr <- SparkR::as.data.frame(test$km_test_chsqr)
+
+  expect_equal(dim(km_test_full), c(7, 7))
+  expect_equal(dim(km_test_chsqr), c(1, 4))
 })
 
 test_that("hydrar.kaplan.meier accuracy", {
@@ -97,6 +109,31 @@ test_that("hydrar.kaplan.meier accuracy", {
   r_km_summary <- summary(r_km)
   r_km_table <- as.data.frame(r_km_summary$table) 
   
-  expect_equal(summary(h_km_table$events), summary(r_km_table$events), tol = .01)
-  expect_equal(summary(h_km_table$median), summary(r_km_table$median), tol = .01)
+  expect_equal(summary(h_km_table$events), summary(r_km_table$events), tol = .001)
+  expect_equal(summary(h_km_table$median), summary(r_km_table$median), tol = .001)
+
+})
+
+test_that("hydrar.kaplan.meier input validation", {
+  df <- survival::lung[1:10, ]
+  df$inst <- NULL
+  df$sex <- NULL
+  df <- stats::na.omit(df)
+  colnames(df) <- c("time", "status", "age", "ph_ecog", "ph_karno", "pat_karno",
+                    "meal_cal", "wt_loss")
+
+  df_bad <- df
+  df_good <- df
+
+  df_good$status <- df_good$status - 1
+
+  hf_bad <- as.hydrar.matrix(df_bad)
+  hf_good <- as.hydrar.matrix(df_good)
+
+  formula <- Surv(time, status) ~ age + ph_karno + pat_karno + wt_loss
+
+  hkm <- hydrar.kaplan.meier(hf_good, formula)
+
+  expect_error(hydrar.kaplan.meier(hf_bad, formula))
+  hydrar.kaplan.meier(hf_good, formula)
 })

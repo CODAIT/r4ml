@@ -51,6 +51,9 @@ with(hydrar.env, {
   # Internall SystemML can reshuffle the row maintain the global index for order
   SYSML_MATRIX_INDEX_COL <- "__INDEX"
 
+  # The number of rows returned by head and tail methods
+  DEFAULT_HEAD_ROWS <- 6
+
   # The number of rows returned by show method
   DEFAULT_SHOW_ROWS <- 20
 
@@ -98,8 +101,6 @@ with(hydrar.env, {
   DML_KM_MODEL <- file.path("", "km.model")
   DML_KM_MODEL_OFFSET <- file.path("", "km.model.offset")
   DML_KM_MEDIANCONFINTERVAL <- file.path("", "km.median.conf.intervals")
-  DML_KM_TESTS <- file.path("", "km.tests")
-  DML_KM_TESTS_GRPS_OE_SUFFIX <- ".groups.oe"
   DML_KM_GROUPS <- file.path("", "km.groups")
   DML_KM_STRATUM <- file.path("", "km.stratum")
   DML_TRANSFORM_SCRIPT <- "transform_old.dml"
