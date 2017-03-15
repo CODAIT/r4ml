@@ -147,7 +147,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.mlogit", def =
       model@shiftAndRescale <- shiftAndRescale
       
       if (args$intercept == TRUE) {
-        model@featureNames <- c("(intercept)", model @featureNames)
+        model@featureNames <- c(model@featureNames, hydrar.env$INTERCEPT)
       }
       
       dmlPath <- file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_MULTI_LOGISTIC_REGRESSION_SCRIPT)
