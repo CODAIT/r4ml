@@ -76,9 +76,8 @@ sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
 #'        along with java ref corresponding to jvm
 #' @export
 #' @examples \dontrun{
-#'    #TODO fix this example
-#'    #sc # the default spark context
-#'    #mlCtx = sysml.MLContext$new(sc)
+#'    #sysmlSparkContext # the default spark context
+#'    mlCtx = HydraR:::sysml.MLContext$new(sysmlSparkContext)
 #' }
 sysml.MLContext <- setRefClass("sysml.MLContext",
   fields = list(env="environment"),

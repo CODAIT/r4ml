@@ -306,7 +306,7 @@ predict.hydrar.lm <- function(object, data) {
     .hydrar.checkParameter(logSource, data, inheritsFrom="hydrar.matrix")
 
     # Create path for storing goodness-of-fit statistics
-    statsPath <- file.path(hydrar.env$WORKSPACE_ROOT("hydrar.mlogit"), "stats_predict.csv")
+    statsPath <- file.path(hydrar.env$WORKSPACE_ROOT("hydrar.lm"), "stats_predict.csv")
 
     # compare the column name vector with the data's to determine if we're making predictions
     testing <- hydrar.ml.checkModelFeaturesMatchData(coef(object), data, object@intercept, object@labelColumnName, object@yColId)  

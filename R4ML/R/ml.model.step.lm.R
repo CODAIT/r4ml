@@ -73,7 +73,7 @@ setClass("hydrar.step.lm",
 
 
 hydrar.step.lm <- function(formula, data, intercept=FALSE, shiftAndRescale=FALSE, threshold=.001,
-                           directory = hydrar.env$WORKSPACE_ROOT()){
+                           directory = hydrar.env$WORKSPACE_ROOT("hydrar.step.lm")){
   
   new("hydrar.step.lm", modelType="regression",
       formula=formula, data=data, method="direct-solve", intercept=intercept, shiftAndRescale=shiftAndRescale,
