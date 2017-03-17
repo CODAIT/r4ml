@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,22 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#' @include hydrar.frame.R
+#' @include r4ml.frame.R
 
-#' @name is.hydrar.matrix
-#' @title is.hydrar.matrix
-#' @description check if the given object is hydrar.matrix
+#' @name is.r4ml.matrix
+#' @title is.r4ml.matrix
+#' @description check if the given object is r4ml.matrix
 #' @param object the object to test
-#' @param ... other arguments to be passed to as.hydrar.frame
+#' @param ... other arguments to be passed to as.r4ml.frame
 #' @export
-#' @seealso \link{is.hydrar.numeric}
-is.hydrar.matrix <- function(object) {
-  if (class(object) != "hydrar.matrix") { return (FALSE)}
-  if (!is.hydrar.numeric(object)) { return (FALSE)}
+#' @seealso \link{is.r4ml.numeric}
+is.r4ml.matrix <- function(object) {
+  if (class(object) != "r4ml.matrix") { return (FALSE)}
+  if (!is.r4ml.numeric(object)) { return (FALSE)}
   return (TRUE)
 }
 
-#' hydrar.matrix an S4 class representing a dataframe with numeric entry.
+#' r4ml.matrix an S4 class representing a dataframe with numeric entry.
 #'
 #' This is used for all the operation on matrix and with interfacing with
 #' systemML.
@@ -36,34 +36,34 @@ is.hydrar.matrix <- function(object) {
 #' @slot type can be numeric or "Vector" or string. numeric is most common
 #' @slot ml.coltypes machine learning types i.e one of c("scale", "nominal", "ordinal", "dummy")
 #' @export
-#' @seealso \link{hydrar.frame}, \link{ml.coltypes}
-setClass("hydrar.matrix",
+#' @seealso \link{r4ml.frame}, \link{ml.coltypes}
+setClass("r4ml.matrix",
          representation(type = "character", ml.coltypes = "numeric"),
-         contains = "hydrar.frame",
-         validity = is.hydrar.matrix
+         contains = "r4ml.frame",
+         validity = is.r4ml.matrix
 )
-#' Coerce to a HydraR Matrix
+#' Coerce to a R4ML Matrix
 #'
-#' Convert an object to a hydrar.matrix
-#' @param object A hydrar.frame, data.frame, or Spark DataFrame
-#' @return A hydrar.matrix
+#' Convert an object to a r4ml.matrix
+#' @param object A r4ml.frame, data.frame, or Spark DataFrame
+#' @return A r4ml.matrix
 #' @examples \dontrun{
-#' hydrar_frame <-  as.hydrar.frame(beaver1)
-#' hydrar_matrix <- as.hydrar.matrix(hydrar_frame)
+#' r4ml_frame <-  as.r4ml.frame(beaver1)
+#' r4ml_matrix <- as.r4ml.matrix(r4ml_frame)
 #' }
 #' @export
-setGeneric("as.hydrar.matrix", function(object) {
-  standardGeneric("as.hydrar.matrix")
+setGeneric("as.r4ml.matrix", function(object) {
+  standardGeneric("as.r4ml.matrix")
 })
 
-setMethod("as.hydrar.matrix",
-  signature(object = "hydrar.frame"),
+setMethod("as.r4ml.matrix",
+  signature(object = "r4ml.frame"),
   function(object) {
-    logSource <- "as.hydrar.matrix"
+    logSource <- "as.r4ml.matrix"
     result = NULL
-    if (is.hydrar.numeric(object)) {
+    if (is.r4ml.numeric(object)) {
       ncol <- length(SparkR::colnames(object))
-      result = new("hydrar.matrix",
+      result = new("r4ml.matrix",
                    sdf = object@sdf,
                    isCached = object@env$isCached
               )
@@ -72,26 +72,26 @@ setMethod("as.hydrar.matrix",
       ml.coltypes(result) <- rep("scale", ncol)
     } else {
       #@TODO auto convert
-      hydrar.err(logSource, "conversion from non numeric hydrar.frame is not supported yet")
+      r4ml.err(logSource, "conversion from non numeric r4ml.frame is not supported yet")
     }
     result
   }
 )
 
-setMethod("as.hydrar.matrix",
+setMethod("as.r4ml.matrix",
   signature(object = "data.frame"),
   function(object) {
-  hf <- as.hydrar.frame(object)
-  hm <- as.hydrar.matrix(hf)
+  hf <- as.r4ml.frame(object)
+  hm <- as.r4ml.matrix(hf)
   return(hm)
   }
 )
 
-setMethod("as.hydrar.matrix",
+setMethod("as.r4ml.matrix",
   signature(object = "SparkDataFrame"),
   function(object) {
-  hf <- as.hydrar.frame(object)
-  hm <- as.hydrar.matrix(hf)
+  hf <- as.r4ml.frame(object)
+  hm <- as.r4ml.matrix(hf)
   return(hm)
   }
 )
@@ -103,24 +103,24 @@ setGeneric("ml.coltypes<-",
 #' @rdname ml.coltypes
 #' @export
 #' @seealso \link{ml.coltypes}
-setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
+setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
   function(x, value) {
     logSource <- "ml.coltype"
 
-    .hydrar.checkParameter(logSource, value, "character", isSingleton=F)
+    .r4ml.checkParameter(logSource, value, "character", isSingleton=F)
 
     if (length(value) != length(ml.coltypes(x))) {
-      hydrar.err(logSource, "Invalid number of columns. " %++% length(ml.coltypes(x)) %++%
+      r4ml.err(logSource, "Invalid number of columns. " %++% length(ml.coltypes(x)) %++%
                          " were expected but " %++% length(value) %++% " were specified")
     }
 
     # Validate column types
-    invalidTypes <- which(!(value %in% hydrar.env$DML_DATA_TYPES))
+    invalidTypes <- which(!(value %in% r4ml.env$DML_DATA_TYPES))
     if (length(invalidTypes) > 0) {
-      hydrar.err(logSource, "Invalid type: " %++% value[invalidTypes[1]])
+      r4ml.err(logSource, "Invalid type: " %++% value[invalidTypes[1]])
     }
 
-    coltypesid <- match(value, hydrar.env$DML_DATA_TYPES)
+    coltypesid <- match(value, r4ml.env$DML_DATA_TYPES)
     x@ml.coltypes <- coltypesid
     x
   }
@@ -129,21 +129,21 @@ setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
 
 #' @name ml.coltypes
 ##' @name ml.coltypes, ml.coltypes<-
-#' @title Set and get column types of a hydrar.matrix
+#' @title Set and get column types of a r4ml.matrix
 #' @export
 #' @description
 #'
 #' With this pair of methods, one can get and set column types of
-#' a hydrar.matrix. The column types of a hydrar.matrix could be any of "scale" (i.e., continuous) or "nominal" (i.e., categorical).
+#' a r4ml.matrix. The column types of a r4ml.matrix could be any of "scale" (i.e., continuous) or "nominal" (i.e., categorical).
 #' Scale columns can take any real value while nominal columns can only take positive integer numbers, corresponding
 #' to each category.
 #'
 #' Machine learning algorithms have different behavior
 #' depending of the specified values in ml.coltypes. For example, descriptive statistics functions
-#' such as \code{hydrar.univariateStats()} and \code{hydrar.bivariateStats()} compute different sets of statistics
+#' such as \code{r4ml.univariateStats()} and \code{r4ml.bivariateStats()} compute different sets of statistics
 #' for scale or nominal attributes.
 #'
-#' @details In the \code{hydrar.matrix()} constructor, \code{ml.coltypes} are initialized as follows:
+#' @details In the \code{r4ml.matrix()} constructor, \code{ml.coltypes} are initialized as follows:
 #'
 #' - If no transform metadata are available, \code{ml.coltypes} is set to "scale" for all attributes.
 #'
@@ -157,20 +157,20 @@ setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
 #' }
 #'
 #'
-#' @param x (hydrar.matrix)
+#' @param x (r4ml.matrix)
 #' @param value (character) Vector of names with the same length as the number
-#' of columns of the hydrar.matrix
+#' of columns of the r4ml.matrix
 #' @return For \code{ml.coltypes()}, return a character vector holding the column
-#'  names. For \code{ml.coltypes()<-}, return an updated hydrar.matrix with the updated column types.
+#'  names. For \code{ml.coltypes()<-}, return an updated r4ml.matrix with the updated column types.
 #' @rdname ml.coltypes
 #' @examples \dontrun{
 #'
 #' # Load the Iris dataset to HDFS
-#' irisbf <- as.hydrar.frame(iris)
+#' irisbf <- as.r4ml.frame(iris)
 #'
-#' # Create a hydrar.matrix after dummycoding, binning, and scaling some attributes
+#' # Create a r4ml.matrix after dummycoding, binning, and scaling some attributes
 #' # this features is not implemented
-#' irisBM <- hydrar.ml.preprocess(hf = irisbf,
+#' irisBM <- r4ml.ml.preprocess(hf = irisbf,
 #'                                transformPath = "/tmp",
 #'                                dummycodeAttrs = "Species",
 #'                                binningAttrs = c("Sepal_Length", "Sepal_Width"),
@@ -189,19 +189,19 @@ setMethod("ml.coltypes<-", signature(x = "hydrar.matrix"),
 #' }
 ml.coltypes <- function(bm) {
   logSource <- "ml.coltypes"
-  .hydrar.checkParameter(logSource, bm, inheritsFrom="hydrar.matrix")
-  return(hydrar.env$DML_DATA_TYPES[bm@ml.coltypes])
+  .r4ml.checkParameter(logSource, bm, inheritsFrom="r4ml.matrix")
+  return(r4ml.env$DML_DATA_TYPES[bm@ml.coltypes])
 }
 
-#' hydrar.onehot.column
+#' r4ml.onehot.column
 #' 
-#' see  the \link{hydrar.onehot} for usages and details
+#' see  the \link{r4ml.onehot} for usages and details
 #' 
-#' @param hm a hydrar.matrix
+#' @param hm a r4ml.matrix
 #' @param colname name of column to be one hot encoded
 #' @export  
-hydrar.onehot.column <- function(hm, colname) {
-  logSource <- "hydrar.onehot.column"
+r4ml.onehot.column <- function(hm, colname) {
+  logSource <- "r4ml.onehot.column"
   dml= '
   #  # encode dml function for one hot encoding
   encode_onehot = function(matrix[double] X) return(matrix[double] Y) {
@@ -240,16 +240,16 @@ hydrar.onehot.column <- function(hm, colname) {
   oh_colname <- colname
   col_idx <- match(oh_colname, hm_names)
   if (length(col_idx) > 1) {
-    hydrar.err(logSource, "multiple one hot matches")
+    r4ml.err(logSource, "multiple one hot matches")
   }
   if (col_idx < 1 || col_idx > length(hm_names)) {
-    hydrar.err(logSource, "col_idx out of range")
+    r4ml.err(logSource, "col_idx out of range")
   }
   # call the sysml connector to execute the code in the cluster after
   # matrix optimization
   outputs <- sysml.execute(
     dml = dml, # dml code
-    X = hm, # attach the input hydrar matrix to X var in dml
+    X = hm, # attach the input r4ml matrix to X var in dml
     onehot_index  = col_idx,
     "Y" # attach the output Y from dml
   )
@@ -275,23 +275,23 @@ hydrar.onehot.column <- function(hm, colname) {
     y_names <- c(hm_names[1:col_idx-1], oh_new_names)
   }
   SparkR::colnames(Y) <- y_names
-  data <- as.hydrar.matrix(Y)
+  data <- as.r4ml.matrix(Y)
   metadata <- new.env(parent=emptyenv())
   assign(colname, oh_new_names, envir=metadata)
   
   list(data=data, metadata=metadata)
 }
 
-#' @name hydrar.onehot
+#' @name r4ml.onehot
 #' @title Onehot encode the value that has been previously onehot encoded.
 #' @description Specified recoded columns will be 
 #'  mapped into onehot encoding. For example, if a column (c1) has values 
 #'  then one hot columns will be c1_1 == c(0,0,1); c1_2 == c(0, 1, 0) and 
 #'  c1_3== c(0,0,1), 
-#' @param hm a hydrar matrix
+#' @param hm a r4ml matrix
 #' @param ... list of columns to be onehot encoded. If no columns are given
 #'  all are the columns are onehot encoded
-#' @details The transformed dataset will be returned as a \code{hydrar.matrix}
+#' @details The transformed dataset will be returned as a \code{r4ml.matrix}
 #'  object.
 #'  The transform meta-info is also returned. This is helpful to keep track 
 #'  of what is the new onehot encoded column name.
@@ -300,17 +300,17 @@ hydrar.onehot.column <- function(hm, colname) {
 #' @export
 #'      
 #' @examples \dontrun{
-#' hf <- as.hydrar.frame(iris)
-#' hf <- hydrar.recode(hf, c("Species"))
-#' hm <- as.hydrar.matrix(hf$data)
-#' hm <- hydrar.onehot(hm, "Species")
+#' hf <- as.r4ml.frame(iris)
+#' hf <- r4ml.recode(hf, c("Species"))
+#' hm <- as.r4ml.matrix(hf$data)
+#' hm <- r4ml.onehot(hm, "Species")
 #' }
 #'
-hydrar.onehot <- function(hm, ... ) {
-  logSource <- "hydrar.onehot"
+r4ml.onehot <- function(hm, ... ) {
+  logSource <- "r4ml.onehot"
   args <- list(...)
   if (length(args) <= 0) {
-    hydrar.warn(logSource, "no columns specified")
+    r4ml.warn(logSource, "no columns specified")
     return(list(data = hm, metadata = NA))
   }
   # check if it is list
@@ -325,7 +325,7 @@ hydrar.onehot <- function(hm, ... ) {
   for (i in 1:length(colnames)) {
     colname <- colnames[[i]]
     inp_hm <- hm_list[[length(hm_list)]] # last element
-    oh_db <- hydrar.onehot.column(inp_hm, colname)
+    oh_db <- r4ml.onehot.column(inp_hm, colname)
     hm_list[[length(hm_list)+1]] <- oh_db$data
     md_list[[length(md_list)+1]] <- oh_db$metadata
   }

@@ -1,15 +1,15 @@
-# <img src="../HydraR/inst/images/hydraR-logo.png" alt="HydraR Logo"/>
+# <img src="../R4ML/inst/images/r4ml-logo.png" alt="R4ML Logo"/>
 
-## __**How to Use HydraR**__
+## __**How to Use R4ML**__
 
-   Congratulations, you just installed HydraR, now you are ready to do scalable
+   Congratulations, you just installed R4ML, now you are ready to do scalable
    data analysis and machine learning.
 
-   1) We have the comprehensive examples at [examples folder](../HydraR/inst/examples)
+   1) We have the comprehensive examples at [examples folder](../R4ML/inst/examples)
 
-   2) Also we have many vignettes for user to use at [vignettes](../HydraR/vignettes)
+   2) Also we have many vignettes for user to use at [vignettes](../R4ML/vignettes)
  
-   3) Our unit-test also provide great examples at [unittests](../HydraR/tests/testthat)
+   3) Our unit-test also provide great examples at [unittests](../R4ML/tests/testthat)
 
    4) Here is very simple example of running the linear model by R script
 
@@ -17,31 +17,31 @@
     # In this example, we're going to use iris data set, and we'll use linear regression
     # model to predict Sepal Length using the rest of the fearures as predictors.
 
-    # load HydraR library
-    library(HydraR)
+    # load R4ML library
+    library(R4ML)
 
-    hydrar.session(master = "local[*]", sparkHome = "/path/to/apache/spark")
+    r4ml.session(master = "local[*]", sparkHome = "/path/to/apache/spark")
 
-    # create hydrar dataframe from iris data
-    iris.df <- as.hydrar.frame(iris)
+    # create r4ml dataframe from iris data
+    iris.df <- as.r4ml.frame(iris)
 
     # We need to dummycode Species for regression model using preprocessing
     # this returns a list containing $data $metadata
-    pp <- hydrar.ml.preprocess(iris.df, transformPath = "/tmp",
+    pp <- r4ml.ml.preprocess(iris.df, transformPath = "/tmp",
                                dummycodeAttrs = c("Species"))
 
-    # convert preprocessed data to hydrar.matrix
-    iris.mat <- as.hydrar.matrix(pp$data)
+    # convert preprocessed data to r4ml.matrix
+    iris.mat <- as.r4ml.matrix(pp$data)
 
     # create train/test split
     ml.coltypes(iris.mat) <- c("scale", "scale", "scale", "scale",
                                "nominal", "nominal", "nominal")
-    s <- hydrar.sample(iris.mat, perc=c(0.2,0.8))
+    s <- r4ml.sample(iris.mat, perc=c(0.2,0.8))
     test <- s[[1]]
     train <- s[[2]]
 
     # fit linear regression model.
-    iris.model <- hydrar.lm(Sepal_Length ~ . , data = train, intercept = TRUE)
+    iris.model <- r4ml.lm(Sepal_Length ~ . , data = train, intercept = TRUE)
 
     # we can check the coefficients of model by using coef function
     coef(iris.model)
@@ -49,8 +49,8 @@
     # we can now make predictions using test data set
     preds <- predict(iris.model, test)
 
-    # the predict function calculates several statitics just like hydrar.lm.
+    # the predict function calculates several statitics just like r4ml.lm.
     preds$statistics
 
-    hydrar.session.stop()
+    r4ml.session.stop()
    ```

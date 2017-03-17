@@ -19,22 +19,22 @@ context("Testing util.commons\n")
 
 #@TODO implement test for the other functions in util.commons.R
 
-test_that("hydrar.which.na.cols", {
+test_that("r4ml.which.na.cols", {
   
   hf <- iris
   hf$Sepal.Length[5] <- NA
-  hf <- as.hydrar.frame(hf)
+  hf <- as.r4ml.frame(hf)
   
-  output <- hydrar.which.na.cols(hf)
+  output <- r4ml.which.na.cols(hf)
   
   expect_equal(output, "Sepal_Length")
   
   hf <- iris
   hf$Sepal.Length[5] <- NA
   hf$Sepal.Width[7] <- NA
-  hf <- as.hydrar.frame(hf)
+  hf <- as.r4ml.frame(hf)
   
-  output <- hydrar.which.na.cols(hf)
+  output <- r4ml.which.na.cols(hf)
   
   expect_equal(output, c("Sepal_Length", "Sepal_Width"))
 

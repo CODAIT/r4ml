@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,26 +15,26 @@
 
 requireNamespace("SparkR")
 
-setOldClass("hydrar.frame")
-setClassUnion("hydrar.frame.OrNull", c("hydrar.frame", "NULL"))
+setOldClass("r4ml.frame")
+setClassUnion("r4ml.frame.OrNull", c("r4ml.frame", "NULL"))
 
 #############################################################################
-### hydrar.vector operations
+### r4ml.vector operations
 #############################################################################
 
-#' Unlike SparkR's Column objects, hydrar.vector objects can be collected, shown
+#' Unlike SparkR's Column objects, r4ml.vector objects can be collected, shown
 #' and manipulated similarly to R's vectors. Additionally, all functions available
-#' on SparkR Columns are also available for hydrar.vector objects. 
+#' on SparkR Columns are also available for r4ml.vector objects. 
 #' 
-#' @name hydrar.vector operations
-#' @title hydrar.vector operations
-#' @rdname hydrar.vector_ops
+#' @name r4ml.vector operations
+#' @title r4ml.vector operations
+#' @rdname r4ml.vector_ops
 #' 
 #' @examples
 ##'\dontrun{
 ## TODO this test case is not working
-##' # Load the iris dataset as a hydrar.frame
-##' hf <- as.hydrar.frame(iris)
+##' # Load the iris dataset as a r4ml.frame
+##' hf <- as.r4ml.frame(iris)
 ##' 
 ##' # Advanced nested arithmetic operations
 ##' avgLength <- (hf$Sepal_Length + hf$Sepal_Width) / 2
@@ -50,11 +50,11 @@ setClassUnion("hydrar.frame.OrNull", c("hydrar.frame", "NULL"))
 ##' }
 NULL
 #' @export
-setClass("hydrar.vector", 
-         slots = list(hf = "hydrar.frame.OrNull"),
+setClass("r4ml.vector", 
+         slots = list(hf = "r4ml.frame.OrNull"),
          contains="Column")
 
-setMethod("initialize", "hydrar.vector", function(.Object, jc, hf) {
+setMethod("initialize", "r4ml.vector", function(.Object, jc, hf) {
   .Object@jc <- jc
   
   # Some Column objects don't have any referencing SparkDataFrame. In such case, hf will be NULL.
@@ -66,8 +66,8 @@ setMethod("initialize", "hydrar.vector", function(.Object, jc, hf) {
 })
 
 #' @export
-setMethod("show", signature = "hydrar.vector", definition = function(object) {
-  head.df <- head(object, hydrar.env$DEFAULT_SHOW_ROWS)
+setMethod("show", signature = "r4ml.vector", definition = function(object) {
+  head.df <- head(object, r4ml.env$DEFAULT_SHOW_ROWS)
   
   if (length(head.df) == 0) {
     colname <- SparkR:::callJMethod(object@jc, "toString")
@@ -76,25 +76,25 @@ setMethod("show", signature = "hydrar.vector", definition = function(object) {
   } else {
     show(head.df)
   }
-  if (length(head.df) == hydrar.env$DEFAULT_SHOW_ROWS)  {
-    cat(paste0("\b...\nDisplaying up to ", as.character(hydrar.env$DEFAULT_SHOW_ROWS), " elements only.\n"))
+  if (length(head.df) == r4ml.env$DEFAULT_SHOW_ROWS)  {
+    cat(paste0("\b...\nDisplaying up to ", as.character(r4ml.env$DEFAULT_SHOW_ROWS), " elements only.\n"))
   }
 })
 
-#' Collects all the elements of a hydrar.vector and coerces them into an R vector.
+#' Collects all the elements of a r4ml.vector and coerces them into an R vector.
 #'
-#' @param x A hydrar.vector
+#' @param x A r4ml.vector
 #'
 #' @rdname collect
 #' @name collect
 #' @export
 #' @examples
 #'\dontrun{
-#' hf <- as.hydrar.frame(iris)
+#' hf <- as.r4ml.frame(iris)
 #' collect(hf$Sepal_Length)
 #' hf$Species 
 #' }
-setMethod("collect", signature = "hydrar.vector", definition = function(x) {
+setMethod("collect", signature = "r4ml.vector", definition = function(x) {
   if (is.null(x@hf)) {
     character(0)
   } else {
@@ -103,7 +103,7 @@ setMethod("collect", signature = "hydrar.vector", definition = function(x) {
 })
 
 #' @export
-setMethod("head", signature = "hydrar.vector", definition = function(x, n=6) {
+setMethod("head", signature = "r4ml.vector", definition = function(x, n=6) {
   if (is.null(x@hf)) {
     collect(x)
   } else {
@@ -112,25 +112,25 @@ setMethod("head", signature = "hydrar.vector", definition = function(x, n=6) {
 })
 
 #' @export
-setMethod("$", signature(x = "hydrar.frame"),
+setMethod("$", signature(x = "r4ml.frame"),
           function(x, name) {
             col <- SparkR:::getColumn(x, name)
-            new("hydrar.vector", jc=col@jc, hf=x)
+            new("r4ml.vector", jc=col@jc, hf=x)
           })
 
 
-#' Convert the various  data.frame into the hydraR data frame.
+#' Convert the various  data.frame into the r4ml frame.
 #'
-#' This is the convenient method of converting the hydrar.vector into the SparkR::Column
+#' This is the convenient method of converting the r4ml.vector into the SparkR::Column
 #'
 #' @name as.sparkr.column
-#' @param object hydrar.vector
-#' @param hv a hydrar.vector
+#' @param object r4ml.vector
+#' @param hv a r4ml.vector
 #' @param ... future optional additional arguments to be passed to or from methods
 #' @return SparkR::Column
 #' @export
 #' @examples \dontrun{
-#'    iris_hf <- as.hydrar.frame(iris)
+#'    iris_hf <- as.r4ml.frame(iris)
 #'    pl_mean <- SparkR::mean(as.sparkr.column(iris_hf$Petal_Length))
 #'    mval <- SparkR::agg(iris_hf, pl_mean)
 #'    mval
@@ -141,7 +141,7 @@ setGeneric("as.sparkr.column", function(hv, ...) {
 })
 
 setMethod("as.sparkr.column",
-          signature(hv = "hydrar.vector"),
+          signature(hv = "r4ml.vector"),
           function(hv, ...) {
             SparkR::column(hv@jc)
           }
@@ -161,7 +161,7 @@ setMethod("mean",
           })
 
 # The following code needs to be run in the top level environment. Otherwise dynamically
-# created methods will not be part of the HydraR environment
+# created methods will not be part of the R4ML environment
 
   fnames <- ls("package:SparkR", all.names=T)
   
@@ -201,7 +201,7 @@ setMethod("mean",
   methodNames <- methodNames[-which(methodNames %in% c("length", "show", "head", "collect",
                                                        "select", "withColumn", "ifelse"))]
   
-  createHydraRColumnMethod <- function(funName) {
+  createR4MLColumnMethod <- function(funName) {
     
     # Get the method with the given name
     method <- findMethods(funName, classes="Column")
@@ -240,10 +240,10 @@ setMethod("mean",
     # Build signature
     signature <- argTypes
     names(signature) <- argNames
-    signature <- ifelse(signature == "Column", "hydrar.vector", signature)
+    signature <- ifelse(signature == "Column", "r4ml.vector", signature)
     {
-      if (hydrar.env$VERBOSE) {
-        cat("Cloning function", funName, "(", paste(argNames, collapse=", "), ") into HydraR...")
+      if (r4ml.env$VERBOSE) {
+        cat("Cloning function", funName, "(", paste(argNames, collapse=", "), ") into R4ML...")
         cat("\n\n\n")
         cat(" OK\n")
       }
@@ -258,14 +258,14 @@ setMethod("mean",
               # Get the list of arguments that were passed to the function
               '  passedArgNames <- names(as.list(match.call(call=match.call())))',
               # 'browser()',
-              # Get which ones are of class hydrar.vector
-              '  colArgNames <- passedArgNames[which(unlist(lapply(passedArgNames, function(X123jsd8Abcs81) { class(eval(parse(text=X123jsd8Abcs81))) } )) == "hydrar.vector")]',
-              #'  colArgNames <- names(signature[which(signature == "hydrar.vector")])',
+              # Get which ones are of class r4ml.vector
+              '  colArgNames <- passedArgNames[which(unlist(lapply(passedArgNames, function(X123jsd8Abcs81) { class(eval(parse(text=X123jsd8Abcs81))) } )) == "r4ml.vector")]',
+              #'  colArgNames <- names(signature[which(signature == "r4ml.vector")])',
 
-              # Get hf from hydrar.vector arguments
+              # Get hf from r4ml.vector arguments
               '  eval(parse(text="hf <- " %++% colArgNames[1] %++% "@hf"))',
 
-              # Cast all hydrar.vector parameters to Column so that parent methods can handle them
+              # Cast all r4ml.vector parameters to Column so that parent methods can handle them
               '  for (i in 1:length(colArgNames)) {',
               '    eval(parse(text=colArgNames[i] %++% "<- as.sparkr.column(" %++% colArgNames[i] %++% ")"))',
               '  }',
@@ -281,11 +281,11 @@ setMethod("mean",
               #' print(callString)',
               '  value <-  eval(parse(text=callString))',
 
-              # If the result is a Column object, cast it back to hydrar.vector
+              # If the result is a Column object, cast it back to r4ml.vector
               '  if (class(value) == "Column") {',
               #'    args <- as.list(match.call())',
               #'    colArg <- eval(args[[colArgNames]])',
-              '    return(new("hydrar.vector", jc=value@jc, hf=hf))',
+              '    return(new("r4ml.vector", jc=value@jc, hf=hf))',
               '  }',
               '  return(value)',
               "}",
@@ -304,7 +304,7 @@ setMethod("mean",
     # disable it for now. In future, we will re-evaluate the functionality and see after bug fixes 
     # enable it
     next
-    args <- createHydraRColumnMethod(name)
+    args <- createR4MLColumnMethod(name)
     if (length(args) > 0) {
       functionCode <- args[[1]]
       funName <- args[[2]]
@@ -315,10 +315,10 @@ setMethod("mean",
                 fun)
     }
   }
-  cat("\n", length(methodNames), "HydraR methods were created from SparkR.")
+  cat("\n", length(methodNames), "R4ML methods were created from SparkR.")
 
 setGeneric("ifelse")
-setMethod("ifelse", signature(test = "hydrar.vector", yes = "ANY", no = "ANY"),
+setMethod("ifelse", signature(test = "r4ml.vector", yes = "ANY", no = "ANY"),
   function(test, yes, no) {
     hf <- test@hf
     test <- test@jc
@@ -328,14 +328,14 @@ setMethod("ifelse", signature(test = "hydrar.vector", yes = "ANY", no = "ANY"),
             SparkR:::callJStatic("org.apache.spark.sql.functions", "when", test, yes),
             "otherwise", no
           )
-    result <- new("hydrar.vector", jc, hf)
+    result <- new("r4ml.vector", jc, hf)
     result
 })
 
 setMethod("str",
-  signature(object = "hydrar.vector"),
+  signature(object = "r4ml.vector"),
   function(object) {
-    cat("'hydrar.vector'\n")
+    cat("'r4ml.vector'\n")
     out <- capture.output(str(select(object@hf, object)))
     cat(out[2] %++% "\n")
 })

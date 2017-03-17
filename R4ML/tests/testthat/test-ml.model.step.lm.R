@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,47 +14,47 @@
 # limitations under the License.
 #
 
-context("Testing hydrar.step.lm\n")
+context("Testing r4ml.step.lm\n")
 
-test_that("hydrar.step.lm direct", {
+test_that("r4ml.step.lm direct", {
   data("iris")
 
-  hydra_iris <- as.hydrar.matrix(iris[, -5])
-  step_lm <- hydrar.step.lm(Sepal_Length ~ ., data = hydra_iris)
+  r4ml_iris <- as.r4ml.matrix(iris[, -5])
+  step_lm <- r4ml.step.lm(Sepal_Length ~ ., data = r4ml_iris)
   coef(step_lm)
   stats(step_lm)
 })
 
-test_that("hydrar.step.lm predict", {
+test_that("r4ml.step.lm predict", {
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal")
-  s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
+  s <- r4ml.sample(iris_mat, perc=c(0.2,0.8))
   test <- s[[1]]
   train <- s[[2]]
-  y_test <- as.hydrar.matrix(test[, 1])
+  y_test <- as.r4ml.matrix(test[, 1])
   y_test <- SparkR:::as.data.frame(y_test)
-  test <- as.hydrar.matrix(test[, c(2:5)])
-  iris_step_lm <- hydrar.step.lm(Sepal_Length~ . , data = train)
+  test <- as.r4ml.matrix(test[, c(2:5)])
+  iris_step_lm <- r4ml.step.lm(Sepal_Length~ . , data = train)
   output <- predict(iris_step_lm, test)
   expect_true( base::mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) < 5)
 })
 
-test_that("hydrar.step.lm predict_scoring", {
+test_that("r4ml.step.lm predict_scoring", {
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal")
-  s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
+  s <- r4ml.sample(iris_mat, perc=c(0.2,0.8))
   test <- s[[1]]
   train <- s[[2]]
-  y_test <- as.hydrar.matrix(test[,1])
+  y_test <- as.r4ml.matrix(test[,1])
   y_test <- SparkR:::as.data.frame(y_test)
-  test <- as.hydrar.matrix(test[, c(2:5)])
-  iris_step_lm <- hydrar.step.lm(Sepal_Length ~ ., data=train)
+  test <- as.r4ml.matrix(test[, c(2:5)])
+  iris_step_lm <- r4ml.step.lm(Sepal_Length ~ ., data=train)
   output <- predict(iris_step_lm, test)
   expect_true( mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) < 5)
 })

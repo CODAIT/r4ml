@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015-2017
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-hydrar_ascii <- function() {
+r4ml_ascii <- function() {
   
   #' Big by Glenn Chappell 4/93 -- based on Standard
   #' Includes ISO Latin-1
@@ -28,14 +28,13 @@ hydrar_ascii <- function() {
   #' of new full-width/kern/smush alternatives, but default output is NOT changed.
   
   ascii <- "\n"
-  ascii <- paste0(ascii, "  _    _           _           _____\n")
-  ascii <- paste0(ascii, " | |  | |         | |         |  __ \\\n") 
-  ascii <- paste0(ascii, " | |__| |_   _  __| |_ __ __ _| |__) |\n")
-  ascii <- paste0(ascii, " |  __  | | | |/ _` | '__/ _` |  _  /\n")
-  ascii <- paste0(ascii, " | |  | | |_| | (_| | | | (_| | | \\ \\\n")
-  ascii <- paste0(ascii, " |_|  |_|\\__, |\\__,_|_|  \\__,_|_|  \\_\\\n")
-  ascii <- paste0(ascii, "          __/ |\n")
-  ascii <- paste0(ascii, "         |___/\n")
+  ascii <- paste0(ascii, "  _______   _    _    ____    ____  _____\n")
+  ascii <- paste0(ascii, " |_   __ \\ | |  | |  |_   \\  /   _||_   _|    \n")
+  ascii <- paste0(ascii, "   | |__) || |__| |_   |   \\/   |    | |      \n")
+  ascii <- paste0(ascii, "   |  __ / |____   _|  | |\\  /| |    | |   _  \n")
+  ascii <- paste0(ascii, "  _| |  \\ \\_   _| |_  _| |_\\/_| |_  _| |__/ | \n")
+  ascii <- paste0(ascii, " |____| |___| |_____||_____||_____||________| \n")
+  ascii <- paste0(ascii, " \n")
   return(ascii)
 }
 
@@ -67,9 +66,9 @@ systemml_ascii <- function() {
 auto_start_session <- function() {
   logSource <- "auto_start_session"
   
-  if (Sys.getenv("HYDRAR_AUTO_START") == "1") {
+  if (Sys.getenv("R4ML_AUTO_START") == "1") {
     if (nchar(Sys.getenv("SPARK_HOME")) == 0){
-      hydrar.warn(logSource, "unable to start session. 'SPARK_HOME' not defined")
+      r4ml.warn(logSource, "unable to start session. 'SPARK_HOME' not defined")
       return(FALSE)
       }
     return(TRUE)
@@ -80,37 +79,37 @@ auto_start_session <- function() {
 
 # this will be called at the library loading time.
 # it first check if the sparkR packages is loaded?
-#   (which one must before using HydraR)
+#   (which one must before using R4ML)
 # the it initialize SparkR basically starting the cluster and setting the
 # internals of sparkR with extra loaded jar from systemML so that one
 # call the systemML as well as SparkR functionality as needed
 # if sparkR is already initialized then it wil re-initialize it
 .onLoad <- function(libname, pkgname) {
-  logsrc <- hydrar.env$PACKAGE_NAME
+  logsrc <- r4ml.env$PACKAGE_NAME
 
   if ("SparkR" %in% loadedNamespaces()) {
     if (exists(".sparkRjsc", envir = SparkR:::.sparkREnv)) {
-      hydrar.warn(logsrc, "Reloading SparkR")
-      hydrar.reload.SparkR()
+      r4ml.warn(logsrc, "Reloading SparkR")
+      r4ml.reload.SparkR()
     } else {
-      hydrar.info(logsrc, "Loading SparkR")
-      hydrar.load.SparkR()
+      r4ml.info(logsrc, "Loading SparkR")
+      r4ml.load.SparkR()
     }
   }
 
-  hydrar.startup.message(libname, pkgname)
+  r4ml.startup.message(libname, pkgname)
 
   if(auto_start_session()) {
-    hydrar.info(logsrc, "Auto starting session")
-    hydrar.session()
+    r4ml.info(logsrc, "Auto starting session")
+    r4ml.session()
   }
   
 }
 
-hydrar.startup.message <- function(libname, pkgname, ...) {
-  logsrc <- hydrar.env$PACKAGE_NAME
+r4ml.startup.message <- function(libname, pkgname, ...) {
+  logsrc <- r4ml.env$PACKAGE_NAME
   # print the logo
-  packageStartupMessage(hydrar_ascii())
+  packageStartupMessage(r4ml_ascii())
 
   # print the version
   if(nchar(libname) > 0 & nchar(pkgname) > 0) { 
@@ -120,11 +119,11 @@ hydrar.startup.message <- function(libname, pkgname, ...) {
   }
 
   # print the other important info
-  loglevel <- hydrar.env$DEFAULT_LOG_LEVEL
+  loglevel <- r4ml.env$DEFAULT_LOG_LEVEL
   packageStartupMessage(
     sprintf("[%s]: Default log level will be set to '%s'", logsrc, loglevel))
   packageStartupMessage(
-    sprintf("[%s]: To change call hydrar.logger$setLevel(NewLevel)", logsrc))
+    sprintf("[%s]: To change call r4ml.logger$setLevel(NewLevel)", logsrc))
 }
 
 # a utlity function to check is sparkR loaded and is initialized
@@ -137,16 +136,16 @@ is.sparkr.ready <- function() {
   }
 }
 
-# This function is called at the unloading of the HydraR library or at the time
+# This function is called at the unloading of the R4ML library or at the time
 # of detaching it.
 # it basically stops the SparkR cluster and unload any namespace associated with it
 #
 .onUnload <- function(libpath) {
-  if (hydrar.env$HYDRAR_SESSION_EXISTS) {
-    hydrar.session.stop()
+  if (r4ml.env$R4ML_SESSION_EXISTS) {
+    r4ml.session.stop()
   }
   
-  hydrar.unload.SparkR()
+  r4ml.unload.SparkR()
 }
 
 .onDetach <- function(libpath) {
@@ -164,17 +163,17 @@ is.sparkr.loaded <- function() {
 
 # first stop the SparkR cluster and detach it
 # then restart SparkR with systemML and attach it to env
-hydrar.reload.SparkR <- function() {
-  hydrar.unload.SparkR()
-  hydrar.load.SparkR()
+r4ml.reload.SparkR <- function() {
+  r4ml.unload.SparkR()
+  r4ml.load.SparkR()
 }
 
 
 #load and initialize SparkR
-hydrar.load.SparkR <- function() {
-  logsrc <- hydrar.env$PACKAGE_NAME
+r4ml.load.SparkR <- function() {
+  logsrc <- r4ml.env$PACKAGE_NAME
   if (!requireNamespace("SparkR")) {
-    hydrar.warn(logSource, "SparkR not found in the standard library or in the R_LIBS path")
+    r4ml.warn(logSource, "SparkR not found in the standard library or in the R_LIBS path")
 
     lib_loc <- file.path(Sys.getenv("SPARK_HOME"), "R", "lib")
     .libPaths(c(lib_loc, .libPaths()))
@@ -186,7 +185,7 @@ hydrar.load.SparkR <- function() {
 }
 
 # unload SparkR and claim the cluster and cleanup
-hydrar.unload.SparkR <- function() {
+r4ml.unload.SparkR <- function() {
   SparkR::sparkR.stop()
   detach_package("SparkR", character.only = TRUE)
 }
@@ -212,7 +211,7 @@ detach_package <- function(pkg, character.only = FALSE) {
 
 #systemML related initiation
 sysml.init <- function() {
-  #@TODO eventually all the variables should be moved to hydrar.env
+  #@TODO eventually all the variables should be moved to r4ml.env
   
   # spark context is now replace by sparkSession
   sc <- get("sc", envir = .GlobalEnv)
@@ -251,71 +250,71 @@ sysml.stop <- function() {
   if("sysmlSqlContext" %in% ls(.GlobalEnv)) { rm(sysmlSqlContext, envir = .GlobalEnv) }
 }
 
-# HydraR related initialization
-hydrar.init <- function() {
-  logsrc <- hydrar.env$PACKAGE_NAME
-  # HydraR logger
+# R4ML related initialization
+r4ml.init <- function() {
+  logsrc <- r4ml.env$PACKAGE_NAME
+  # R4ML logger
   logger <- Logging$new()
-  assign("hydrar.logger", logger, .GlobalEnv)
-  loglevel <- hydrar.env$DEFAULT_LOG_LEVEL
-  env_loglevel <- Sys.getenv("HYDRAR_LOG_LEVEL")
+  assign("r4ml.logger", logger, .GlobalEnv)
+  loglevel <- r4ml.env$DEFAULT_LOG_LEVEL
+  env_loglevel <- Sys.getenv("R4ML_LOG_LEVEL")
   if (nchar(env_loglevel) != 0) {
     loglevel <- base::toupper(env_loglevel)
-    hydrar.info(logsrc, 
-      sprintf("Changing the log level to %s as per env 'HYDRAR_LOG_LEVEL'", loglevel))
+    r4ml.info(logsrc, 
+      sprintf("Changing the log level to %s as per env 'R4ML_LOG_LEVEL'", loglevel))
   }
   logger$setLevel(loglevel)
   
-  # create the hydrar.fs
-  fs <- create.hydrar.fs()
-  assign("hydrar.fs", fs, .GlobalEnv)
+  # create the r4ml.fs
+  fs <- create.r4ml.fs()
+  assign("r4ml.fs", fs, .GlobalEnv)
   
   # mark the session exists flag
-  hydrar.env$HYDRAR_SESSION_EXISTS <- TRUE
+  r4ml.env$R4ML_SESSION_EXISTS <- TRUE
   
 }
 
-hydrar.end <- function() {
-  if("hydrar.logger" %in% ls(.GlobalEnv)) { rm(hydrar.logger, envir = .GlobalEnv) }
+r4ml.end <- function() {
+  if("r4ml.logger" %in% ls(.GlobalEnv)) { rm(r4ml.logger, envir = .GlobalEnv) }
   
-  if("hydrar.fs" %in% ls(.GlobalEnv)) { rm(hydrar.fs, envir = .GlobalEnv) }
+  if("r4ml.fs" %in% ls(.GlobalEnv)) { rm(r4ml.fs, envir = .GlobalEnv) }
   
-  hydrar.env$HYDRAR_SESSION_EXISTS <- FALSE
+  r4ml.env$R4ML_SESSION_EXISTS <- FALSE
 }
 
-#' Initialize a HydraR Session
+#' Initialize a R4ML Session
 #' 
-#' hydrar.session is a wrapper function for sparkR.session
+#' r4ml.session is a wrapper function for sparkR.session
 #' @param master typically either local[*] or yarn
 #' @param sparkHome path to spark
 #' @param sparkConfig configuration options to be passed to sparkR.session()
 #' @param ... other arguments to be passed to sparkR.session()
 #' @export
-hydrar.session <- function(
-  master = Sys.getenv("HYDRAR_CLIENT"),
+r4ml.session <- function(
+  master = Sys.getenv("R4ML_CLIENT"),
   sparkHome = Sys.getenv("SPARK_HOME"),
-  sparkConfig = list("spark.driver.memory" = Sys.getenv("HYDRAR_SPARK_DRIVER_MEMORY")),
+  sparkConfig = list("spark.driver.memory" = Sys.getenv("R4ML_SPARK_DRIVER_MEMORY")),
   ...
   ) {
-  logsrc <- hydrar.env$PACKAGE_NAME
+  logsrc <- r4ml.env$PACKAGE_NAME
   #@TODO in the future make the signature of this function match sparkr.session()
   
-  if (hydrar.env$HYDRAR_SESSION_EXISTS) {
-    hydrar.warn(logsrc, " HydraR session already initialized")
+  if (r4ml.env$R4ML_SESSION_EXISTS) {
+    r4ml.warn(logsrc, " R4ML session already initialized")
     return()
   }
 
   if (nchar(master) == 0) {
-    hydrar.warn(logsrc, " master not defined. Defaulting to local[*]")
+    r4ml.warn(logsrc, " master not defined. Defaulting to local[*]")
     master <- "local[*]"
   }
   
   if (nchar(sparkHome) == 0) {
-    hydrar.err(logsrc, "SPARK_HOME not defined")
+    r4ml.err(logsrc, "SPARK_HOME not defined")
   }
   
   if (length(sparkConfig$spark.driver.memory) == 0  || nchar(sparkConfig$spark.driver.memory) == 0) {
-    hydrar.warn(logsrc, " driver.memory not defined. Defaulting to 2G")
+    r4ml.warn(logsrc, " driver.memory not defined. Defaulting to 2G")
     sparkConfig$spark.driver.memory <- "2G"
   }
   
@@ -323,10 +322,10 @@ hydrar.session <- function(
   sparkr.init <- function() {
     sc <- SparkR::sparkR.session(
       master = master,
-      appName = "HydraR",
+      appName = "R4ML",
       sparkHome = sparkHome,
       sparkConfig = sparkConfig,
-      sparkJars = hydrar.env$SYSML_JARS(),
+      sparkJars = r4ml.env$SYSML_JARS(),
       sparkPackages = "",
       ...)
     # spark context is now replace by sparkSession
@@ -337,26 +336,26 @@ hydrar.session <- function(
   #sysml related initialization
   sysml.init()
   
-  #hydrar related initialization
-  hydrar.init()
+  #r4ml related initialization
+  r4ml.init()
 }
 
 #' Session Stop
 #' 
-#' Stops an existing HydraR session
+#' Stops an existing R4ML session
 #' @export
-hydrar.session.stop <- function() {
-  logsrc <- hydrar.env$PACKAGE_NAME
+r4ml.session.stop <- function() {
+  logsrc <- r4ml.env$PACKAGE_NAME
   
-  if(hydrar.env$HYDRAR_SESSION_EXISTS == FALSE) {
-    hydrar.warn(logsrc, " No HydraR session exists")
+  if(r4ml.env$R4ML_SESSION_EXISTS == FALSE) {
+    r4ml.warn(logsrc, " No R4ML session exists")
     return()
   }
   
   # this should be in the reverse order as the init to avoid any potential variable 
   # dependency issues in future addition of variables and func
   
-  hydrar.end()
+  r4ml.end()
   
   sysml.stop()
   

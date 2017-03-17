@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 # limitations under the License.
 #
 
-# Script to create API docs for HydraR
+# Script to create API docs for R4ML
 # This requires `devtools` and `knitr` to be installed on the machine.
 
 # After running this script the html docs can be found in 
-# $HYDRAR_HOME/HydraR/html
+# $R4ML_HOME/R4ML/html
 
 
 set -o pipefail
@@ -42,4 +42,4 @@ $FWDIR/bin/install-dev.sh
 
 # currently, the html folder is not copied to the lib dir. So we manually do it
 echo "Coping the html folder to lib"
-\cp -rf $FWDIR/HydraR/html/* $FWDIR/lib/HydraR/html
+\cp -rf $FWDIR/R4ML/html/* $FWDIR/lib/R4ML/html

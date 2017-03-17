@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 # limitations under the License.
 #
 
-# Script to create API docs for HydraR
+# Script to create API docs for R4ML
 # This requires `devtools` and `knitr` to be installed on the machine.
 
 # After running this script the html docs can be found in 
-# $HYDRAR_HOME/HydraR/html
+# $R4ML_HOME/R4ML/html
 
 set -o pipefail
 set -e
@@ -35,16 +35,16 @@ $FWDIR/bin/install-dev.sh
 # Now create HTML files
 
 # knit_rd puts html in current working directory
-mkdir -p HydraR/html
-pushd HydraR/html
+mkdir -p R4ML/html
+pushd R4ML/html
 
 echo "Creating man pages"
-Rscript -e ' libDir <- "../../lib"; library(HydraR, lib.loc=libDir); library(knitr); knit_rd("HydraR", links = tools::findHTMLlinks(paste(libDir, "HydraR", sep="/"))) '
+Rscript -e ' libDir <- "../../lib"; library(R4ML, lib.loc=libDir); library(knitr); knit_rd("R4ML", links = tools::findHTMLlinks(paste(libDir, "R4ML", sep="/"))) '
 popd
 
-pushd HydraR/vignettes
+pushd R4ML/vignettes
 echo "Creating Vignettes"
-Rscript -e ' libDir <- "../../lib"; library(HydraR, lib.loc=libDir); library(devtools); devtools::build_vignettes()'
+Rscript -e ' libDir <- "../../lib"; library(R4ML, lib.loc=libDir); library(devtools); devtools::build_vignettes()'
 popd
 
 popd

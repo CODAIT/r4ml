@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015-2017
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,6 @@ context("Setting up test\n")
 library("SparkR")
 library("survival")
 
-if (!hydrar.env$HYDRAR_SESSION_EXISTS) {
-  hydrar.session()
+if (!r4ml.env$R4ML_SESSION_EXISTS) {
+  r4ml.session()
 }

@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 # This class represents Cox proportional hazard (coxph) regression models.
-setClass("hydrar.coxph",
+setClass("r4ml.coxph",
          representation(
            tolerance = "numeric",
            iter.max.outer = "numeric",
@@ -24,7 +24,7 @@ setClass("hydrar.coxph",
            testStatistics = "data.frame",
            parameterStatistics = "data.frame",
            coxModel = "data.frame"),
-         contains = "hydrar.model"
+         contains = "r4ml.model"
 )
 
 #' Cox proportional hazards regression model
@@ -48,7 +48,7 @@ setClass("hydrar.coxph",
 #' \strong{Note}: All categorical column must be dummycoded, both timestamp and
 #' censor must be scale, and censor column must be binary.
 #' 
-#' @param data (hydrar.matrix) Input dataset
+#' @param data (r4ml.matrix) Input dataset
 #' @param formula (character) describes data columns used for survival analysis, e.g., Surv(Timestamp, Censor) ~ Age.
 #'              The left side of the formula indicates the timestamp and censor columns, 
 #'              while the right side indicates the grouping column(s) if any.
@@ -61,7 +61,7 @@ setClass("hydrar.coxph",
 #' @param iter.max.outer (numeric) Max. number of outer (Newton) iterations
 #' @param directory (character) The HDFS path to save the Cox model if input data is specified.
 #'        Otherwise, an HDFS location with a previously trained model to be loaded.
-#' @return An S4 object of class \code{hydrar.coxph} which contains the arguments above as well as the following additional fields:
+#' @return An S4 object of class \code{r4ml.coxph} which contains the arguments above as well as the following additional fields:
 #' 
 #'  \tabular{rlll}{
 ##'  \tab\code{conf.int}   \tab (numeric) \tab The level of two-sided confidence interval. The default value is 0.95\cr
@@ -85,33 +85,33 @@ setClass("hydrar.coxph",
 #'                   "Age"      = c(20, 17, 25, 52, 52, 52),
 #'                   "Timestamp"= c(1, 2, 3, 4, 5, 6))
 #' 
-#' surv <- as.hydrar.frame(surv)
+#' surv <- as.r4ml.frame(surv)
 #' 
-#' coxsurvdc <- hydrar.ml.preprocess(surv,
+#' coxsurvdc <- r4ml.ml.preprocess(surv,
 #'                                   transformPath = "/tmp",
 #'                                   dummycodeAttrs = c("Origin", "Gender"),
 #'                                   recodeAttrs = c("Origin", "Gender"))
 #' 
 #' cox_formula <-Surv(Timestamp, Censor) ~ Gender_1 + Gender_2 + Origin_1 + Origin_2 + Origin_3 + Age
 #' 
-#' cox_obj <- hydrar.coxph(formula = cox_formula,
+#' cox_obj <- r4ml.coxph(formula = cox_formula,
 #'                          data = coxsurvdc$data,
 #'                          baseline = list("Origin_1", "Origin_2", "Origin_3", "Gender_1", "Gender_2")
 #'                          )
 #' }
-#' @seealso \link{summary.hydrar.coxph}
-#' @seealso \link{predict.hydrar.coxph}
+#' @seealso \link{summary.r4ml.coxph}
+#' @seealso \link{predict.r4ml.coxph}
 #' @export
 #' 
-hydrar.coxph <- function(data,
+r4ml.coxph <- function(data,
                          formula,
                          baseline,
                          tolerance = 0.000001, # DML default
                          conf.int = 0.05, # DML default
                          iter.max.inner = 0, # DML default
                          iter.max.outer = 100, # DML default
-                         directory = file.path(tempdir(), "HydraR", "cox")) {
-  new("hydrar.coxph",
+                         directory = file.path(tempdir(), "R4ML", "cox")) {
+  new("r4ml.coxph",
       modelType = "other",
       data = data,
       directory = directory,
@@ -124,44 +124,44 @@ hydrar.coxph <- function(data,
       directory = directory)
 }
 
-setMethod("hydrar.model.validateTrainingParameters", signature="hydrar.coxph", def = 
+setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.coxph", def = 
             function(model, args) {
-              logSource <- "hydrar.model.validateTrainingParameters"
+              logSource <- "r4ml.model.validateTrainingParameters"
               with(args, {
-                .hydrar.checkParameter(logSource, formula, expectedClasses = "formula")
-                .hydrar.checkParameter(logSource, baseline, inheritsFrom = "list", isOptional = TRUE)
-                .hydrar.checkParameter(logSource, tolerance, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
-                .hydrar.checkParameter(logSource, conf.int, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
-                .hydrar.checkParameter(logSource, iter.max.inner, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
-                .hydrar.checkParameter(logSource, iter.max.outer, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
+                .r4ml.checkParameter(logSource, formula, expectedClasses = "formula")
+                .r4ml.checkParameter(logSource, baseline, inheritsFrom = "list", isOptional = TRUE)
+                .r4ml.checkParameter(logSource, tolerance, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
+                .r4ml.checkParameter(logSource, conf.int, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
+                .r4ml.checkParameter(logSource, iter.max.inner, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
+                .r4ml.checkParameter(logSource, iter.max.outer, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
                 
                 if(!missing(tolerance) && tolerance < 0) {
-                  hydrar.err(logSource, "Parameter tolerance must be a positive real number")
+                  r4ml.err(logSource, "Parameter tolerance must be a positive real number")
                   }
                 
                 if (!missing(conf.int) && (conf.int < 0 || conf.int > 1)) {
-                  hydrar.err(logSource, "Parameter conf.int must be a value between 0 and 1")
+                  r4ml.err(logSource, "Parameter conf.int must be a value between 0 and 1")
                 }
                 
                 if (!missing(iter.max.inner) && iter.max.inner < 0) {
-                  hydrar.err(logSource, "Parameter iter.max.inner must be a positive interger")
+                  r4ml.err(logSource, "Parameter iter.max.inner must be a positive interger")
                 }
                 
                 if (!missing(iter.max.outer) && iter.max.outer < 0) {
-                  hydrar.err(logSource, "Parameter iter.max.outer must be a positive interger")
+                  r4ml.err(logSource, "Parameter iter.max.outer must be a positive interger")
                   }
                 })
               
               return (model)
               })
       
-setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.coxph", def = 
+setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.coxph", def = 
             function(model, args) {
-              logSource <- "hydrar.model.buildTrainingArgs.coxph"
+              logSource <- "r4ml.model.buildTrainingArgs.coxph"
               with(args, {
               dmlArgs <- list(
                   X_orig = data,
-                  dml = file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_COX_SCRIPT),
+                  dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_COX_SCRIPT),
                   fmt = "csv",
                   "M",
                   "RT",
@@ -173,23 +173,23 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.coxph", def =
                   "TE_F")
                 
                 # time_status and feature-id paths
-                survTSFList <- hydrar.parseSurvivalArgsFromFormulaTree(formula, data, directory)
+                survTSFList <- r4ml.parseSurvivalArgsFromFormulaTree(formula, data, directory)
                 timeAndStatusIds <- survTSFList[[1]]
-                timeAndStatusIdsFrame <- as.hydrar.frame(data.frame(timeAndStatusIds), 
+                timeAndStatusIdsFrame <- as.r4ml.frame(data.frame(timeAndStatusIds), 
                                                          repartition = FALSE)
-                survTSMatrix <- as.hydrar.matrix(timeAndStatusIdsFrame)
+                survTSMatrix <- as.r4ml.matrix(timeAndStatusIdsFrame)
                 dmlArgs <- c(dmlArgs, TE = survTSMatrix)
                 
                 if (length(survTSFList) > 1) {
                   featureIds <- survTSFList[[2]]
                   
-                  survFrame <- as.hydrar.frame(as.data.frame(featureIds),
+                  survFrame <- as.r4ml.frame(as.data.frame(featureIds),
                                                repartition = FALSE)
-                  survFMatrix <- as.hydrar.matrix(survFrame)
+                  survFMatrix <- as.r4ml.matrix(survFrame)
                   
                   dmlArgs <- c(dmlArgs, F = survFMatrix)
                   } else {
-                    hydrar.err(logSource, "specify at least one feature")
+                    r4ml.err(logSource, "specify at least one feature")
                   }
                 
                 # adding baseline to the model
@@ -197,8 +197,8 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.coxph", def =
                   #adding feature-id path to the model
                   model@featureNames <- SparkR::colnames(data)
                   model@baseline <- as.character(baseline)
-                  baselineFrame <- hydrar.parseBaselineIds(baseline, data, directory)
-                  baselineMatrix <- as.hydrar.matrix(baselineFrame)
+                  baselineFrame <- r4ml.parseBaselineIds(baseline, data, directory)
+                  baselineMatrix <- as.r4ml.matrix(baselineFrame)
                   #@TODO check that only dummy coded columns can be baseline
                   dmlArgs <- c(dmlArgs, R = baselineMatrix)
                   } else {
@@ -233,7 +233,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature="hydrar.coxph", def =
 
 # overwrite the base model's post training function so that one can
 # post process the final outputs from the dml scripts
-setMethod("hydrar.model.postTraining", signature="hydrar.coxph", def =
+setMethod("r4ml.model.postTraining", signature="r4ml.coxph", def =
   function(model) {
     outputs <- model@dmlOuts$sysml.execute
 
@@ -295,10 +295,10 @@ setMethod("hydrar.model.postTraining", signature="hydrar.coxph", def =
 )
 
 setMethod(f = "show",
-          signature = "hydrar.coxph",
+          signature = "r4ml.coxph",
           definition = 
             function(object) {
-              logSource <- "hydrar.coxph"
+              logSource <- "r4ml.coxph"
               callNextMethod()
               cat("\n\nCox Model\n\n")
               print(object@coxModel)
@@ -308,10 +308,10 @@ setMethod(f = "show",
               print(object@parameterStatistics)
               }
 )
-#' @name summary.hydrar.coxph
+#' @name summary.r4ml.coxph
 #' @title Cox Summary
 #' @description Summarizes cox proportional hazard analysis
-#' @param object A cox model \code{hydrar.matrix}
+#' @param object A cox model \code{r4ml.matrix}
 #' @return Three matrices: Statistical parameters, tests and model
 #' @export
 #' @examples \dontrun{
@@ -323,26 +323,26 @@ setMethod(f = "show",
 #'                   "Age"      = c(20, 17, 25, 52, 52, 52),
 #'                   "Timestamp"= c(1, 2, 3, 4, 5, 6))
 #' 
-#' surv <- as.hydrar.frame(surv)
+#' surv <- as.r4ml.frame(surv)
 #' 
-#' coxsurvdc <- hydrar.ml.preprocess(surv,
+#' coxsurvdc <- r4ml.ml.preprocess(surv,
 #'                                   transformPath = "/tmp",
 #'                                   dummycodeAttrs = c("Origin", "Gender"),
 #'                                   recodeAttrs = c("Origin", "Gender"))
 #' 
 #' cox_formula <- Surv(Timestamp, Censor) ~ Gender_1 + Gender_2 + Origin_1 + Origin_2 + Origin_3 + Age
 #'
-#' cox_obj <- hydrar.coxph(formula = cox_formula,
+#' cox_obj <- r4ml.coxph(formula = cox_formula,
 #'                          data = coxsurvdc$data,
 #'                          baseline = list("Origin_1", "Origin_2", "Origin_3", "Gender_1", "Gender_2")
 #'                          )
 #'
 #' summary(cox_obj)
 #' }
-#' @seealso \code{\link{hydrar.coxph}}
-#' @seealso \link{predict.hydrar.coxph}
-summary.hydrar.coxph <- function(object) {
-  logSource <- "hydrar.coxph"
+#' @seealso \code{\link{r4ml.coxph}}
+#' @seealso \link{predict.r4ml.coxph}
+summary.r4ml.coxph <- function(object) {
+  logSource <- "r4ml.coxph"
   
   coxSummary <- list(cox_model = object@coxModel,
                      cox_stat_test = object@testStatistics,
@@ -351,9 +351,9 @@ summary.hydrar.coxph <- function(object) {
   return (coxSummary)
 }
 
-# Parse a list of baseline and store it in a hydrar.frame
-hydrar.parseBaselineIds <- function(baseline, data, directory) {
-  baselineIds <- hydrar.extractColsFromFormulaTree(baseline, data, delimiter = ",")
+# Parse a list of baseline and store it in a r4ml.frame
+r4ml.parseBaselineIds <- function(baseline, data, directory) {
+  baselineIds <- r4ml.extractColsFromFormulaTree(baseline, data, delimiter = ",")
   from <- c()
   to <- c()
   for (i in 1:length(baselineIds)) {
@@ -366,17 +366,17 @@ hydrar.parseBaselineIds <- function(baseline, data, directory) {
     }
   }
   
-  baselineIdsFrame <- as.hydrar.frame(data.frame(from, to), repartition = FALSE)
+  baselineIdsFrame <- as.r4ml.frame(data.frame(from, to), repartition = FALSE)
   return (baselineIdsFrame)
 }
 
-#' @name predict.hydrar.coxph
+#' @name predict.r4ml.coxph
 #' @export
 #' @title Predict method for Cox proportional hazards models
 #' @description This method allows to make linear, risk, and cumulative hazard predictions for each entry in the test data set.
-#' @param object (hydrar.coxph) The cox regression model
-#' @param data   (hydrar.matrix) The test data. Must be in the same format as the training data
-#' @return A hydrar.matrix with predictions for each row.
+#' @param object (r4ml.coxph) The cox regression model
+#' @param data   (r4ml.matrix) The test data. Must be in the same format as the training data
+#' @return A r4ml.matrix with predictions for each row.
 #' 
 #' @examples \dontrun{
 #' surv <- data.frame("Other"    = c(1, 2, 3, 4, 5, 6),
@@ -387,16 +387,16 @@ hydrar.parseBaselineIds <- function(baseline, data, directory) {
 #'                   "Age"      = c(20, 17, 25, 52, 52, 52),
 #'                   "Timestamp"= c(1, 2, 3, 4, 5, 6))
 #' 
-#' surv <- as.hydrar.frame(surv)
+#' surv <- as.r4ml.frame(surv)
 #' 
-#' coxsurvdc <- hydrar.ml.preprocess(surv,
+#' coxsurvdc <- r4ml.ml.preprocess(surv,
 #'                                   transformPath = "/tmp",
 #'                                   dummycodeAttrs = c("Origin", "Gender"),
 #'                                   recodeAttrs = c("Origin", "Gender"))
 #' 
 #' cox_formula <- Surv(Timestamp, Censor) ~ Gender_1 + Gender_2 + Origin_1 + Origin_2 + Origin_3 + Age
 #'
-#' cox_obj <- hydrar.coxph(formula = cox_formula,
+#' cox_obj <- r4ml.coxph(formula = cox_formula,
 #'                          data = coxsurvdc$data,
 #'                          baseline = list("Origin_1", "Origin_2", "Origin_3", "Gender_1", "Gender_2")
 #'                          )
@@ -407,31 +407,31 @@ hydrar.parseBaselineIds <- function(baseline, data, directory) {
 #'                       "Age" = c(65, 56, 45, 90),
 #'                       "Timestamp" = c(5, 6, 8, 9))
 #' 
-#' coxsurvpredbf <- as.hydrar.frame(coxpred)
+#' coxsurvpredbf <- as.r4ml.frame(coxpred)
 #' 
-#' coxsurvpredc <- hydrar.ml.preprocess(coxsurvpredbf,
+#' coxsurvpredc <- r4ml.ml.preprocess(coxsurvpredbf,
 #'                                   transformPath = "/tmp",
 #'                                   dummycodeAttrs = c("Origin", "Gender"),
 #'                                   recodeAttrs = c("Origin", "Gender"))
 #' 
-#' pred <- predict.hydrar.coxph(cox_obj, data = coxsurvpredc$data)
+#' pred <- predict.r4ml.coxph(cox_obj, data = coxsurvpredc$data)
 #'}
 #' 
-#' @seealso \link{summary.hydrar.coxph}
-#' @seealso \link{hydrar.coxph}
+#' @seealso \link{summary.r4ml.coxph}
+#' @seealso \link{r4ml.coxph}
 #' 
-predict.hydrar.coxph <- function(object, data) {
+predict.r4ml.coxph <- function(object, data) {
   
-  logSource <- "predict.hydrar.coxph"
+  logSource <- "predict.r4ml.coxph"
   
-  .hydrar.checkParameter(logSource, data, inheritsFrom = "hydrar.matrix", isOptional = FALSE)
+  .r4ml.checkParameter(logSource, data, inheritsFrom = "r4ml.matrix", isOptional = FALSE)
   
   if (is.null(object@dmlOuts$M) || is.null(object@dmlOuts$COV) || is.null(object@dmlOuts$RT) || is.null(object@dmlOuts$XO)) {
-    hydrar.err(logSource, "The model is incomplete. Some of the expected files are missing")
+    r4ml.err(logSource, "The model is incomplete. Some of the expected files are missing")
     }
   
   args <- list(Y_orig = data,
-               dml = file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_COX_PREDICT_SCRIPT),
+               dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_COX_PREDICT_SCRIPT),
                M = object@dmlOuts$M,
                RT_X = object@dmlOuts$RT,
                COV = object@dmlOuts$COV,
@@ -441,13 +441,13 @@ predict.hydrar.coxph <- function(object, data) {
                fmt = "csv")
     
   # execute cox predict dml script
-  hydrar.info(logSource, "Running DML")
-  hydrar.infoShow(logSource, args)
+  r4ml.info(logSource, "Running DML")
+  r4ml.infoShow(logSource, args)
   
   dmlOuts <- do.call("sysml.execute", args)
   prediction <- dmlOuts$P
   SparkR::colnames(prediction) <- c("lp", "se(lp)", "risk", "se(risk)", "cum.hazard", "se(cum.hazard)")
 
-  prediction <- as.hydrar.matrix(prediction)
+  prediction <- as.r4ml.matrix(prediction)
   return (prediction)
 }

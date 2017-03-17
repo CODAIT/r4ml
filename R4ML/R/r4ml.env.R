@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-message("Creating HydraR environment")
+message("Creating R4ML environment")
 
 # set the global environment to be used along with other codes
 #' @export
-hydrar.env <- new.env()
+r4ml.env <- new.env()
 
 # assign the global variables in the package environment
-with(hydrar.env, {
+with(r4ml.env, {
   # This package's name
-  PACKAGE_NAME <- "HydraR"
+  PACKAGE_NAME <- "R4ML"
 
   # LOG LEVEL constants
   DEFAULT_LOG_LEVEL <- "INFO"
@@ -31,11 +31,11 @@ with(hydrar.env, {
   # the log level when dml is executing
   SYSML_LOG_LEVEL <- "ERROR"
 
-  VERBOSE <- FALSE # for the more verbose output from HydraR
+  VERBOSE <- FALSE # for the more verbose output from R4ML
   
-  HYDRAR_SESSION_EXISTS <- FALSE
+  R4ML_SESSION_EXISTS <- FALSE
 
-  EMPTY_STRING_RECODE <- "hydrar::__empty_string__"
+  EMPTY_STRING_RECODE <- "r4ml::__empty_string__"
 
   # This controls, the block size of the system-ML internal binary # block matrix.
   # The decision on 1000x1000 blocks (in dense format = 8 MB) # is done after 
@@ -124,14 +124,14 @@ with(hydrar.env, {
 
 }) # End with
 
-# define the global utility function in the hydrar.env
-with(hydrar.env, {
+# define the global utility function in the r4ml.env
+with(r4ml.env, {
 
   # utility to find SystemML script locations
   SYSML_SCRIPT_ROOT <- function() {
     root <- Sys.getenv("SYSML_HOME")
     if (is.null(root) || root == "") {
-      root <- system.file("sysml", package="HydraR")
+      root <- system.file("sysml", package="R4ML")
     } else {
       root <- file.path(c(root, "scripts"))
     }
@@ -152,19 +152,19 @@ with(hydrar.env, {
   }
   
   SYSML_JARS <- function() {
-    sysml_jars <- file.path(system.file(package="HydraR"), "java", "SystemML.jar")
+    sysml_jars <- file.path(system.file(package="R4ML"), "java", "SystemML.jar")
     
     if (nchar(Sys.getenv("SYSML_HOME")) >= 1) {
       sysml_jars <- file.path(Sys.getenv("SYSML_HOME"), "target", "SystemML.jar")
     }
 
-    if (nchar(Sys.getenv("HYDRAR_SYSML_JAR")) >= 1) {
-      sysml_jars <- Sys.getenv("HYDRAR_SYSML_JAR")
+    if (nchar(Sys.getenv("R4ML_SYSML_JAR")) >= 1) {
+      sysml_jars <- Sys.getenv("R4ML_SYSML_JAR")
       message("using custom SystemML jar: ", sysml_jars)
     }
 
     if (!file.exists(sysml_jars)) {
-      stop("Unable to locate SystemML.jar. Set the location via environmental varible HYDRAR_SYSML_JAR")
+      stop("Unable to locate SystemML.jar. Set the location via environmental varible R4ML_SYSML_JAR")
     }
   
     return(sysml_jars)
@@ -174,16 +174,16 @@ with(hydrar.env, {
   # utility to find the location of the scratch workspace
   # this location is used for temporaty storage
   WORKSPACE_ROOT <- function(subdir="") {
-    fs_root <- hydrar.fs$user.home()
+    fs_root <- r4ml.fs$user.home()
     ws_root <- file.path(fs_root, PACKAGE_NAME, "scratch_workspace", subdir)
-    workspace <- hydrar.fs$tempdir(prefix=ws_root)
+    workspace <- r4ml.fs$tempdir(prefix=ws_root)
     return(workspace)
   }
   
   
   TESTTHAT_LONGTEST <- function() {
     # if TRUE unit test that take a long time will be run
-    if (Sys.getenv("HYDRAR_TESTTHAT_LONGTEST") == "1") {
+    if (Sys.getenv("R4ML_TESTTHAT_LONGTEST") == "1") {
       return(TRUE)
     }
     
@@ -192,7 +192,7 @@ with(hydrar.env, {
 
   TESTTHAT_EXAMPLES <- function() {
     # if TRUE unit test that take a long time will be run
-    if (Sys.getenv("HYDRAR_TESTTHAT_EXAMPLES") == "1") {
+    if (Sys.getenv("R4ML_TESTTHAT_EXAMPLES") == "1") {
       return(TRUE)
     }
   

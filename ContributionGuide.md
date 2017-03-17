@@ -1,14 +1,14 @@
 ## How to contribute 
 
-### Create a fork of HydraR
+### Create a fork of R4ML
 
-1) Fork the master https://github.com/SparkTC/spark-hydrar to your own repo (ex: https://github.com/aloknsingh/spark-hydrar)
+1) Fork the master https://github.com/SparkTC/R4ML to your own repo (ex: https://github.com/aloknsingh/R4ML)
 
-2) Clone the resipatory using git clone. (See https://github.com/SparkTC/spark-hydrar#hydrar-development-and-usages)
+2) Clone the resipatory using git clone. (See https://github.com/SparkTC/R4ML#r4ml-development-and-usages)
 
 3) Add the upstream
   ```
-    git remote add upstream https://github.com/SparkTC/spark-hydrar
+    git remote add upstream https://github.com/SparkTC/R4ML
   ```
   
 ### Local development 
@@ -19,7 +19,7 @@ git checkout -b <GITHUB_USER_ID>_<JIRA_ID><OPTIONAL_STRING>
 ```
 For example:
 ```
-git checkout -b aloknsingh_REQS-117
+git checkout -b aloknsingh_R4ML-117
 ```
 2) Make the necessary changes to the source code
 

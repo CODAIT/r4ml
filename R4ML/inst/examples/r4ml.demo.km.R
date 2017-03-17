@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 # limitations under the License.
 #
 
-library(HydraR)
-hydrar.session()
+library(R4ML)
+r4ml.session()
 
 # Choose dataset size
 
@@ -23,33 +23,33 @@ df_max_size = 90000
 # df_max_size = 30
 
 # Create Dataset
-hf <- hydrar.data.gen.km(df_max_size)
+hf <- r4ml.data.gen.km(df_max_size)
 ignore <- cache(hf)
 
 # Preprocessing
-survhf <- hydrar.ml.preprocess(
+survhf <- r4ml.ml.preprocess(
   hf,
   transformPath = "/tmp",
   binningAttrs = "X",
   numBins=10
 )
 
-# Transform data to hydrar matrix
-survMatrix <- as.hydrar.matrix(survhf$data)
+# Transform data to r4ml matrix
+survMatrix <- as.r4ml.matrix(survhf$data)
 ignore <- cache(survMatrix)
 
 # Establish formula for parsing
 survFormula <- Surv(Timestamp, Censor) ~ Age
 
 # Run kaplan meier on generated data
-km <- hydrar.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
+km <- r4ml.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
                          
 # Produce Summary                          
 summary <- summary(km)
 
 # Compute Test Statistics
-test = hydrar.kaplan.meier.test(km)
+test = r4ml.kaplan.meier.test(km)
 
-# exit R/HydraR
-hydrar.session.stop()
+# exit R/R4ML
+r4ml.session.stop()
 quit("no")

@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,31 +14,31 @@
 # limitations under the License.
 #
 
-test_that("hydrar.kaplan.meier summary", {
+test_that("r4ml.kaplan.meier summary", {
   surv <- data.frame(Timestamp=c(1,2,3,4,5,6,7,8,9), Censor=c(1,0,0,1,1,0,0,1,0),Race=c(1,0,0,2,6,2,0,0,0),Origin=c(2,0,0,15,0,2,0,0,0),Age=c(50,52,50,52,52,50,20,50,52))
-  survFrame <- as.hydrar.frame(surv)
-  survMatrix <- as.hydrar.matrix(survFrame)
+  survFrame <- as.r4ml.frame(surv)
+  survMatrix <- as.r4ml.matrix(survFrame)
   ml.coltypes(survMatrix) <- c("scale", "nominal", "nominal", "scale", "nominal") 
   survFormula <- Surv(Timestamp, Censor) ~ Age
-  km <- hydrar.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
+  km <- r4ml.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
   summary(km)
 })
 
-test_that("hydrar.kaplan.meier tests", {
+test_that("r4ml.kaplan.meier tests", {
   surv <- data.frame(Timestamp = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                      Censor = c(1, 0, 0, 1, 1, 0, 0, 1, 0),
                      Race = c(1, 0, 0, 2, 6, 2, 0, 0, 0),
                      Age = c(50, 52, 50, 52, 52, 50, 20, 50, 52))
 
-  survFrame <- as.hydrar.frame(surv, repartition = FALSE)
-  survMatrix <- as.hydrar.matrix(survFrame)
+  survFrame <- as.r4ml.frame(surv, repartition = FALSE)
+  survMatrix <- as.r4ml.matrix(survFrame)
 
   survFormula <- Surv(Timestamp, Censor) ~ Race + Age
 
-  km <- hydrar.kaplan.meier(survFormula, data = survMatrix,
+  km <- r4ml.kaplan.meier(survFormula, data = survMatrix,
                             test.type = "wilcoxon")
   summary <- summary(km)
-  test <- hydrar.kaplan.meier.test(km)
+  test <- r4ml.kaplan.meier.test(km)
 
   km_test_full <- SparkR::as.data.frame(test$km_test_full)
   km_test_chsqr <- SparkR::as.data.frame(test$km_test_chsqr)
@@ -48,34 +48,34 @@ test_that("hydrar.kaplan.meier tests", {
 })
 
 
-test_that("hydrar.kaplan.meier none", {
+test_that("r4ml.kaplan.meier none", {
   surv <- data.frame(Timestamp=c(1,2,3,4,5,6,7,8,9), Censor=c(1,0,0,1,1,0,0,1,0),Race=c(1,0,0,2,6,2,0,0,0),Origin=c(2,0,0,15,0,2,0,0,0),Age=c(50,52,50,52,52,50,20,50,52))
-  survFrame <- as.hydrar.frame(surv)
-  survMatrix <- as.hydrar.matrix(survFrame)
+  survFrame <- as.r4ml.frame(surv)
+  survMatrix <- as.r4ml.matrix(survFrame)
   ml.coltypes(survMatrix) <- c("scale", "nominal", "nominal", "scale", "nominal") 
   survFormula <- Surv(Timestamp, Censor) ~ Age
-  km <- hydrar.kaplan.meier(survFormula, data = survMatrix, test.type = "none")
+  km <- r4ml.kaplan.meier(survFormula, data = survMatrix, test.type = "none")
   summary <- summary(km)
   
-  expect_error(hydrar.kaplan.meier.test(km))
+  expect_error(r4ml.kaplan.meier.test(km))
 })
 
-test_that("hydrar.kaplan.meier log-rank", {
+test_that("r4ml.kaplan.meier log-rank", {
   surv <- data.frame(Timestamp = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                      Censor = c(1, 0, 0, 1, 1, 0, 0, 1, 0),
                      Race = c(1, 0, 0, 2, 6, 2, 0, 0, 0),
                      Age = c(50, 52, 50, 52, 52, 50, 20, 50, 52))
 
-  survFrame <- as.hydrar.frame(surv, repartition = FALSE)
-  survMatrix <- as.hydrar.matrix(survFrame)
+  survFrame <- as.r4ml.frame(surv, repartition = FALSE)
+  survMatrix <- as.r4ml.matrix(survFrame)
 
   survFormula <- Surv(Timestamp, Censor) ~ Race + Age
 
   formula <- Surv(time, status) ~ age + ph_karno + pat_karno + wt_loss
-  km <- hydrar.kaplan.meier(survFormula, data = survMatrix,
+  km <- r4ml.kaplan.meier(survFormula, data = survMatrix,
                             test.type = "log-rank")
   summary <- summary(km)
-  test = hydrar.kaplan.meier.test(km)
+  test = r4ml.kaplan.meier.test(km)
   
   km_test_full <- SparkR::as.data.frame(test$km_test_full)
   km_test_chsqr <- SparkR::as.data.frame(test$km_test_chsqr)
@@ -84,7 +84,7 @@ test_that("hydrar.kaplan.meier log-rank", {
   expect_equal(dim(km_test_chsqr), c(1, 4))
 })
 
-test_that("hydrar.kaplan.meier accuracy", {
+test_that("r4ml.kaplan.meier accuracy", {
   
   df <- survival::lung
   df$inst <- NULL
@@ -95,12 +95,12 @@ test_that("hydrar.kaplan.meier accuracy", {
 
   df$status <- df$status - 1
   
-  hf <- as.hydrar.matrix(df)
+  hf <- as.r4ml.matrix(df)
 
   library("survival")
   formula <- Surv(time, status) ~ age + ph_karno + pat_karno + wt_loss
 
-  h_km <- hydrar.kaplan.meier(hf, formula)
+  h_km <- r4ml.kaplan.meier(hf, formula)
   r_km <- survival::survfit(formula = formula, data = df, conf.type = "log",
                             conf.int = .95)
   
@@ -114,7 +114,7 @@ test_that("hydrar.kaplan.meier accuracy", {
 
 })
 
-test_that("hydrar.kaplan.meier input validation", {
+test_that("r4ml.kaplan.meier input validation", {
   df <- survival::lung[1:10, ]
   df$inst <- NULL
   df$sex <- NULL
@@ -127,13 +127,13 @@ test_that("hydrar.kaplan.meier input validation", {
 
   df_good$status <- df_good$status - 1
 
-  hf_bad <- as.hydrar.matrix(df_bad)
-  hf_good <- as.hydrar.matrix(df_good)
+  hf_bad <- as.r4ml.matrix(df_bad)
+  hf_good <- as.r4ml.matrix(df_good)
 
   formula <- Surv(time, status) ~ age + ph_karno + pat_karno + wt_loss
 
-  hkm <- hydrar.kaplan.meier(hf_good, formula)
+  hkm <- r4ml.kaplan.meier(hf_good, formula)
 
-  expect_error(hydrar.kaplan.meier(hf_bad, formula))
-  hydrar.kaplan.meier(hf_good, formula)
+  expect_error(r4ml.kaplan.meier(hf_bad, formula))
+  r4ml.kaplan.meier(hf_good, formula)
 })

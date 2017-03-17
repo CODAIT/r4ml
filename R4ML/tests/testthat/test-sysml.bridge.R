@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ test_that("sysml.MatrixCharacteristics", {
 test_that("sysml.RDDConverterUtils", {
   aq_ozone <- airquality$Ozone
   aq_ozone[is.na(aq_ozone)] <- 0
-  aq_ozone_df <- as.hydrar.matrix(as.data.frame(aq_ozone))
-  mc <- HydraR:::sysml.MatrixCharacteristics$new(count(aq_ozone_df), 1, 10, 1)
-  rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
+  aq_ozone_df <- as.r4ml.matrix(as.data.frame(aq_ozone))
+  mc <- R4ML:::sysml.MatrixCharacteristics$new(count(aq_ozone_df), 1, 10, 1)
+  rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
   sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
 })
 
@@ -44,14 +44,14 @@ test_that("sysml.MLContext sample data",{
   as.data.frame(v)
   tdf=as.data.frame(v)
   dv=as.data.frame(v)
-  dv_df <- as.hydrar.matrix(as.hydrar.frame(dv, repartition = FALSE))
+  dv_df <- as.r4ml.matrix(as.r4ml.frame(dv, repartition = FALSE))
   
-  mc <- HydraR:::sysml.MatrixCharacteristics$new(count(dv_df), 1, 10,1)
-  rdd_utils<- HydraR:::sysml.RDDConverterUtils$new()
-  mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
+  mc <- R4ML:::sysml.MatrixCharacteristics$new(count(dv_df), 1, 10,1)
+  rdd_utils<- R4ML:::sysml.RDDConverterUtils$new()
+  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
   mlc$reset()
   sysml_jrdd=rdd_utils$dataFrameToBinaryBlock(dv_df, mc)
-  mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
+  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
   dml = '
   fileX = ""
   fileO = 1
@@ -81,7 +81,7 @@ test_that("sysml.MLContext sample data",{
 # test the Bridge to the SystemML MLContext . To be removed eventually
 test_that("sysml.MLContext Short data", {
   cat("testing sysml.MLContext...")
-  mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
+  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
   dml = '
     fileX = ""
     fileO = ""
@@ -91,11 +91,11 @@ test_that("sysml.MLContext Short data", {
   '
   aq_ozone <- airquality$Ozone
   aq_ozone[is.na(aq_ozone)] <- 0
-  aq_ozone_df <- as.hydrar.matrix(as.data.frame(aq_ozone))
+  aq_ozone_df <- as.r4ml.matrix(as.data.frame(aq_ozone))
   
   x_cnt = SparkR:::count(aq_ozone_df)
-  mc <- HydraR:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
-  rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
+  mc <- R4ML:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
+  rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
   sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
   mlc$reset()
   mlc$registerInput("X", sysml_jrdd, mc)
@@ -109,7 +109,7 @@ test_that("sysml.MLContext Short data", {
 # test the Bridge to the SystemML MLContext . To be removed eventually
 test_that("sysml.MLContext Exception handling test", {
   cat("testing sysml.MLContext...")
-  mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
+  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
   dml = '
     fileX = ""
     fileO = ""
@@ -119,12 +119,12 @@ test_that("sysml.MLContext Exception handling test", {
   '
   aq_ozone <- airquality$Ozone
   aq_ozone[is.na(aq_ozone)] <- 0
-  aq_ozone_df <- as.hydrar.matrix(as.hydrar.frame(as.data.frame(aq_ozone),
+  aq_ozone_df <- as.r4ml.matrix(as.r4ml.frame(as.data.frame(aq_ozone),
                                                   repartition = FALSE))
 
   x_cnt = SparkR:::count(aq_ozone_df)
-  mc <- HydraR:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
-  rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
+  mc <- R4ML:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
+  rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
   sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
   mlc$reset()
   mlc$registerInput("X", sysml_jrdd, mc)
@@ -137,8 +137,8 @@ test_that("sysml.MLContext Exception handling test", {
 
 # test the Bridge to the SystemML MLContext. To be removed eventually
 test_that("sysml.MLContext Long", {
-  if (hydrar.env$TESTTHAT_LONGTEST() == TRUE) {
-    mlc = HydraR:::sysml.MLContext$new(sysmlSparkContext)
+  if (r4ml.env$TESTTHAT_LONGTEST() == TRUE) {
+    mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
     dml = '
     fileX = ""
     fileO = ""
@@ -146,7 +146,7 @@ test_that("sysml.MLContext Long", {
     O = X*2
     write(O, fileO)
     '
-    airr <- HydraR::airline
+    airr <- R4ML::airline
     airrt <- airr$Distance
     airrt[is.na(airrt)] <- 0
     airrtd <- as.data.frame(airrt)
@@ -154,9 +154,9 @@ test_that("sysml.MLContext Long", {
 
     X_cnt <- SparkR::count(air_dist)
     #X_rdd <- SparkR:::toRDD(air_dist)
-    X_mc <- HydraR:::sysml.MatrixCharacteristics$new(X_cnt, 1, 10, 1)
-    rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
-    air_dist <- as.hydrar.matrix(air_dist)
+    X_mc <- R4ML:::sysml.MatrixCharacteristics$new(X_cnt, 1, 10, 1)
+    rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
+    air_dist <- as.r4ml.matrix(air_dist)
     bb_df <- rdd_utils$dataFrameToBinaryBlock(air_dist, X_mc)
     mlc$reset()
     mlc$registerInput("X", bb_df, X_mc)
@@ -174,7 +174,7 @@ test_that("sysml.MLOutput",{
   #@TODO
 })
 
-# test the helper function for executing systemML dml via the hydrar.matrix
+# test the helper function for executing systemML dml via the r4ml.matrix
 test_that("sysml.execute", {
   cat("testing sysml.execute")
   warning("testing for sysml.execute is not implemented yet")

@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
 # limitations under the License.
 #
 
-# load library HydraR
-library(HydraR)
-hydrar.session()
+# load library R4ML
+library(R4ML)
+r4ml.session()
 
 # example paths for custom dataset
 # path = "/user/data-scientist/airline/1987.csv"
 #path = "/user/data-scientist/airline/*1987.csv"
-# df <- HydraR:::hydrar.read.csv(path, inferSchema=TRUE, header=TRUE)
+# df <- R4ML:::r4ml.read.csv(path, inferSchema=TRUE, header=TRUE)
 
 # we would like to limit the dataset to a size so that we can run test faster
 # df_max_size <- 100
@@ -33,19 +33,19 @@ response <- c("Cancelled")
 D_names <- append(predictors, response)
 
 # read in data
-airline_hf = as.hydrar.frame(airline)
+airline_hf = as.r4ml.frame(airline)
 
 # limit the number of rows so that we can control the size
 airline_hf <- limit(airline_hf, df_max_size)
 ignore <- cache(airline_hf)
 
-#convert to hydrar frame
+#convert to r4ml frame
 airline_hf <- SparkR::select(airline_hf, D_names)
-airline_hf <- as.hydrar.frame(airline_hf)
+airline_hf <- as.r4ml.frame(airline_hf)
 ignore <- cache(airline_hf)
 
 # preprocessing
-airline_transform <- hydrar.ml.preprocess(
+airline_transform <- r4ml.ml.preprocess(
   airline_hf,
   transformPath = "/tmp",
   recodeAttrs=D_names,
@@ -56,18 +56,18 @@ airline_transform <- hydrar.ml.preprocess(
 )
 
 # sample dataset into train and test
-sampled_data <- hydrar.sample(airline_transform$data, perc=c(0.7, 0.3))
+sampled_data <- r4ml.sample(airline_transform$data, perc=c(0.7, 0.3))
 # collect metadata
 metadata <- airline_transform$metadata
-train <- as.hydrar.matrix(sampled_data[[1]])
+train <- as.r4ml.matrix(sampled_data[[1]])
 ignore <- cache(train)
 
 # create logistic regression model
 ml.coltypes(train) <- c(rep("scale", length(names(train))-1), "nominal")
-logistic_regression = hydrar.mlogit(Cancelled ~ ., data=train)
+logistic_regression = r4ml.mlogit(Cancelled ~ ., data=train)
 
 # compute predictions on new data
-test <- as.hydrar.matrix(sampled_data[[2]])
+test <- as.r4ml.matrix(sampled_data[[2]])
 ignore <- cache(test)
 pred <- predict(logistic_regression, test)
 # To print all outputs, just call pred
@@ -75,6 +75,6 @@ pred$probabilities[1:10,]
 pred$statistics
 
 
-# exit R/HydraR
-hydrar.session.stop()
+# exit R/R4ML
+r4ml.session.stop()
 quit("no")

@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
 # limitations under the License.
 #
 
-#load the hydrar 
-library(HydraR)
-hydrar.session()
+#load the r4ml 
+library(R4ML)
+r4ml.session()
 
 # these are the different dataset we will analysis
 # path <- "/user/data-scientist/airline/1987.csv"
@@ -39,21 +39,21 @@ D_names <- append(X_names, Y_names)
 
 ## use the following for the custom dataset
 # path <- "/user/data-scientist/airline/1987.csv"
-# df <- HydraR:::hydrar.read.csv(path, inferSchema=TRUE, header=TRUE)
+# df <- R4ML:::r4ml.read.csv(path, inferSchema=TRUE, header=TRUE)
 
-# this example use the airline dataset shipped with HydraR
-df <- as.hydrar.frame(airline)
+# this example use the airline dataset shipped with R4ML
+df <- as.r4ml.frame(airline)
 
 # limit the number of rows so that we can control the size
 df <- limit(df, df_max_size)
 ignore <- cache(df) # very important step otherwise the partition gets screw up
 
-# convert to the hydrar frame
+# convert to the r4ml frame
 df <- SparkR::select(df, D_names)
 ignore <- cache(df)
-hf = as.hydrar.frame(df)
+hf = as.r4ml.frame(df)
 # do the preprocess of the data set
-phf_info <- hydrar.ml.preprocess(
+phf_info <- r4ml.ml.preprocess(
   hf
   ,transformPath = "/tmp"
   ,recodeAttrs=D_names
@@ -69,9 +69,9 @@ phf <- phf_info$data
 pmdb <- phf_info$metadata
 
 # sample the dataset into the train and test
-hm <- as.hydrar.matrix(phf)
+hm <- as.r4ml.matrix(phf)
 ignore <- cache(hm)
-rsplit <- hydrar.sample(hm, c(0.7, 0.3))
+rsplit <- r4ml.sample(hm, c(0.7, 0.3))
 
 train_hm <- rsplit[[1]]
 test_hm <- rsplit[[2]]
@@ -82,10 +82,10 @@ ignore <- cache(train_hm)
 # follows note if there is no dummy coding we can just do 
 # ml.coltypes(train_hm) <- c("scale", "scale", "scale", "scale", "nominal")
 ml.coltypes(train_hm) <- c(rep("scale", length(names(train_hm))-1), "nominal")
-svm_m <- hydrar.svm(Cancelled ~ . , data = train_hm, is.binary.class = TRUE)
+svm_m <- r4ml.svm(Cancelled ~ . , data = train_hm, is.binary.class = TRUE)
 
 # the following is for the non binary response
-#svm_m <- hydrar.svm(Cancelled ~ . , data = train_hm)
+#svm_m <- r4ml.svm(Cancelled ~ . , data = train_hm)
 
 # run the prediction
 ignore <- cache(test_hm)
@@ -93,6 +93,6 @@ preds <- predict(svm_m, test_hm)
 # To print all outputs, just call preds
 head(preds$scores)
 
-# exit R/HydraR
-hydrar.session.stop()
+# exit R/R4ML
+r4ml.session.stop()
 quit("no")

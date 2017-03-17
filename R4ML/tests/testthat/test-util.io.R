@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,28 +17,28 @@
 library(testthat)
 context("Testing util.io\n")
 
-test_that("hydrar.fs", {
-  if(HydraR:::hydrar.fs.mode() == "local") {
-    expect_true(HydraR:::is.hydrar.fs.local())
-    expect_false(HydraR:::is.hydrar.fs.cluster())
+test_that("r4ml.fs", {
+  if(R4ML:::r4ml.fs.mode() == "local") {
+    expect_true(R4ML:::is.r4ml.fs.local())
+    expect_false(R4ML:::is.r4ml.fs.cluster())
   }
   
-  if(HydraR:::hydrar.fs.mode() == "cluster") {
-    expect_true(HydraR:::is.hydrar.fs.cluster())
-    expect_false(HydraR:::is.hydrar.fs.local())
+  if(R4ML:::r4ml.fs.mode() == "cluster") {
+    expect_true(R4ML:::is.r4ml.fs.cluster())
+    expect_false(R4ML:::is.r4ml.fs.local())
   }
   
 })
 
-test_that("hydrar.read.csv", {
-  if (HydraR:::is.hydrar.fs.local()) {
+test_that("r4ml.read.csv", {
+  if (R4ML:::is.r4ml.fs.local()) {
     
     seperators <- c(" ", ",", ":", "|")
   
     for (i in 1:NROW(seperators)) {
       tmp_file <- paste0(tempfile(), ".csv")
       write.table(iris, file = tmp_file, sep = seperators[i], row.names = FALSE)
-      df <- hydrar.read.csv(tmp_file, header = TRUE, sep = seperators[i])
+      df <- r4ml.read.csv(tmp_file, header = TRUE, sep = seperators[i])
       expect_equal(nrow(df), nrow(iris))
       expect_equal(ncol(df), ncol(iris))
       expect_true(all(df == iris))
@@ -46,8 +46,8 @@ test_that("hydrar.read.csv", {
 
   }
   
-  if (HydraR:::is.hydrar.fs.cluster()) {
-    warning("test hydrar.read.csv() is not implemented in cluster mode yet")
+  if (R4ML:::is.r4ml.fs.cluster()) {
+    warning("test r4ml.read.csv() is not implemented in cluster mode yet")
     #@TODO
   }
   
@@ -55,7 +55,7 @@ test_that("hydrar.read.csv", {
 
 
 test_that("Logging", {
-  log <- HydraR:::Logging$new();
+  log <- R4ML:::Logging$new();
   
   # default levels
   level <- log$getLevel();
@@ -65,7 +65,7 @@ test_that("Logging", {
   log$setLevel("FATAL")
   expect_equal("FATAL", log$getLevel())
   
-  # java and hydraR level should change
+  # java and r4ml level should change
   expect_equal("FATAL", log$getLevel())
   expect_equal("ERROR", log$getLevel(is_java=TRUE))
   
@@ -95,7 +95,7 @@ test_that("Logging", {
 
 test_that("FileSystem", {
   # test the linux file system
-  lfs <- HydraR:::FileSystem$new()
+  lfs <- R4ML:::FileSystem$new()
   
   # create the unique file name
   uu_name <- lfs$uu_name();
@@ -106,13 +106,13 @@ test_that("FileSystem", {
 })
 
 test_that("LinuxFS", {
-  if (!is.hydrar.fs.local()) {
+  if (!is.r4ml.fs.local()) {
     skip("LinuxFS runs only in the local mode")
     return
   }
   
   # linux file system
-  lfs <- HydraR:::LinuxFS$new()
+  lfs <- R4ML:::LinuxFS$new()
   
   # create the unique file name
   uu_name <- lfs$uu_name();
@@ -142,13 +142,13 @@ test_that("LinuxFS", {
 
 test_that("HadoopFS", {
   # test the hadoop file system
-  if (!is.hydrar.fs.cluster()) {
+  if (!is.r4ml.fs.cluster()) {
     skip("HadoopFS runs only in the cluster mode")
     return
   }
   
   # hadoop filesystem
-  hfs <- HydraR:::HadoopFS$new()
+  hfs <- R4ML:::HadoopFS$new()
   
   # create the unique file name
   uu_name <- hfs$uu_name();

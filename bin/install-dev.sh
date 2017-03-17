@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 # limitations under the License.
 #
 
-# This scripts packages the HydraR source files (R and C files) and
+# This scripts packages the R4ML source files (R and C files) and
 # creates a package that can be loaded in R. The package is by default installed to
 # $FWDIR/lib and the package can be loaded by using the following command in R:
 #
-#   library(HydraR, lib.loc="$FWDIR/lib")
+#   library(R4ML, lib.loc="$FWDIR/lib")
 #
 # NOTE(shivaram): Right now we use $SPARK_HOME/R/lib to be the installation directory
 # to load the SparkR package on the worker nodes.
@@ -30,15 +30,15 @@ set -e
 
 FWDIR="$(cd `dirname $0`/../; pwd)"
 LIB_DIR="$FWDIR/lib"
-PKG_NAME="HydraR"
+PKG_NAME="R4ML"
 
 mkdir -p $LIB_DIR
 
 pushd $FWDIR > /dev/null
 
 # Generate Rd files if devtools is installed
-Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::document(pkg="HydraR", roclets=c("rd")) }'
-#Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::document(pkg="HydraR") }'
+Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::document(pkg="R4ML", roclets=c("rd")) }'
+#Rscript -e ' if("devtools" %in% rownames(installed.packages())) { library(devtools); devtools::document(pkg="R4ML") }'
 
 # Install SparkR to $LIB_DIR
 R CMD INSTALL --library=$LIB_DIR $FWDIR/$PKG_NAME

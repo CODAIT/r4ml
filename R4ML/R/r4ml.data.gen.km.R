@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 #
 
 
-#' @name hydrar.data.gen.km
+#' @name r4ml.data.gen.km
 #' @title Kaplan-Meier Data Generation
 #' @export
 #' @param N (numeric) number of observations
@@ -30,25 +30,25 @@
 #' @examples \dontrun{
 #' 
 #' # Create Dataset
-#' surv <- hydrar.data.gen.km(30)
+#' surv <- r4ml.data.gen.km(30)
 #' 
-#' # Transform data to hydrar matrix
-#' survMatrix <- as.hydrar.matrix(surv)
+#' # Transform data to r4ml matrix
+#' survMatrix <- as.r4ml.matrix(surv)
 #' 
 #' # Establish formula for parsing
 #' survFormula <- Surv(Timestamp, Censor) ~ Age
 #' 
 #' # Run kaplan meier on generated data
-#' km <- hydrar.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
+#' km <- r4ml.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
 #'                           
 #' # Produce Summary                          
 #' summary <- summary(km)
 #' 
 #' # Compute Test Statistics
-#' test <- hydrar.kaplan.meier.test(km)
+#' test <- r4ml.kaplan.meier.test(km)
 #' 
 #' }
-hydrar.data.gen.km <- function(N, P=3, weibA=1.5, weibB=100,
+r4ml.data.gen.km <- function(N, P=3, weibA=1.5, weibB=100,
   IVeff=c(0, -1, 1.5), obsLen=120) {
   # N - number of observations
   # P - number of groups
@@ -102,7 +102,7 @@ hydrar.data.gen.km <- function(N, P=3, weibA=1.5, weibB=100,
   dfSurv$Origin <- ceiling(runif(N, -1, 2))
   
   # Return dataset
-  as.hydrar.frame(dfSurv)
+  as.r4ml.frame(dfSurv)
 }
 
 

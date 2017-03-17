@@ -1,12 +1,12 @@
-Package: HydraR
+Package: R4ML
 Type: Package
-Title: Distributed R Based on Apache SparkR and Apache SystemML
+Title: Scalable R Based on Distributed Apache SparkR and Apache SystemML
 Version: 0.8.0
 Date: 2017-02-28
 Author: IBM Spark Technology Center
 Maintainer: Alok Singh <singh_alok@hotmail.com>
 Description: Distributed R based on the Apache SparkR and Apache SystemML.
-URL: https://github.com/SparkTC/spark-hydrar/
+URL: https://github.com/SparkTC/R4ML/
 LazyData: TRUE
 Depends:
     R(>= 3.0.0),
@@ -23,17 +23,15 @@ Suggests:
 License: Apache License (== 2.0)
 Collate:
     'zzz.R'
-    'HydraR.R'
+    'R4ML.R'
     'airline.R'
-    'hydrar.data.gen.km.R'
-    'hydrar.env.R'
-    'hydrar.vector.R'
-    'hydrar.frame.R'
-    'hydrar.generic.R'
-    'hydrar.matrix.R'
-    'hydrar.sampling.R'
     'java.bridge.R'
+    'r4ml.env.R'
     'util.commons.R'
+    'r4ml.vector.R'
+    'r4ml.frame.R'
+    'r4ml.matrix.R'
+    'r4ml.generic.R'
     'ml.model.base.R'
     'ml.model.als.R'
     'ml.model.cox.R'
@@ -45,6 +43,8 @@ Collate:
     'ml.model.step.lm.R'
     'ml.model.svm.R'
     'ml.preprocess.R'
+    'r4ml.data.gen.km.R'
+    'r4ml.sampling.R'
     'sparkr.bridge.R'
     'sysml.bridge.R'
     'util.io.R'

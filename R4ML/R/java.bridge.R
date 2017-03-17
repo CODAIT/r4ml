@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ log4j.Logger <- setRefClass("log4j.Logger",
 #' @field env An R environment that stores bookkeeping states of the class
 #'        along with java ref corresponding to jvm
 #' @examples \dontrun{
-#'    ja <- HydraR:::java.ArrayList$new()
+#'    ja <- R4ML:::java.ArrayList$new()
 #'    ja$add("a")
 #'}
 #'

@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,21 +16,21 @@
 # This class represents a Kaplan-Meier model
 #' @include ml.model.base.R
 #' @include zzz.R
-setClass("hydrar.kaplan.meier",
+setClass("r4ml.kaplan.meier",
          representation(
            conf.int = "numeric",
            summary = "list",
-           median = "hydrar.matrix",
+           median = "r4ml.matrix",
            testPath = "character",
            dataColNames = "vector",
            groupNames = "vector",
            strataNames = "vector"
-         ), contains = "hydrar.model"
+         ), contains = "r4ml.model"
 )
-#' @name hydrar.kaplan.meier
+#' @name r4ml.kaplan.meier
 #' @title Kaplan-Meier Analysis
 #' @export
-#' @description Fits a Kaplan-Meier model from a hydrar.matrix
+#' @description Fits a Kaplan-Meier model from a r4ml.matrix
 #' @details Kaplan-Meier analysis is a non-parametric statistical estimator which can be applied to survival data.
 #' It is often used to estimate the proportion of living/survived objects/patients during certain time period of time.
 #' This implementation allows a user to calculate the survival function and the median of survival timestamps, as well as 
@@ -43,7 +43,7 @@ setClass("hydrar.kaplan.meier",
 #' - \emph{Strata column(s)}: (optional)\cr
 #' - \emph{Grouping column(s)}: (optional)\cr
 #'
-#' @param data (hydrar.matrix) Input dataset
+#' @param data (r4ml.matrix) Input dataset
 #' @param formula (character) describes data columns used for survival analysis, e.g., Surv(Timestamp, Censor) ~ Age.
 #'              The left side of the formula indicates the timestamp and censor columns, 
 #'              while the right side indicates the grouping column(s) if any.
@@ -56,7 +56,7 @@ setClass("hydrar.kaplan.meier",
 #'            multiple groups: "none" (the default), "log-rank", or "wilcoxon"
 #' @param directory (character) The path to save the Kaplan-Meier model if input data is specified. 
 #' @param input.check (logical) if FALSE parameter validation is skipped
-#' @return An S4 object of class \code{hydrar.kaplan.meier} which contains the arguments above as well as the following additional fields:
+#' @return An S4 object of class \code{r4ml.kaplan.meier} which contains the arguments above as well as the following additional fields:
 #' 
 #'  \tabular{rlll}{
 ##'  \tab\code{conf.int}   \tab (numeric) \tab The level of two-sided confidence interval. The default value is 0.95.\cr
@@ -65,7 +65,7 @@ setClass("hydrar.kaplan.meier",
 ##'  \tab\code{groupNames}  \tab (vector) \tab A list of column names which are used in grouping \cr
 ##'  \tab\code{strataNames} \tab (vector) \tab A list of column names which are used as strata \cr
 ##'  \tab\code{dataColNames} \tab (vector) \tab The column names of original survival dataset \cr
-##'  \tab\code{modelPath}    \tab (character) \tab location where the \code{hydrar.transform()} metadata are stored \cr
+##'  \tab\code{modelPath}    \tab (character) \tab location where the \code{r4ml.transform()} metadata are stored \cr
 ##'  \tab\code{call}         \tab (character) \tab String representation of this method's call, including the parameters and values passed to it.\cr
 #'  }  
 #'
@@ -80,72 +80,72 @@ setClass("hydrar.kaplan.meier",
 #'               Race=c(1,0,0,2,6,2,0,0,0), Origin=c(2,0,0,15,0,2,0,0,0),
 #'               Age=c(50,52,50,52,52,50,20,50,52))
 #' 
-#' survmat <- as.hydrar.matrix(surv)
+#' survmat <- as.r4ml.matrix(surv)
 #'   
 #' # Create survival formula
 #' survformula <- Surv(Timestamp, Censor) ~ Age
 #'
 #' # Create survival model
-#' km <- hydrar.kaplan.meier(survformula, data = survmat, test.type = "log-rank")
+#' km <- r4ml.kaplan.meier(survformula, data = survmat, test.type = "log-rank")
 #' 
 #' # Show summary
 #' summary(km)
 #' 
 #' # Show test results
-#' hydrar.kaplan.meier.test(km)
+#' r4ml.kaplan.meier.test(km)
 #'}
 #'
-#' @seealso \link{summary.hydrar.kaplan.meier}
-#' @seealso \link{hydrar.kaplan.meier.test}
+#' @seealso \link{summary.r4ml.kaplan.meier}
+#' @seealso \link{r4ml.kaplan.meier.test}
 #'
-hydrar.kaplan.meier <- function(data, formula, strata, conf.int, conf.type,
+r4ml.kaplan.meier <- function(data, formula, strata, conf.int, conf.type,
                                 error.type, test.type = "none", directory,
                                 input.check = TRUE) {
-  new("hydrar.kaplan.meier", modelType="other", data=data, 
+  new("r4ml.kaplan.meier", modelType="other", data=data, 
       directory = directory, formula = formula, strata = strata,
       conf.int = conf.int, conf.type = conf.type, error.type = error.type, test.type = test.type,
       input.check = input.check)
 }
 
-setMethod("hydrar.model.validateTrainingParameters",
-          signature = "hydrar.kaplan.meier", definition =  
+setMethod("r4ml.model.validateTrainingParameters",
+          signature = "r4ml.kaplan.meier", definition =  
   function(model, args) {
-    logSource <- "hydrar.model.validateTrainingParameters"
+    logSource <- "r4ml.model.validateTrainingParameters"
     with(args, {
-      .hydrar.checkParameter(logSource, formula, expectedClasses="formula")
-      .hydrar.checkParameter(logSource, strata, inheritsFrom="list", isOptional=T)
-      .hydrar.checkParameter(logSource, conf.int, inheritsFrom=c("integer","numeric"), isOptional=T)
-      .hydrar.checkParameter(logSource, conf.type, inheritsFrom="character", isOptional=T)
-      .hydrar.checkParameter(logSource, error.type, inheritsFrom = "character",
+      .r4ml.checkParameter(logSource, formula, expectedClasses="formula")
+      .r4ml.checkParameter(logSource, strata, inheritsFrom="list", isOptional=T)
+      .r4ml.checkParameter(logSource, conf.int, inheritsFrom=c("integer","numeric"), isOptional=T)
+      .r4ml.checkParameter(logSource, conf.type, inheritsFrom="character", isOptional=T)
+      .r4ml.checkParameter(logSource, error.type, inheritsFrom = "character",
                              isOptional = TRUE)
-      .hydrar.checkParameter(logSource, test.type, inheritsFrom = "character",
+      .r4ml.checkParameter(logSource, test.type, inheritsFrom = "character",
                              isOptional = TRUE)
-      .hydrar.checkParameter(logSource, input.check, inheritsFrom = "logical",
+      .r4ml.checkParameter(logSource, input.check, inheritsFrom = "logical",
                              isOptional = TRUE)
       
       if (!missing(conf.type) && !(conf.type %in% c("plain","log","log-log"))) {
-        hydrar.err(logSource, "Parameter conf.type must be either plain (the default), log or log-log")
+        r4ml.err(logSource, "Parameter conf.type must be either plain (the default), log or log-log")
       }
       if (!missing(conf.int) && (conf.int < 0 || conf.int > 1)) {
-        hydrar.err(logSource, "Parameter conf.int must be a positive integer between 0 and 1.")
+        r4ml.err(logSource, "Parameter conf.int must be a positive integer between 0 and 1.")
       }
       if (!missing(error.type) && !(error.type %in% c("greenwood","peto"))) {
-        hydrar.err(logSource, "Parameter error.type must be either greenwood (the default) or peto")
+        r4ml.err(logSource, "Parameter error.type must be either greenwood (the default) or peto")
       }
       if (!missing(test.type) && !(test.type %in% c("none","log-rank","wilcoxon"))) {
-        hydrar.err(logSource, "Parameter test.type must be either none (the default), log-rank, or wilcoxon")
+        r4ml.err(logSource, "Parameter test.type must be either none (the default), log-rank, or wilcoxon")
       }
      if (!missing(input.check) && input.check) {
 
        distinct_vals <- SparkR::distinct(data[, 2])
 
        if (SparkR::nrow(distinct_vals) != 2) {
-         hydrar.err(logSource, "Event status must only contain values 0 and 1")
+         r4ml.err(logSource, "Event status must only contain values 0 and 1")
        }
 
        distinct_vals <- SparkR::as.data.frame(distinct_vals)
        if (all(sort(distinct_vals[, 1]) != c(0, 1))) {
-         hydrar.err(logSource, "Event status must contain values 0 and 1")
+         r4ml.err(logSource, "Event status must contain values 0 and 1")
        }
       }
     })
@@ -153,37 +153,37 @@ setMethod("hydrar.model.validateTrainingParameters",
   }
 )
 
-setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.kaplan.meier",
+setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.kaplan.meier",
           definition = function(model, args) {
-    logSource <- "hydrar.model.buildTrainingArgs"
+    logSource <- "r4ml.model.buildTrainingArgs"
     with(args,  {
       # Defining output directories
       if (missing(directory)){
-        directory <- hydrar.env$WORKSPACE_ROOT("hydrar.ml.model.kaplan.meier")
+        directory <- r4ml.env$WORKSPACE_ROOT("r4ml.ml.model.kaplan.meier")
       }
 
       #adding column names to the model
       model@dataColNames <- SparkR::colnames(data)
 
-      dmlPath <- file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_KM_SCRIPT)
+      dmlPath <- file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_KM_SCRIPT)
       # @TODO - Find a way to get the timestamps index to the DML script automatically
       dmlArgs <- list(X = data, dml = dmlPath, "M", "KM", fmt = 'CSV') 
       groupIds <- list()
       
       # time_status and groupid paths
-      survTSGList <- hydrar.parseSurvivalArgsFromFormulaTree(formula,data,directory)
+      survTSGList <- r4ml.parseSurvivalArgsFromFormulaTree(formula,data,directory)
       timeAndStatusIds <- survTSGList[[1]]
-      timeAndStatusIdsFrame <- as.hydrar.frame(data.frame(timeAndStatusIds),
+      timeAndStatusIdsFrame <- as.r4ml.frame(data.frame(timeAndStatusIds),
                                                repartition = FALSE)
 
-      survTSMatrix <- as.hydrar.matrix(timeAndStatusIdsFrame)
+      survTSMatrix <- as.r4ml.matrix(timeAndStatusIdsFrame)
       dmlArgs <- c(dmlArgs, TE=survTSMatrix)
       if (length(survTSGList) > 1) {                        
         groupIds <- survTSGList[[2]]
         if (length(groupIds) > 0){
-          survGFrame <- as.hydrar.frame(data.frame(groupIds),
+          survGFrame <- as.r4ml.frame(data.frame(groupIds),
                                         repartition = FALSE)
-          survGMatrix <- as.hydrar.matrix(survGFrame)
+          survGMatrix <- as.r4ml.matrix(survGFrame)
           
           dmlArgs <- c(dmlArgs, GI=survGMatrix)
           model@groupNames <- model@dataColNames[groupIds]
@@ -193,7 +193,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.kaplan.meier",
       # strata-id paths
       if (!missing(strata)) {
         if (length(strata) > 0) {
-          strataIds<- hydrar.extractColsFromFormulaTree(strata,data,delimiter=",")
+          strataIds<- r4ml.extractColsFromFormulaTree(strata,data,delimiter=",")
           strataIds <- unlist(strataIds)
           
           # check if there is an intersection beteen groups and stratas
@@ -202,13 +202,13 @@ setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.kaplan.meier",
             intersection <- intersect(groupIds, strataIds)
             if (length(intersection) > 0){
               intersectionstr <- paste(intersection, collapse=',')
-              hydrar.err(logSource, paste("Grouping columns must not overlap with strata columns. Overlapping column ids are: ", intersectionstr))
+              r4ml.err(logSource, paste("Grouping columns must not overlap with strata columns. Overlapping column ids are: ", intersectionstr))
             }
           }
           
-          survStrataFrame <- as.hydrar.frame(strataIds, repartition = FALSE)
+          survStrataFrame <- as.r4ml.frame(strataIds, repartition = FALSE)
           #TODO see if it is possible to avoid the creation of matrix
-          strataIdsMatrix <- as.hydrar.matrix(survStrataFrame)   
+          strataIdsMatrix <- as.r4ml.matrix(survStrataFrame)   
           dmlArgs <- c(dmlArgs, SI=strataIdsMatrix)
           #adding strata-id path to the model
           model@strataNames <- model@dataColNames[strataIds]
@@ -243,7 +243,7 @@ setMethod("hydrar.model.buildTrainingArgs", signature = "hydrar.kaplan.meier",
   }                  
 )
 
-setMethod("hydrar.model.postTraining", signature = "hydrar.kaplan.meier",
+setMethod("r4ml.model.postTraining", signature = "r4ml.kaplan.meier",
           definition = function(model) {
     ### model@median ###
     median_colnames <- c("n", "events", "median",
@@ -260,7 +260,7 @@ setMethod("hydrar.model.postTraining", signature = "hydrar.kaplan.meier",
     
     median <- model@dmlOuts$sysml.execute$M
     SparkR::colnames(median) <- median_colnames
-    median <- as.hydrar.matrix(median)
+    median <- as.r4ml.matrix(median)
 
     model@median <- median
 
@@ -344,25 +344,25 @@ setMethod("hydrar.model.postTraining", signature = "hydrar.kaplan.meier",
     }
 )
 
-setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
+setMethod(f = "show", signature = "r4ml.kaplan.meier", definition =
   function(object) {
-    logSource <- "show.hydrar.kaplan.meier"
+    logSource <- "show.r4ml.kaplan.meier"
     callNextMethod()
 
     cat("Survival Median\n")
 
     median <- object@median
 
-    print(SparkR::head(median, num = hydrar.env$DEFAULT_HEAD_ROWS))
+    print(SparkR::head(median, num = r4ml.env$DEFAULT_HEAD_ROWS))
   }
 )
 
 
 #' @title Kaplan-Meier Summary
-#' @description Computes different survival estimates for a given hydrar.kaplan.meier model. 
-#' @param object An S4 object of class \code{hydrar.kaplan.meier}
-#' @return A list of hydrar.matrix objects with seven columns and as many rows as the input dataset. There
-#' will be one hydrar.matrix per group/strata combination. Each matrix will have the following structure:
+#' @description Computes different survival estimates for a given r4ml.kaplan.meier model. 
+#' @param object An S4 object of class \code{r4ml.kaplan.meier}
+#' @return A list of r4ml.matrix objects with seven columns and as many rows as the input dataset. There
+#' will be one r4ml.matrix per group/strata combination. Each matrix will have the following structure:
 #' timestamp, number at risk, number of events, Kaplan-Meier estimate of survival function, 
 #' standard error of survival, as well as 100*(1-alpha)\% upper and lower 
 #' confidence interval bounds of the median.
@@ -375,27 +375,27 @@ setMethod(f = "show", signature = "hydrar.kaplan.meier", definition =
 #'               Race=c(1,0,0,2,6,2,0,0,0), Origin=c(2,0,0,15,0,2,0,0,0),
 #'               Age=c(50,52,50,52,52,50,20,50,52))
 #' 
-#' survmat <- as.hydrar.matrix(surv) 
+#' survmat <- as.r4ml.matrix(surv) 
 #'   
 #' # Create survival formula
 #' survformula <- Surv(Timestamp, Censor) ~ Age
 #' 
 #' # Create survival model
-#' km <- hydrar.kaplan.meier(survformula, data=survmat, test.type="log-rank", 
+#' km <- r4ml.kaplan.meier(survformula, data=survmat, test.type="log-rank", 
 #'                             directory = "/tmp")
 #' 
 #' # Show summary
 #' summary(km)
 #' 
 #' # Show test results
-#' hydrar.kaplan.meier.test(km)
+#' r4ml.kaplan.meier.test(km)
 #'}
 #'
-#' @export summary.hydrar.kaplan.meier
-#' @seealso \link{hydrar.kaplan.meier}
-#' @seealso \link{hydrar.kaplan.meier.test}
-summary.hydrar.kaplan.meier <- function(object) {
-  logSource <- "hydrar.kaplan.meier"
+#' @export summary.r4ml.kaplan.meier
+#' @seealso \link{r4ml.kaplan.meier}
+#' @seealso \link{r4ml.kaplan.meier.test}
+summary.r4ml.kaplan.meier <- function(object) {
+  logSource <- "r4ml.kaplan.meier"
 
   summary <- object@summary
   median <- object@median
@@ -414,9 +414,9 @@ summary.hydrar.kaplan.meier <- function(object) {
 #' @description Runs Kaplan-Meier statistical tests for the given group values.
 #ALOK ' @export
 #' Supported statistical test types are 'log-rank' and 'wilcoxon'. Test type has to be specified as an
-#' input parameter of the fitting function: \code{\link{hydrar.kaplan.meier}}.
-#' @param object  An S4 object of class \code{hydrar.kaplan.meier}
-#' @return Two hydrar.matrix objects: the first one contains contains the p-values of the Chi-square test and
+#' input parameter of the fitting function: \code{\link{r4ml.kaplan.meier}}.
+#' @param object  An S4 object of class \code{r4ml.kaplan.meier}
+#' @return Two r4ml.matrix objects: the first one contains contains the p-values of the Chi-square test and
 #' the second one has the expected observed values (O-E)^2/E and (O-E)^2/V.
 #' 
 #' @examples \dontrun{
@@ -426,29 +426,29 @@ summary.hydrar.kaplan.meier <- function(object) {
 #'               Race=c(1,0,0,2,6,2,0,0,0), Origin=c(2,0,0,15,0,2,0,0,0),
 #'               Age=c(50,52,50,52,52,50,20,50,52))
 #' 
-#' survmat <- as.hydrar.matrix(surv)
+#' survmat <- as.r4ml.matrix(surv)
 #'   
 #' # Create survival formula
 #' survformula <- Surv(Timestamp, Censor) ~ Age
 #' 
 #' # Create survival model
-#' km <- hydrar.kaplan.meier(survformula, data=survmat, test.type = "log-rank", 
+#' km <- r4ml.kaplan.meier(survformula, data=survmat, test.type = "log-rank", 
 #'                             directory = "/tmp")
 #' 
 #' # Show summary
 #' summary(km)
 #' 
 #' # Show test results
-#' hydrar.kaplan.meier.test(km)
+#' r4ml.kaplan.meier.test(km)
 #'}
 #'
 #' @export
-#' @seealso \link{summary.hydrar.kaplan.meier}
-hydrar.kaplan.meier.test <- function(object) {
-  logSource <- "hydrar.kaplan.meier.test"
+#' @seealso \link{summary.r4ml.kaplan.meier}
+r4ml.kaplan.meier.test <- function(object) {
+  logSource <- "r4ml.kaplan.meier.test"
 
   if (length(object@dmlArgs$ttype) == 0 || object@dmlArgs$ttype == "none") {
-    hydrar.err(logSource, "KM object does not incude a test")
+    r4ml.err(logSource, "KM object does not incude a test")
   }
   
   # colnames -> N Observed Expected (O-E)^2/E (O-E)^2/V
@@ -461,7 +461,7 @@ hydrar.kaplan.meier.test <- function(object) {
   if (!is.na(object@groupNames) && length(object@groupNames) > 1) {
     test_colnames <- c(test_colnames, object@groupNames)
   } else {
-    hydrar.err(logSource, "Hypothesis testing requires at least two groups")
+    r4ml.err(logSource, "Hypothesis testing requires at least two groups")
   }
   if (!is.na(object@strataNames) && length(object@strataNames) > 0) {
     test_colnames <- c(test_colnames, object@strataNames)
@@ -469,10 +469,10 @@ hydrar.kaplan.meier.test <- function(object) {
 
   km_test_colnames <- c(test_colnames, km_test_colnames)
   ### end generating header
-  km_test_full <- as.hydrar.frame(object@dmlOuts$sysml.execute$TEST)
+  km_test_full <- as.r4ml.frame(object@dmlOuts$sysml.execute$TEST)
   SparkR::colnames(km_test_full) <- km_test_colnames
 
-  km_test_chsqr <- as.hydrar.frame(object@dmlOuts$sysml.execute$TEST_GROUPS_OE)
+  km_test_chsqr <- as.r4ml.frame(object@dmlOuts$sysml.execute$TEST_GROUPS_OE)
   SparkR::colnames(km_test_chsqr) <- km_test_chsqr_colnames
 
   #chisqr <- "Chisq=" %++% km_test_chsqr[,3] %++% " on " %++% as.character(km_test_chsqr[,2]) %++% " degrees of freedom, p= " %++% as.character(km_test_chsqr[,4])

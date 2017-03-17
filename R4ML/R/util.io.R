@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ NULL
 #
 #
 
-## hydrar.msg returns the formated string
-hydrar.gen.logger <- function(ilevel) {
+## r4ml.msg returns the formated string
+r4ml.gen.logger <- function(ilevel) {
   force(ilevel)
   ilevel <- ifelse(missing(ilevel), "", ilevel)
-  def_logsrc <- hydrar.env$PACKAGE_NAME
+  def_logsrc <- r4ml.env$PACKAGE_NAME
   force(def_logsrc)
   
   function(src, ...) {
@@ -37,14 +37,14 @@ hydrar.gen.logger <- function(ilevel) {
       msg <- ""
     }
     
-    if (exists("hydrar.logger", envir=.GlobalEnv)) {
-      if (hydrar.logger$isLoggable(ilevel)) {
-        # if hydrar logger has been initialized user it
-        code.logging <- sprintf("hydrar.logger$%s(msg, src)", tolower(ilevel))
+    if (exists("r4ml.logger", envir=.GlobalEnv)) {
+      if (r4ml.logger$isLoggable(ilevel)) {
+        # if r4ml logger has been initialized user it
+        code.logging <- sprintf("r4ml.logger$%s(msg, src)", tolower(ilevel))
         eval(parse(text=code.logging))
       }
     } else {
-      # we are in the initialization of hydrar, so this covers the special case
+      # we are in the initialization of r4ml, so this covers the special case
       
       # unify the messages
       nmsg <- ""
@@ -76,17 +76,17 @@ hydrar.gen.logger <- function(ilevel) {
 }
 
 # various logger generated from gen
-hydrar.trace <- hydrar.gen.logger("TRACE")
-hydrar.debug <- hydrar.gen.logger("DEBUG")
-hydrar.info <- hydrar.gen.logger("INFO")
-hydrar.warn <- hydrar.gen.logger("WARN")
-hydrar.err <- hydrar.gen.logger("ERROR")
-hydrar.fatal <- hydrar.gen.logger("FATAL")
+r4ml.trace <- r4ml.gen.logger("TRACE")
+r4ml.debug <- r4ml.gen.logger("DEBUG")
+r4ml.info <- r4ml.gen.logger("INFO")
+r4ml.warn <- r4ml.gen.logger("WARN")
+r4ml.err <- r4ml.gen.logger("ERROR")
+r4ml.fatal <- r4ml.gen.logger("FATAL")
 
 # in case we want to show the whole object. This might go away in future
-hydrar.infoShow <- function(source, message) {
-  if (exists("hydrar.logger", envir=.GlobalEnv)) {
-    if (!hydrar.logger$isLoggable("INFO")) {
+r4ml.infoShow <- function(source, message) {
+  if (exists("r4ml.logger", envir=.GlobalEnv)) {
+    if (!r4ml.logger$isLoggable("INFO")) {
       return
     }
   } 
@@ -99,9 +99,9 @@ hydrar.infoShow <- function(source, message) {
 }
 
 # in case we want to show the whole object. This might go away in future
-hydrar.debugShow <- function(source, message) {
-  if (exists("hydrar.logger", envir=.GlobalEnv)) {
-    if (!hydrar.logger$isLoggable("DEBUG")) {
+r4ml.debugShow <- function(source, message) {
+  if (exists("r4ml.logger", envir=.GlobalEnv)) {
+    if (!r4ml.logger$isLoggable("DEBUG")) {
       return
     }
   }
@@ -113,25 +113,25 @@ hydrar.debugShow <- function(source, message) {
   cat("\n")
 }
 
-# create the hydrar.fs object
-create.hydrar.fs <- function() {
-  logSource <- "hydrar.fs"
+# create the r4ml.fs object
+create.r4ml.fs <- function() {
+  logSource <- "r4ml.fs"
   
   fs.obj <- NA
-  if (hydrar.fs.mode() == "local") {
+  if (r4ml.fs.mode() == "local") {
     fs.obj <- LinuxFS$new()
-  } else if (hydrar.fs.mode() == "cluster") {
+  } else if (r4ml.fs.mode() == "cluster") {
     fs.obj <- HadoopFS$new()
   } else {
-    hydrar.fatal(logSource, "Unknown file system")
+    r4ml.fatal(logSource, "Unknown file system")
   }
   
   return(fs.obj)
 }
 
-# find the fs mode of hydrar
-hydrar.fs.mode <- function() {
-  logSource <- "hydrar.fs.mode"
+# find the fs mode of r4ml
+r4ml.fs.mode <- function() {
+  logSource <- "r4ml.fs.mode"
 
   # yarn client and yarn both are the cluster mode
   if (SparkR::sparkR.conf()$spark.master == "yarn-client") {
@@ -153,25 +153,25 @@ hydrar.fs.mode <- function() {
   
   # if the input is not one of the above it is most liklely some other kind of spark cluster
   # TODO discuss, if it has to be local?
-  hydrar.warn(logSource, "Unable to determine file system. Defaulting to cluster mode.")
+  r4ml.warn(logSource, "Unable to determine file system. Defaulting to cluster mode.")
   return("cluster")
 }
 
 # predicate to check if it is the local mode
 # TODO discuss if we want it to be based on class hierarchy of FileSystem class
-is.hydrar.fs.local <- function() {
-  return (ifelse(hydrar.fs.mode()=="local", TRUE, FALSE))
+is.r4ml.fs.local <- function() {
+  return (ifelse(r4ml.fs.mode()=="local", TRUE, FALSE))
 }
 
 # predicate to check if it is the cluster mode
 # TODO discuss if we want it to be based on class hierarchy of FileSystem class
-is.hydrar.fs.cluster <- function() {
-  return (ifelse(hydrar.fs.mode()=="cluster", TRUE, FALSE))
+is.r4ml.fs.cluster <- function() {
+  return (ifelse(r4ml.fs.mode()=="cluster", TRUE, FALSE))
 }
 
 # check if we have the valid file system
-is.hydrar.fs.valid <- function() {
-  fs_mode <- hydrar.fs.mode()
+is.r4ml.fs.valid <- function() {
+  fs_mode <- r4ml.fs.mode()
   if (fs_mode == "cluster") {
     return(TRUE)
   } else if (fs_mode == "local") {
@@ -181,7 +181,7 @@ is.hydrar.fs.valid <- function() {
   }  
 }
 
-#' hydrar.read.csv
+#' r4ml.read.csv
 #' @description Returns a R data.frame in local mode or a SparkR DataFrame in cluster mode.
 #' @param file path to the input file
 #' @param header logical
@@ -192,21 +192,21 @@ is.hydrar.fs.valid <- function() {
 #' @param sep field separator character, supported in local mode
 #' @param ... (optional)
 #' @export
-hydrar.read.csv <- function(
+r4ml.read.csv <- function(
   file, header = FALSE, stringsAsFactors = FALSE, inferSchema = FALSE, sep = ",",
    na.strings = "NA", schema = NULL, ...
 ){
-  logSource <- "hydrar.read.csv"
+  logSource <- "r4ml.read.csv"
   
   # extra check to make sure that we have one of the valid mode
-  if (!is.hydrar.fs.valid()) {
-    hydrar.err(logSource, "Invalid hydrar filesystem found")  
+  if (!is.r4ml.fs.valid()) {
+    r4ml.err(logSource, "Invalid r4ml filesystem found")  
   }
   
   # in the local mode, we just delegate to the R's read.csv
-  if(is.hydrar.fs.local()) {
+  if(is.r4ml.fs.local()) {
     if (!is.null(schema)) {
-      hydrar.err(logSource, "schema not supported in local mode")
+      r4ml.err(logSource, "schema not supported in local mode")
     }
     df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors,
                           sep = sep, na.strings = na.strings, ...)
@@ -215,13 +215,13 @@ hydrar.read.csv <- function(
   
   # we need to pass in these arguments as strings
   if (!typeof(header) == "logical") {
-    hydrar.err(logSource, "!header : invalid argument type")
+    r4ml.err(logSource, "!header : invalid argument type")
   }
   if (!typeof(stringsAsFactors) == "logical") {
-    hydrar.err(logSource, "!stringsAsFactors : invalid argument type")
+    r4ml.err(logSource, "!stringsAsFactors : invalid argument type")
   }
   if (!typeof(inferSchema) == "logical") {
-    hydrar.err(logSource, "!inferSchema : invalid argument type")
+    r4ml.err(logSource, "!inferSchema : invalid argument type")
   }
 
   header_val <- ifelse(header, "true", "false")
@@ -248,11 +248,11 @@ hydrar.read.csv <- function(
   return(df)
 }
 
-#' HydraR Logging class
+#' R4ML Logging class
 #' 
 #' @docType class
 #' @importFrom R6 R6Class
-#' @format A Unified logging utility which control HydraR, SparkR, SystemML 
+#' @format A Unified logging utility which control R4ML, SparkR, SystemML 
 #' log levels.The various log levels that are supported are "ALL", "TRACE",
 #' "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF" in the increasing priority.
 #' Like other log services, setting a log level to say WARN enables all the
@@ -267,9 +267,9 @@ hydrar.read.csv <- function(
 #'   \item{\code{isValidLevel(logLevel)}}
 #'      {check if the log level is valid. Valid log levels are"ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"}
 #'   \item{\code{setLevel(logLevel, force_java = TRUE)}}
-#'      {set the HydraR logger to the specified level. force_java=FALSE will not update the java log level}
+#'      {set the R4ML logger to the specified level. force_java=FALSE will not update the java log level}
 #'  \item{\code{getLevel(is_java = FALSE)}}
-#'      {get the HydraR loglevel. If is_java is TRUE then return the jvm log level. Usually both of them will be in sync but there is no gurantee}
+#'      {get the R4ML loglevel. If is_java is TRUE then return the jvm log level. Usually both of them will be in sync but there is no gurantee}
 #'  \item{\code{isLoggable(logLevel)}}
 #'      {See if this log level will log the message or not}
 #'  \item{\code{trace(msg, root = "")}}
@@ -290,7 +290,7 @@ hydrar.read.csv <- function(
 #'}      
 #' 
 #' @examples \dontrun{
-#'   mylogger <- HydraR:::Logging$new();
+#'   mylogger <- R4ML:::Logging$new();
 #'   # default levels
 #'   level <- mylogger$getLevel();
 #'   # change the log level
@@ -314,7 +314,7 @@ Logging <- R6::R6Class(
     jlogger = NA,
     
     # ctor
-    initialize = function(name = "HydraR", level = "INFO") {
+    initialize = function(name = "R4ML", level = "INFO") {
       self$name <- name
       self$level <- level
       self$jlogger <- get("jlogger", .GlobalEnv)
@@ -325,7 +325,7 @@ Logging <- R6::R6Class(
       return (val %in% self$levels)
     },
     
-    # set the current log level. note: hydrar and java may have different levels
+    # set the current log level. note: r4ml and java may have different levels
     setLevel = function(val, force_java=FALSE) {
       if (!self$isValidLevel(val)) {
         levels_str <- paste(self$levels, collapse = ",", sep = ",")
@@ -339,7 +339,7 @@ Logging <- R6::R6Class(
       self$level <- val
     },
     
-    # get the current level. note: hydrar and java may have different levels
+    # get the current level. note: r4ml and java may have different levels
     getLevel = function(is_java=FALSE) {
       if(!is_java) {
         self$level
@@ -416,7 +416,7 @@ Logging <- R6::R6Class(
 # This class creates the abstraction around the fileSystem. This will be the core
 # and will be used in many applications
 
-#' HydraR FileSystem Class
+#' R4ML FileSystem Class
 #' 
 #' @docType class
 #' @importFrom R6 R6Class
@@ -424,7 +424,7 @@ Logging <- R6::R6Class(
 #' This class creates the abstraction around the fileSystem. This will be the 
 #' core and will be used in many applications. This is an abstract class, 
 #' so users are advised to use the concrete implementation i.e
-#' HydraR:::LinuxFS and HydraR::HadoopFS (see examples below)
+#' R4ML:::LinuxFS and R4ML::HadoopFS (see examples below)
 #' @section Methods:
 #' \describe{
 #'   \item{\code{create(file_path, is_dir=TRUE)}}
@@ -446,36 +446,36 @@ Logging <- R6::R6Class(
 #' }      
 #' 
 #' @examples \dontrun{
-#'   my.hydrar.fs <- NA
-#'   if (hydrar.fs.local()) {
-#'     my.hydrar.fs <- HydraR:::LinuxFS$new()
-#'   } else if (HydraR:::hydrar.fs.cluster) {
-#'     my.hydrar.fs <- HydraR:::HadoopFS$new()
+#'   my.r4ml.fs <- NA
+#'   if (r4ml.fs.local()) {
+#'     my.r4ml.fs <- R4ML:::LinuxFS$new()
+#'   } else if (R4ML:::r4ml.fs.cluster) {
+#'     my.r4ml.fs <- R4ML:::HadoopFS$new()
 #'   } else {
 #'     stop("Unknown file system")
 #'   }
 #'   
 #'   # create the unique file name
-#'   uu_name <- my.hydrar.fs$uu_name();
+#'   uu_name <- my.r4ml.fs$uu_name();
 #'   cat("testing universal unique file name: ", uu_name)
 #'
 #'   # create the uniq file, it should return TRUE
-#'   my.hydrar.fs$create(uu_name)
+#'   my.r4ml.fs$create(uu_name)
 #'
 #'   # check if the file exists, it should return TRUE
-#'   my.hydrar.fs$exists(uu_name)
+#'   my.r4ml.fs$exists(uu_name)
 #'
 #'   # remove the file, it should return TRUE
-#'   my.hydrar.fs$remove(uu_name)
+#'   my.r4ml.fs$remove(uu_name)
 #'
 #'   # check again, this time the file shouldn't exists and should return FALSE
-#'   my.hydrar.fs$exists(uu_name)
+#'   my.r4ml.fs$exists(uu_name)
 #'
 #'   # the file/dir must be deleted later automatically on sys.exit
-#'   temp_dir <- my.hydrar.fs$tempdir()
+#'   temp_dir <- my.r4ml.fs$tempdir()
 #'   
 #'   # returns the home dir of the user
-#'   user_home <- my.hydrar.fs$user.home()
+#'   user_home <- my.r4ml.fs$user.home()
 #' }
 #'
 FileSystem <- R6::R6Class(
@@ -492,22 +492,22 @@ FileSystem <- R6::R6Class(
     
     # remove the file 
     remove = function(f) {
-      hydrar.fatal("", "FileSystem$remove not implemented in abstract class")
+      r4ml.fatal("", "FileSystem$remove not implemented in abstract class")
     },
     
     # check for existence
     exists = function(f) {
-      hydrar.fatal("", "FileSystem$exists not implemented in abstract class")
+      r4ml.fatal("", "FileSystem$exists not implemented in abstract class")
     },
     
     # create the file
     create = function(f, is_dir = TRUE) {
-      hydrar.fatal("", "FileSystem$create not implemented in abstract class")
+      r4ml.fatal("", "FileSystem$create not implemented in abstract class")
     },
     
     # user home dir
     user.home = function() {
-      hydrar.fatal("", "FileSystem$user.home not implemented in abstract class")
+      r4ml.fatal("", "FileSystem$user.home not implemented in abstract class")
     },
     
     # universal unique file name: note files are not created
@@ -533,13 +533,13 @@ FileSystem <- R6::R6Class(
     
     # system execution of a cmd
     sh.exec = function(cmd) {
-      hydrar.debug("Executing the shell cmd: " %++% cmd)
+      r4ml.debug("Executing the shell cmd: " %++% cmd)
       
       # execute the system call
       status <- system(cmd)
       
       if (status != 0) {
-        hydrar.warn("Failed to execute shell cmd: " %++% cmd)
+        r4ml.warn("Failed to execute shell cmd: " %++% cmd)
       }
       
       ifelse(status == 0, TRUE, FALSE)
@@ -563,16 +563,16 @@ FileSystem <- R6::R6Class(
         f2rm_env, 
         function(temps) {
           fs_name <- class(self)[1]
-          pkg <- hydrar.env$PACKAGE_NAME
+          pkg <- r4ml.env$PACKAGE_NAME
           logsrc <- sprintf("%s.%s", pkg, fs_name)
-          hydrar.trace(logsrc,"Deleting the temporary fileSystem Resources")
+          r4ml.trace(logsrc,"Deleting the temporary fileSystem Resources")
           files <- ls(temps)
           for (f in files) {
             if (self$exists(f)) {
-              hydrar.info(logsrc, sprintf("Deleting the [%s] temporary resource '%s'",fs_name, f))
+              r4ml.info(logsrc, sprintf("Deleting the [%s] temporary resource '%s'",fs_name, f))
               self$remove(f)
             } else {
-              hydrar.warn(logsrc, sprintf("[%s] temporary resource '%s' doesn't exists : ", fs_name, f))
+              r4ml.warn(logsrc, sprintf("[%s] temporary resource '%s' doesn't exists : ", fs_name, f))
             } 
           }
         },
@@ -582,7 +582,7 @@ FileSystem <- R6::R6Class(
 )
 
 # Linux based FileSystem. It is a derived class implementing factory method. 
-# see HydraR:::FileSystem class too
+# see R4ML:::FileSystem class too
 LinuxFS <- R6::R6Class(
   "LinuxFS",
   inherit = FileSystem,
@@ -592,24 +592,24 @@ LinuxFS <- R6::R6Class(
     
     # override base. remove the linux file/dir 
     remove = function(f) {
-      hydrar.debug(self$name, "removing file/dir " %++% f)
+      r4ml.debug(self$name, "removing file/dir " %++% f)
       status <- base::unlink(f, recursive = TRUE)
       ifelse(status == 0, TRUE, FALSE)
     },
     
     # override base. check for existence of linux file/dir
     exists = function(f) {
-      hydrar.debug(self$name, "checking for file existence:" %++% f)
+      r4ml.debug(self$name, "checking for file existence:" %++% f)
       base::file.exists(f)
     },
     
     # override base. create the linux file/dir
     create = function(f, is_dir = TRUE) {
       if (is_dir) {
-        hydrar.debug(self$name, "creating dir" %++% f)
+        r4ml.debug(self$name, "creating dir" %++% f)
         base::dir.create(f, recursive = TRUE)
       } else {
-        hydrar.debug(self$name, "creating file" %++% f)
+        r4ml.debug(self$name, "creating file" %++% f)
         base::file.create(f)
       }
     },
@@ -625,7 +625,7 @@ LinuxFS <- R6::R6Class(
 )
 
 # Hadoop based file system. It is a derived class implementing factory method. 
-# see HydraR:::FileSystem class too
+# see R4ML:::FileSystem class too
 HadoopFS <- R6::R6Class(
   "HadoopFS",
   inherit = FileSystem,
@@ -635,14 +635,14 @@ HadoopFS <- R6::R6Class(
     
     # override base. remove the hadoop file/dir
     remove = function(f) {
-      hydrar.debug(self$name, " removing file:" %++% f)
+      r4ml.debug(self$name, " removing file:" %++% f)
       hcmd <- sprintf("hdfs dfs -rm -r %s", f)
       self$sh.exec(hcmd)
     },
     
     # override base. check for existence of hadoop file/dir
     exists = function(f) {
-      hydrar.debug(self$name, "checking for file existence:" %++% f)
+      r4ml.debug(self$name, "checking for file existence:" %++% f)
       hcmd <- sprintf("(hdfs dfs -test -d %s) || (hdfs dfs -test -d %s)", f, f)
       self$sh.exec(hcmd)
     },
@@ -650,11 +650,11 @@ HadoopFS <- R6::R6Class(
     # override base. create hadoop file/dir
     create = function(f, is_dir = TRUE) {
       if (is_dir) {
-        hydrar.debug(self$name, "creating dir" %++% f)
+        r4ml.debug(self$name, "creating dir" %++% f)
         hcmd <- sprintf("hdfs dfs -mkdir -p %s", f)
         self$sh.exec(hcmd)
       } else {
-        hydrar.debug(self$name, "creating file" %++% f)
+        r4ml.debug(self$name, "creating file" %++% f)
         hcmd <- sprintf("hdfs dfs -touchz %s", f)
         self$sh.exec(hcmd)
       }

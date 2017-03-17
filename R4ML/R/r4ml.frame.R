@@ -1,4 +1,4 @@
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,55 +12,55 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#' @include hydrar.vector.R
+#' @include r4ml.vector.R
 requireNamespace("SparkR")
 #'
-#' hydrar.frame, An S4 class which is inherited from SparkR SparkDataFrame
+#' r4ml.frame, An S4 class which is inherited from SparkR SparkDataFrame
 #'
-#' Ideally one shouldn't be calling it constructor and use as.hydrar.frame
+#' Ideally one shouldn't be calling it constructor and use as.r4ml.frame
 #' in case one has to call this see the examples
 #'
-#' @name hydrar.frame
+#' @name r4ml.frame
 #' @slot same as SparkR::SparkDataFrame
 #'
 #' @examples \dontrun{
 #'
 #'  spark_df <- SparkR::createDataFrame(iris)
-#'  hydrar_frame <- new("hydrar.frame", sdf=spark_df@@sdf, isCached=spark_df@@env$isCached)
+#'  r4ml_frame <- new("r4ml.frame", sdf=spark_df@@sdf, isCached=spark_df@@env$isCached)
 #'
 #' }
 #'
 #' @export
 #'
-#' @seealso \link{as.hydrar.frame} and SparkR::SparkDataFrame
-setClass("hydrar.frame", contains="SparkDataFrame")
+#' @seealso \link{as.r4ml.frame} and SparkR::SparkDataFrame
+setClass("r4ml.frame", contains="SparkDataFrame")
 
-#' Check if hydrar.frame is numeric or not
+#' Check if r4ml.frame is numeric or not
 #'
 #' This method can be used for working with various matrix utils which requires
-#' input hydrar.frame to be numeric
+#' input r4ml.frame to be numeric
 #'
-#' @name is.hydrar.numeric
-#' @param object a hydrar.frame
+#' @name is.r4ml.numeric
+#' @param object a r4ml.frame
 #' @param ... future optional additional arguments to be passed to or from methods
 #' @return TRUE if all the cols are numeric else FALSE
 #' @export
 #'
 #' @examples \dontrun{
 #'
-#'    data <- as.hydrar.frame(as.data.frame(iris))
-#'    is.hydrar.numeric(data) #This is FALSE
-#'    hf2=as.hydrar.frame(iris[c("Sepal.Length", "Sepal.Width")])
-#'    is.hydrar.numeric(hf2) # This is TRUE
+#'    data <- as.r4ml.frame(as.data.frame(iris))
+#'    is.r4ml.numeric(data) #This is FALSE
+#'    hf2=as.r4ml.frame(iris[c("Sepal.Length", "Sepal.Width")])
+#'    is.r4ml.numeric(hf2) # This is TRUE
 #'
 #'}
 #'
-setGeneric("is.hydrar.numeric", function(object, ...) {
-  standardGeneric("is.hydrar.numeric")
+setGeneric("is.r4ml.numeric", function(object, ...) {
+  standardGeneric("is.r4ml.numeric")
 })
 
-setMethod("is.hydrar.numeric",
-  signature(object = "hydrar.frame"),
+setMethod("is.r4ml.numeric",
+  signature(object = "r4ml.frame"),
   function(object, ...) {
     cnames <- SparkR::colnames(object)
     ctypes <- SparkR::coltypes(object)
@@ -72,18 +72,18 @@ setMethod("is.hydrar.numeric",
   }
 )
 
-hydrar.calc.num.partitions <- function(object_size) {
+r4ml.calc.num.partitions <- function(object_size) {
   logSource <- "calc num partitions"
 
   # attempt to detect the # of CPU cores on machine
   cores <- parallel::detectCores(all.tests = TRUE)
   
   if (is.null(cores) | cores < 1) {
-    hydrar.warn(logSource, "unable to detect number of CPU cores")
+    r4ml.warn(logSource, "unable to detect number of CPU cores")
     cores <- 8 # default to 8 cores
   }
 
-  num_partitions <- as.numeric(object_size) / hydrar.env$MIN_PARTITION_SIZE
+  num_partitions <- as.numeric(object_size) / r4ml.env$MIN_PARTITION_SIZE
   num_partitions <- ceiling(num_partitions)
   
   if (num_partitions < cores) {
@@ -91,62 +91,62 @@ hydrar.calc.num.partitions <- function(object_size) {
     num_partitions <- cores
   }
   
-  hydrar.info(logSource, paste(num_partitions, "partitions"))
+  r4ml.info(logSource, paste(num_partitions, "partitions"))
   
   return(num_partitions)
 }
 
 
-#' Coerce to a HydraR Frame
+#' Coerce to a R4ML Frame
 #'
-#' Convert a data.frame, hydrar.matrix, or Spark DataFrame into a hydrar.frame
+#' Convert a data.frame, r4ml.matrix, or Spark DataFrame into a r4ml.frame
 #'
-#' @name as.hydrar.frame
+#' @name as.r4ml.frame
 #' @param object a R data.frame or SparkDataFrame
 #' @param repartition (data.frame only) (logical) should the data automatically
 #' be repartitioned
 #' @param numPartitions (data.frame only) (numeric) number of partitions
 #' @param ... future optional additional arguments to be passed to or from methods
-#' @return a hydrar.frame
+#' @return a r4ml.frame
 #' @export
 #' @examples \dontrun{
-#'    hf1 <- as.hydrar.frame(iris)
-#'    hf2 <- as.hydrar.frame(SparkR::createDataFrame(iris))
+#'    hf1 <- as.r4ml.frame(iris)
+#'    hf2 <- as.r4ml.frame(SparkR::createDataFrame(iris))
 #' }
-setGeneric("as.hydrar.frame", function(object, repartition = TRUE,
+setGeneric("as.r4ml.frame", function(object, repartition = TRUE,
                                        numPartitions = NA, ...) {
-  standardGeneric("as.hydrar.frame")
+  standardGeneric("as.r4ml.frame")
 })
 
-setMethod("as.hydrar.frame",
+setMethod("as.r4ml.frame",
   signature(object = "SparkDataFrame"),
   function(object, ...) {
-    logSource <- "as.hydrar.frame"
+    logSource <- "as.r4ml.frame"
     
-    if (!hydrar.env$HYDRAR_SESSION_EXISTS) {
-      hydrar.err(logSource,
-                 'No HydraR session exists (call "hydrar.session()")')
+    if (!r4ml.env$R4ML_SESSION_EXISTS) {
+      r4ml.err(logSource,
+                 'No R4ML session exists (call "r4ml.session()")')
     }
 
-    hydra_frame <- new("hydrar.frame", sdf=object@sdf, isCached=object@env$isCached)
-    hydra_frame
+    r4ml_frame <- new("r4ml.frame", sdf=object@sdf, isCached=object@env$isCached)
+    r4ml_frame
 
   }
 )
 
-setMethod("as.hydrar.frame",
+setMethod("as.r4ml.frame",
   signature(object = "data.frame"),
   function(object, repartition = TRUE, numPartitions = NA, ...) {
-    logSource <- "as.hydrar.frame"
+    logSource <- "as.r4ml.frame"
 
-    if (!hydrar.env$HYDRAR_SESSION_EXISTS) {
-      hydrar.err(logSource,
-                 'No HydraR session exists (call "hydrar.session()")')
+    if (!r4ml.env$R4ML_SESSION_EXISTS) {
+      r4ml.err(logSource,
+                 'No R4ML session exists (call "r4ml.session()")')
     }
     
     # need to get the object size before we make it a Spark DataFrame
     object_size <- object.size(object)
-    if (object_size < hydrar.env$MIN_REPARTION_SIZE) {
+    if (object_size < r4ml.env$MIN_REPARTION_SIZE) {
       # don't repartion small objects
       # this is required for some test cases (repartioning re-orders rows) and
       # likely results in better performance with small datasets
@@ -158,58 +158,58 @@ setMethod("as.hydrar.frame",
     if (repartition) {
 
       if (is.na(numPartitions)) {
-        numPartitions <- hydrar.calc.num.partitions(object_size)
+        numPartitions <- r4ml.calc.num.partitions(object_size)
       }
 
-      hydrar.info(logSource,
+      r4ml.info(logSource,
                   paste("repartitioning an object of size:", object_size, 
                         "into", numPartitions, "partitions"))
 
       spark_df <- SparkR::repartition(spark_df, numPartitions = numPartitions)
     }
     
-    data <- as.hydrar.frame(spark_df, ...)
+    data <- as.r4ml.frame(spark_df, ...)
     
     return(data)
   }
 )
 
-setMethod(f = "show", signature = "hydrar.frame", definition = 
+setMethod(f = "show", signature = "r4ml.frame", definition = 
   function(object) {
-    logSource <- "hydrar.frame.show"
+    logSource <- "r4ml.frame.show"
     # Get the query result as a data.frame
     df <- SparkR::as.data.frame(
-      if (hydrar.env$DEFAULT_SHOW_ROWS > 0) {
-        SparkR::head(object, hydrar.env$DEFAULT_SHOW_ROWS)
+      if (r4ml.env$DEFAULT_SHOW_ROWS > 0) {
+        SparkR::head(object, r4ml.env$DEFAULT_SHOW_ROWS)
       } else {
         object                
       }
     )
 
-    if (.hydrar.isNullOrEmpty(df)) {
+    if (.r4ml.isNullOrEmpty(df)) {
       df <- data.frame()
     }            
     if (ncol(object) == 0) {
-      cat("hydrar.frame with 0 columns\n")
+      cat("r4ml.frame with 0 columns\n")
     } else if (nrow(df) == 0) {
       cat(paste(colnames(object), collapse="    "))
       cat("\n<0 rows>\n")
     } else {
-      # Show the contents of the hydra.frame as a data.frame
+      # Show the contents of the r4ml.frame as a data.frame
       show(df)
-      cat("... " %++% " showing first " %++% hydrar.env$DEFAULT_SHOW_ROWS %++% " rows only.\n")
+      cat("... " %++% " showing first " %++% r4ml.env$DEFAULT_SHOW_ROWS %++% " rows only.\n")
     }
     invisible(NULL);
   }
 )
 
-#' @name hydrar.impute
+#' @name r4ml.impute
 #' @title Missing Value Imputation
 #' @export
 #' @description Imputes a missing value with either the mean of the feature or a user supplied constant.
 #' @details List parameter takes a named list with columns to impute for as the names and either "mean", empty (in which case mean will be assumed), or a constant to impute as the values
 #' 
-#' @param data (hydrar.frame) A hydrar.frame
+#' @param data (r4ml.frame) A r4ml.frame
 #' @param ... (list) A named list with names that represent the columns to be fitted, values are imputed.
 #' 
 #'@examples \dontrun{
@@ -217,34 +217,34 @@ setMethod(f = "show", signature = "hydrar.frame", definition =
 #'  df <- as.DataFrame(airquality)
 #'  head(df)
 #'  
-#'  df <- as.hydrar.frame(df)
+#'  df <- as.r4ml.frame(df)
 #'  
 #'  # Example with "mean" value in list.
-#'  new_df <- hydrar.impute(df, list("Ozone"="mean"))
+#'  new_df <- r4ml.impute(df, list("Ozone"="mean"))
 #'  head(new_df$data)
 #'  
 #'  # Example with no arguments - mean imputation is used as the default
-#'  new_df <- hydrar.impute(df, list("Ozone", "Solar_R"))
+#'  new_df <- r4ml.impute(df, list("Ozone", "Solar_R"))
 #'  head(new_df$data)
 #'  
 #'  # Example of constant imputation.
-#'  new_df <- hydrar.impute(df, list("Ozone"=4000, "Solar_R"=-5))
+#'  new_df <- r4ml.impute(df, list("Ozone"=4000, "Solar_R"=-5))
 #'  head(new_df$data)
 #'  
 #'  # Constant and mean imputation can be combined.
-#'  new_df <- hydrar.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
+#'  new_df <- r4ml.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
 #'  head(new_df$data)
 #'}
 # NOTE: add the more specific arguement to ...
 # NOTE: output must contain at least same or more columns as input
-setGeneric("hydrar.impute", function(data, ...) {
-  standardGeneric("hydrar.impute")
+setGeneric("r4ml.impute", function(data, ...) {
+  standardGeneric("r4ml.impute")
 })
 
-setMethod("hydrar.impute",
-  signature(data = "hydrar.frame"),
+setMethod("r4ml.impute",
+  signature(data = "r4ml.frame"),
   function(data, df_columns){
-    logSource <- "hydrar.impute"
+    logSource <- "r4ml.impute"
     strings <- list()
     df_columns <- as.list(df_columns)
     name <- names(df_columns)
@@ -253,8 +253,8 @@ setMethod("hydrar.impute",
     constant_names <- list()
     
     for(col in names(df_columns)){
-      if(!is.hydrar.numeric(as.hydrar.frame(SparkR::select(data, col)))){
-        hydrar.err(logSource, "Column for imputation must be numeric")
+      if(!is.r4ml.numeric(as.r4ml.frame(SparkR::select(data, col)))){
+        r4ml.err(logSource, "Column for imputation must be numeric")
       }
     }
     
@@ -305,52 +305,52 @@ setMethod("hydrar.impute",
     
     # Convert values list to metadata
     metadata <- list2env(values, parent=emptyenv())
-    return_df <- as.hydrar.frame(SparkR::fillna(x = data, value = values))
+    return_df <- as.r4ml.frame(SparkR::fillna(x = data, value = values))
     
     return(list(data=return_df, metadata=metadata))
   }
 )
 
 
-#' @name hydrar.recode
+#' @name r4ml.recode
 #' @title Recode the categorical value into the nominal values
 #' @description Specified categorical columns will be 
 #'  mapped into consecutive numeric categories. For example, if a column has 
 #'  values "Low", "Medium", and "High", these will be mapped to 1, 2, and 3. 
 #'  \strong{Note}: All columns of type character will be automatically recoded.
 #'  The order of the recoded values is non-deterministic.
-#' @param data a hydrar.frame
+#' @param data a r4ml.frame
 #' @param ... list of columns to be recoded. If no columns are given all 
 #'      the columns are recoded
-#' @details The transformed dataset will be returned as a \code{hydrar.frame}
+#' @details The transformed dataset will be returned as a \code{r4ml.frame}
 #'  object. The transform meta-info is also returned. This is helpful to keep
 #'  track of which transformations were performed as well as to apply the same
 #'  set of transformations to a different dataset.The structure of the metadata
 #'  is the nested env
-#'    NOTE: output contain at least same number of columns as the original hydrar.frame
+#'    NOTE: output contain at least same number of columns as the original r4ml.frame
 #' @export
 #'      
 #' @examples \dontrun{
-#'  data <- as.hydrar.frame(iris)
-#'  hf_rec <- hydrar.recode(data, c("Species"))
+#'  data <- as.r4ml.frame(iris)
+#'  hf_rec <- r4ml.recode(data, c("Species"))
 #'
 #'  # make sure that recoded value is right
 #'  rhf_rec <- SparkR::as.data.frame(hf_rec$data)
-#'  rhf_data <- rhf_rec # recoded hydrar.frame
+#'  rhf_data <- rhf_rec # recoded r4ml.frame
 #'  rhf_md <- rhf_rec$metadata # metadata associated with the recode
 #'  show(rhf_data)
 #'  rhf_md$Species$setosa # check one of the recoded value
 #' }
 #'
-setGeneric("hydrar.recode", function(data, ...) {
-  standardGeneric("hydrar.recode")
+setGeneric("r4ml.recode", function(data, ...) {
+  standardGeneric("r4ml.recode")
 })
 
 
-setMethod("hydrar.recode",
-  signature(data = "hydrar.frame"),
+setMethod("r4ml.recode",
+  signature(data = "r4ml.frame"),
   function(data, ...) {
-    logSource <- "hydrar.recode"
+    logSource <- "r4ml.recode"
 
     # get the list of all input columns and set default (if needed)
     icols <- unlist(list(...), recursive = TRUE)
@@ -364,16 +364,16 @@ setMethod("hydrar.recode",
 
     #salt <- "r:"
     salt <- ""
-    empty_string_recode = hydrar.env$EMPTY_STRING_RECODE
+    empty_string_recode = r4ml.env$EMPTY_STRING_RECODE
     # create the env aka hashmap for each column
     icol2rec_env = new.env(hash=TRUE, parent = emptyenv())
     for (icol in icols) {
-      hydrar.debug(logSource, paste("on column", icol))
+      r4ml.debug(logSource, paste("on column", icol))
       icol_df <- SparkR::select(data, icol)
       uicol_df <- SparkR::distinct(icol_df)
       uicol_nr <- SparkR::nrow(uicol_df)
       if (uicol_nr > nurow_max) {
-        hydrar.err(logSource, "Number of unique element in the col "
+        r4ml.err(logSource, "Number of unique element in the col "
                    %++% icol %++% "exceed maximum" %++% nurow_max)
       }
       uicol_rdf_tmp <- SparkR::as.data.frame(uicol_df)
@@ -426,7 +426,7 @@ setMethod("hydrar.recode",
               rec_val <- get(row_i_salty, icol2recode, inherits = F)
               ret = c(ret, rec_val)
             } else {
-              hydrar.err(logSource, "can't find the recode value")
+              r4ml.err(logSource, "can't find the recode value")
             }
           } else {
             ret = c(ret, row_i)
@@ -454,22 +454,22 @@ setMethod("hydrar.recode",
       new_sf[[length(new_sf)+1]] <- new_sch_fld
     }
     new_row_rdd_sch <- do.call(SparkR::structType, as.list(new_sf))
-    res_hf <- as.hydrar.frame(SparkR::as.DataFrame(new_row_rdd,
+    res_hf <- as.r4ml.frame(SparkR::as.DataFrame(new_row_rdd,
                                                    schema = new_row_rdd_sch))
     meta_db <- icol2rec_env
     list(data=res_hf, metadata=meta_db)
   }
 )
 
-#' @name hydrar.normalize
+#' @name r4ml.normalize
 #' @title Normalize the scale value by shifting and scaling
 #' @description Specified scale columns will be 
 #'  shifting by mean and divided by it's sample standard deviation. In case, 
 #'  we do only the shifting by mean. 
-#' @param data a hydrar frame
+#' @param data a r4ml frame
 #' @param ... list of columns to be normalized. If no columns are given all 
 #'      the columns are recoded
-#' @details The transformed dataset will be returned as a \code{hydrar.frame}
+#' @details The transformed dataset will be returned as a \code{r4ml.frame}
 #'  object. The transform meta-info is also returned. This is helpful to keep
 #'  track of which transformations were performed as well as to apply the same
 #'  set of transformations to a different dataset.The structure of the metadata
@@ -477,8 +477,8 @@ setMethod("hydrar.recode",
 #' @export
 #'      
 #' @examples \dontrun{
-#'  data <- as.hydrar.frame(as.data.frame(iris))
-#'  data_norm_info <- hydrar.normalize(data, c("Sepal_Width", "Petal_Length"))
+#'  data <- as.r4ml.frame(as.data.frame(iris))
+#'  data_norm_info <- r4ml.normalize(data, c("Sepal_Width", "Petal_Length"))
 #'
 #'  # make sure that recoded value is right
 #'  data_norm <- data_norm_info$data
@@ -487,14 +487,14 @@ setMethod("hydrar.recode",
 #'  ls.str(data_md) # check the metadata corresponding to norm ops
 #' }
 #'
-setGeneric("hydrar.normalize", function(data, ...) {
-  standardGeneric("hydrar.normalize")
+setGeneric("r4ml.normalize", function(data, ...) {
+  standardGeneric("r4ml.normalize")
 })
 
-setMethod("hydrar.normalize",
-  signature(data = "hydrar.frame"),
+setMethod("r4ml.normalize",
+  signature(data = "r4ml.frame"),
   function(data, ...) {
-    logSource <- "hydrar.normalize"
+    logSource <- "r4ml.normalize"
     hfnames <- SparkR::colnames(data)
     hftypes <- SparkR::coltypes(data)
     
@@ -511,7 +511,7 @@ setMethod("hydrar.normalize",
     # check that all inputs to be imputed is in the class
     uinames <- inames[which(is.na(match(inames, hfnames)))]
     if (length(uinames) != 0) {
-      hydrar.err(logSource, paste(uinames, "columns not found in the input data"))
+      r4ml.err(logSource, paste(uinames, "columns not found in the input data"))
     }
     
     itypes <- hftypes[match(inames, hfnames)]
@@ -521,7 +521,7 @@ setMethod("hydrar.normalize",
     # we have the constant string so take care of it
     binames <- inames[which(sapply(itypes, function(e) !e %in% c("numeric", "integer", "double")))]
     if (length(binames) >= 1) {
-      hydrar.err(logSource, paste(binames, " input columns are not numeric and can't be imputed"))
+      r4ml.err(logSource, paste(binames, " input columns are not numeric and can't be imputed"))
     }
     
     # dynamically create command to be executed later
@@ -565,7 +565,7 @@ setMethod("hydrar.normalize",
     new_cols <- sapply(hfnames,
                        function(e) ifelse(e %in% inames, lu[[e]], e) )
     new_df <- SparkR::select(mhf, new_cols)
-    new_hf <- as.hydrar.frame(new_df)
+    new_hf <- as.r4ml.frame(new_df)
     SparkR::colnames(new_hf) <- hfnames
 
     # now create the metadata
@@ -583,15 +583,15 @@ setMethod("hydrar.normalize",
       col_info <- list("mean" = mean, "stddev" = sd)
       assign(iname, col_info, metadata)
     }
-    list(data=as.hydrar.frame(new_hf), metadata=metadata)
+    list(data=as.r4ml.frame(new_hf), metadata=metadata)
   }
 )          
 
-#' @name hydrar.binning
+#' @name r4ml.binning
 #' @title Binning
 #' @export
 #' @description Takes a column and a number of bins and returns a new column with the average value of the bin each value has been placed into.
-#' @param data (hydrar.frame) The hydrar.frame to bin columns for.
+#' @param data (r4ml.frame) The r4ml.frame to bin columns for.
 #' @param columns (list) List of column names to create bins with.
 #' @param number (numeric) Number of bins to create.
 #' 
@@ -599,32 +599,32 @@ setMethod("hydrar.normalize",
 #' # Setup Data
 #' df <- iris
 #' df$Species <- (as.numeric(df$Species))
-#' iris_df <- as.hydrar.frame(df)
+#' iris_df <- as.r4ml.frame(df)
 #' 
-#' binned_df = hydrar.binning(iris_df, "Sepal_Width", 20)
+#' binned_df = r4ml.binning(iris_df, "Sepal_Width", 20)
 #' head(binned_df$data)
 #' }
 #'
 # NOTE: add the more specific arguement to ...
 # NOTE: output must contain at least same or more columns as input
-setGeneric("hydrar.binning", function(data, ...) {
-  standardGeneric("hydrar.binning")
+setGeneric("r4ml.binning", function(data, ...) {
+  standardGeneric("r4ml.binning")
 })
 
-setMethod("hydrar.binning",
-  signature(data = "hydrar.frame"),
+setMethod("r4ml.binning",
+  signature(data = "r4ml.frame"),
   function(data, columns, number){
     metadata <- new.env(parent=emptyenv())
     for(name in as.list(columns)){
       column <- data[[name]]
       
-      if(!is.hydrar.numeric(as.hydrar.frame(SparkR::select(data, name)))){
-        hydrar.err(logSource, "Must provide numeric columns.")
+      if(!is.r4ml.numeric(as.r4ml.frame(SparkR::select(data, name)))){
+        r4ml.err(logSource, "Must provide numeric columns.")
       }
       
       icolumn <- column
-      # Convert for hydrar vector to SparkR column to access aggregation functions
-      if (class(column) == "hydrar.vector") {
+      # Convert for r4ml vector to SparkR column to access aggregation functions
+      if (class(column) == "r4ml.vector") {
         icolumn <- SparkR::column(column@jc)
       } else {}
       
@@ -657,7 +657,7 @@ setMethod("hydrar.binning",
       data <- SparkR::withColumnRenamed(data, existingCol = new_name, newCol = name)
       
       # Rearrange columns
-      data <- as.hydrar.frame(SparkR::select(data, hf_colnames))
+      data <- as.r4ml.frame(SparkR::select(data, hf_colnames))
       metadata[[name]] = list(featureName=name,
                               minValue=minimum,
                               maxValue=maximum,

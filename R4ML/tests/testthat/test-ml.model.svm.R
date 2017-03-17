@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#library (HydraR)
+#library (R4ML)
 
-context("Testing hydrar.svm\n")
+context("Testing r4ml.svm\n")
 
 # @NOTE: this will eventually be the function on SparkR
 # for now this is the helper function
@@ -32,25 +32,25 @@ recode <- function (x) {
 }
 
 
-# test hydra linear model
+# test r4ml linear model
 # currently only the test for running is done but
 # accuracy test can be done later
 # this is multi class svm
-test_that("hydrar.svm multiclass", {
+test_that("r4ml.svm multiclass", {
 
   data("iris")
   iris_inp <- as.data.frame(iris)
   iris_inp$Species <- recode(iris_inp$Species)
-  iris_inp_df <- as.hydrar.frame(iris_inp)
-  iris_inp_mat <- as.hydrar.matrix(iris_inp_df)
+  iris_inp_df <- as.r4ml.frame(iris_inp)
+  iris_inp_mat <- as.r4ml.matrix(iris_inp_df)
   #@TODO to change to derive the nominal automatically
-  rsplit <- hydrar.sample(iris_inp_mat, c(0.7, 0.3))
+  rsplit <- r4ml.sample(iris_inp_mat, c(0.7, 0.3))
   #browser()
   train_iris_inp_mat <- rsplit[[1]]
   test_iris_inp_mat <- rsplit[[2]]
   ml.coltypes(train_iris_inp_mat) <- c("scale", "scale", "scale", "scale", "nominal")
   preds <- tryCatch({
-    iris_svm <- hydrar.svm(Species ~ . , data = train_iris_inp_mat)
+    iris_svm <- r4ml.svm(Species ~ . , data = train_iris_inp_mat)
   
     predict(iris_svm, test_iris_inp_mat)
   }, error = function(e) {
@@ -70,27 +70,27 @@ test_that("hydrar.svm multiclass", {
   cat("testing svm multiclass done\n")
 })
 
-# test hydra linear model
+# test r4ml linear model
 # currently only the test for running is done but
 # accuracy test can be done later
 # this is binary class svm
-test_that("hydrar.svm binary class", {
+test_that("r4ml.svm binary class", {
   
   data("iris")
   iris_inp <- as.data.frame(iris)
   iris_inp$Species <- recode(iris_inp$Species)
   iris_inp$Species[iris_inp$Species == 3] <- 2 # convert 3 classes to 2 classes
-  iris_inp_df <- as.hydrar.frame(iris_inp)
-  iris_inp_mat <- as.hydrar.matrix(iris_inp_df)
+  iris_inp_df <- as.r4ml.frame(iris_inp)
+  iris_inp_mat <- as.r4ml.matrix(iris_inp_df)
   #@TODO to change to derive the nominal automatically
-  rsplit <- hydrar.sample(iris_inp_mat, c(0.7, 0.3))
+  rsplit <- r4ml.sample(iris_inp_mat, c(0.7, 0.3))
   
   train_iris_inp_mat <- rsplit[[1]]
   test_iris_inp_mat <- rsplit[[2]]
   ml.coltypes(train_iris_inp_mat) <- c("scale", "scale", "scale", "scale", "nominal")
   
   preds <- tryCatch({
-    iris_svm <- hydrar.svm(Species ~ . , data = train_iris_inp_mat, is.binary.class = TRUE)
+    iris_svm <- r4ml.svm(Species ~ . , data = train_iris_inp_mat, is.binary.class = TRUE)
     
     preds <- predict(iris_svm, test_iris_inp_mat)
   }, error = function(e) {
@@ -113,8 +113,8 @@ test_that("hydrar.svm binary class", {
   
 })
 
-# test hydra svm binary classification model predictions
-test_that("hydrar.svm accuracy", {
+# test r4ml svm binary classification model predictions
+test_that("r4ml.svm accuracy", {
   
   data("iris")
   iris_inp <- as.data.frame(iris)
@@ -123,11 +123,11 @@ test_that("hydrar.svm accuracy", {
   iris_inp$Species <- recode(iris_inp$Species)
 
   # we're not doing train/test split to avoid randomness in the test.
-  iris_inp_df <- as.hydrar.frame(iris_inp)
-  iris_inp_mat <- as.hydrar.matrix(iris_inp_df)
+  iris_inp_df <- as.r4ml.frame(iris_inp)
+  iris_inp_mat <- as.r4ml.matrix(iris_inp_df)
   
   ml.coltypes(iris_inp_mat) <- c("scale", "scale", "scale", "scale", "nominal")
-  iris_svm <- hydrar.svm(Species ~ . , data = iris_inp_mat, is.binary.class = TRUE)
+  iris_svm <- r4ml.svm(Species ~ . , data = iris_inp_mat, is.binary.class = TRUE)
   preds <- predict(iris_svm, iris_inp_mat)
 
   # Get the confusion matrix

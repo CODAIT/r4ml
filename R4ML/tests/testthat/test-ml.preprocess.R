@@ -14,26 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#library (HydraR)
+#library (R4ML)
 
-context("Testing hydrar.pre.processing\n")
+context("Testing r4ml.pre.processing\n")
 
 
-test_that("hydrar.impute", {
+test_that("r4ml.impute", {
   # skip("skip for now")
   data("airquality")
-  airq_hf <- as.hydrar.frame(as.data.frame(airquality))
-  airq_hm <- as.hydrar.matrix(airq_hf)
-  airq_hm_n <- hydrar.impute(airq_hm, list("Ozone"="mean"))
+  airq_hf <- as.r4ml.frame(as.data.frame(airquality))
+  airq_hm <- as.r4ml.matrix(airq_hf)
+  airq_hm_n <- r4ml.impute(airq_hm, list("Ozone"="mean"))
 })
 
-# begin hydrar.ml.preprocess
-test_that("hydrar.ml.preprocess", {
+# begin r4ml.ml.preprocess
+test_that("r4ml.ml.preprocess", {
   #skip("skip for now")
   data("iris")
-  iris_hf <- as.hydrar.frame(as.data.frame(iris))
+  iris_hf <- as.r4ml.frame(as.data.frame(iris))
   
-  iris_transform <- hydrar.ml.preprocess(
+  iris_transform <- r4ml.ml.preprocess(
     iris_hf, transformPath = tempdir(),
     dummycodeAttrs = "Species",
     binningAttrs = c("Sepal_Length", "Sepal_Width"),
@@ -49,12 +49,12 @@ test_that("hydrar.ml.preprocess", {
   showDF(iris_transform$data, n = 154)  
 })
 
-test_that("hydrar.ml.preprocess omit.na", {
+test_that("r4ml.ml.preprocess omit.na", {
   iris_hf <- iris
   iris_hf$Petal.Width[5] <- NA
-  iris_hf <- as.hydrar.frame(iris_hf)
+  iris_hf <- as.r4ml.frame(iris_hf)
   
-  iris_transform <- hydrar.ml.preprocess(
+  iris_transform <- r4ml.ml.preprocess(
     iris_hf,
     transformPath = tempdir(),
     omit.na = c("Petal_Width")
@@ -63,12 +63,12 @@ test_that("hydrar.ml.preprocess omit.na", {
 })
 
 #Execute ml.preprocess without transformPath parameter
-test_that("hydrar.ml.preprocess excludetransformPath", {
+test_that("r4ml.ml.preprocess excludetransformPath", {
   
   data("iris")
-  iris_hf <- as.hydrar.frame(as.data.frame(iris))
+  iris_hf <- as.r4ml.frame(as.data.frame(iris))
   
-  iris_transform <- hydrar.ml.preprocess(
+  iris_transform <- r4ml.ml.preprocess(
     iris_hf, dummycodeAttrs = "Species",
     binningAttrs = c("Sepal_Length", "Sepal_Width"),
     numBins=4,

@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,53 +16,53 @@
 
 library(testthat)
 
-if (!hydrar.env$HYDRAR_SESSION_EXISTS) {
-  hydrar.session()
+if (!r4ml.env$R4ML_SESSION_EXISTS) {
+  r4ml.session()
 }
 
-context("Testing hydrar.frame\n")
+context("Testing r4ml.frame\n")
 
-# test hydra c'tor
+# test r4ml c'tor
 #
-test_that("hydrar.frame", {
+test_that("r4ml.frame", {
 
   sdf <- SparkR::as.DataFrame(beaver1)
-  hdf <- as.hydrar.frame(sdf)
+  hdf <- as.r4ml.frame(sdf)
 
 })
 
-# test is.hydrar.numeric
-test_that("is.hydrar.numeric", {
+# test is.r4ml.numeric
+test_that("is.r4ml.numeric", {
 
-  non_numeric_hdf <- as.hydrar.frame(iris)
-  numeric_hdf <- as.hydrar.frame(beaver1)
+  non_numeric_hdf <- as.r4ml.frame(iris)
+  numeric_hdf <- as.r4ml.frame(beaver1)
 
-  expect_false(is.hydrar.numeric(non_numeric_hdf))
-  expect_true(is.hydrar.numeric(numeric_hdf))
+  expect_false(is.r4ml.numeric(non_numeric_hdf))
+  expect_true(is.r4ml.numeric(numeric_hdf))
   
 })
 
-# test as.hydrar.frame for R dataframe
-test_that("as.hydrar.frame", {
+# test as.r4ml.frame for R dataframe
+test_that("as.r4ml.frame", {
   
-  hf <- as.hydrar.frame(iris)
+  hf <- as.r4ml.frame(iris)
   
 })
 
 test_that("show", {
-  hydrar.session()
-  irisHDF <- as.hydrar.frame(iris)
+  r4ml.session()
+  irisHDF <- as.r4ml.frame(iris)
   expect_true(length(capture.output(show(irisHDF))) > 5)
 })
 
 
-#begin hydrar.recode testing
-test_that("hydrar.recode iris data with one recode", {
+#begin r4ml.recode testing
+test_that("r4ml.recode iris data with one recode", {
   #skip("skip for now")
-  hydrar.session()
+  r4ml.session()
   data("iris")
-  hf <- as.hydrar.frame(as.data.frame(iris))
-  hf_rec = hydrar.recode(hf, c("Species"))
+  hf <- as.r4ml.frame(as.data.frame(iris))
+  hf_rec = r4ml.recode(hf, c("Species"))
 
   # make sure that recoded value is right
   rhf_rec <- SparkR::as.data.frame(hf_rec$data)
@@ -81,7 +81,7 @@ test_that("hydrar.recode iris data with one recode", {
   # 4) cases where bad combination is passed
 })
 
-test_that("hydrar.recode all columns recoded", {
+test_that("r4ml.recode all columns recoded", {
   idata <- data.frame(c1=c("b", "a", "c", "a"),
                       c2=c("C", "B", "A", "B"),
                       c3=c("a1", "a2", "a3", "a3"))
@@ -99,8 +99,8 @@ test_that("hydrar.recode all columns recoded", {
     c3 = list(a1 = 1, a2 = 2, a3 = 3)
   )
 
-  hf <- as.hydrar.frame(as.data.frame(idata))
-  hf_rec = hydrar.recode(hf)
+  hf <- as.r4ml.frame(as.data.frame(idata))
+  hf_rec = r4ml.recode(hf)
 
     # make sure that recoded value is right
   rhf_rec <- SparkR::as.data.frame(hf_rec$data)
@@ -122,10 +122,10 @@ test_that("hydrar.recode all columns recoded", {
     }
   }
 })
-#end hydrar.recode testing
+#end r4ml.recode testing
 
-#begin hydrar.normalize aka hydrar.scale (scale and shift)
-test_that("hydrar.normalize all columns recoded", {
+#begin r4ml.normalize aka r4ml.scale (scale and shift)
+test_that("r4ml.normalize all columns recoded", {
   #skip("skip for now")
   idata <- data.frame(c1=c(10, 10, 10, 10, 10),
                       c2=c(1, 2, 3, 4, 5),
@@ -140,10 +140,10 @@ test_that("hydrar.normalize all columns recoded", {
     c2 = list("mean" = 3, "stddev" = 1.581139)
   )
   
-  hf <- as.hydrar.frame(as.data.frame(idata))
-  #hf_rec = hydrar.normalize(hf, "c1", "c2")
+  hf <- as.r4ml.frame(as.data.frame(idata))
+  #hf_rec = r4ml.normalize(hf, "c1", "c2")
   col2norm <- list("c1", "c2")
-   hf_rec = hydrar.normalize(hf, col2norm)
+   hf_rec = r4ml.normalize(hf, col2norm)
   
   # make sure that normalize value is right
   rhf_rec <- SparkR::as.data.frame(hf_rec$data)
@@ -157,15 +157,15 @@ test_that("hydrar.normalize all columns recoded", {
   expect_equal(capture.output(norm_md), capture.output(exp_metadata))
   
 })
-#end hydrar.normalize aka hydrar.scale (scale and shift)
+#end r4ml.normalize aka r4ml.scale (scale and shift)
 
-test_that("hydrar.binning", {
+test_that("r4ml.binning", {
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
   num_bins = 4
   col_names = list("Sepal_Width", "Petal_Length")
-  binned_df = hydrar.binning(iris_df, col_names, num_bins)
+  binned_df = r4ml.binning(iris_df, col_names, num_bins)
   results = SparkR::collect(binned_df$data)
   expect_equal(results[[2]][1], 3.5, tolerance=1e-2)
   expect_equal(results[[3]][2], 1.7375, tolerance=1e-2)
@@ -180,9 +180,9 @@ test_that("hydrar.binning", {
   expect_equal(as.numeric(binned_df$metadata[["Petal_Length"]]["numBins"]), 4, tolerance=1e-2)
 })
 
-test_that("hydrar.impute all columns imputed", {
-  df <- as.hydrar.frame(airquality)
-  new_df <- hydrar.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
+test_that("r4ml.impute all columns imputed", {
+  df <- as.r4ml.frame(airquality)
+  new_df <- r4ml.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
   result = SparkR::collect(new_df$data)
   expect_equal(result[[1]][5], 4000, tolerance=1e-2)
   expect_equal(result[[2]][5], 185, tolerance=1e-2)
@@ -191,7 +191,7 @@ test_that("hydrar.impute all columns imputed", {
 })
 
 
-test_that("hydrar.recode empty string ", {
+test_that("r4ml.recode empty string ", {
   idata <- data.frame(c1=c("b", "a", "", "a"),
                       c2=c("C", "B", "A", "B"),
                       c3=c("a1", "a2", "a3", "a3"))
@@ -200,13 +200,13 @@ test_that("hydrar.recode empty string ", {
                              c3=c(1,2,3,3))
   
   exp_meta_data <- list(
-    c1 = list(a = 1, b = 2, "hydrar::__empty_string__" = 3),
+    c1 = list(a = 1, b = 2, "r4ml::__empty_string__" = 3),
     c2 = list(A = 1, B = 2, C = 3),
     c3 = list(a1 = 1, a2 = 2, a3 = 3)
   )
   
-  hf <- as.hydrar.frame(as.data.frame(idata))
-  hf_rec = hydrar.recode(hf)
+  hf <- as.r4ml.frame(as.data.frame(idata))
+  hf_rec = r4ml.recode(hf)
   
   # make sure that recoded value is right
   rhf_rec <- SparkR:::as.data.frame(hf_rec$data)
@@ -230,8 +230,8 @@ test_that("hydrar.recode empty string ", {
 })
 
 
-test_that("test that we can call columns functions which hydrar.vector can break", {
-  hf <- as.hydrar.frame(iris)
+test_that("test that we can call columns functions which r4ml.vector can break", {
+  hf <- as.r4ml.frame(iris)
   alt_hf <- SparkR::mutate(hf, altered_sepal_width=hf$Sepal_Width+10)
   alt_rhf <- SparkR::as.data.frame(alt_hf)
   expect_true(all.equal(alt_rhf$altered_sepal_width, alt_rhf$Sepal_Width+10))

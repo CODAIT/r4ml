@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ NULL
 
 ## note: implement all the sample algo later
 
-#' Generate random samples from a hydrar.frame or hydrar.matrix or spark SparkDataFrame
+#' Generate random samples from a r4ml.frame or r4ml.matrix or spark SparkDataFrame
 #' 
 #' Two sampling methods are supported:
 #'
@@ -28,39 +28,39 @@ NULL
 #' 2. Partitioned sampling: Split the given dataset into the specified 
 #' number of randomly generated non-overlapping subsets.
 #' 
-#' @name hydrar.sample
+#' @name r4ml.sample
 #' @title Random sampling
-#' @usage hydrar.sample(data, perc)
-#' @param data (hydrar.frame or hydrar.matrix or SparkDataFrame) Dataset to sample from
+#' @usage r4ml.sample(data, perc)
+#' @param data (r4ml.frame or r4ml.matrix or SparkDataFrame) Dataset to sample from
 #' @param perc (numeric) For random sampling, an atomic value between (0, 1) 
 #'   that represents the sampling percentage. For partitioned sampling, a 
 #'   vector of numerics in the interval (0, 1), such that their sum is 
 #'   exactly 1.
-#' @return For random sampling, a single hydrar.frame/hydrar.matrix/SparkDataFrame is returned. For
-#'   partitioned sampling, a list of hydrar.frames or hydrar.matrices or Spark SparkDataFrame is returned, and each
+#' @return For random sampling, a single r4ml.frame/r4ml.matrix/SparkDataFrame is returned. For
+#'   partitioned sampling, a list of r4ml.frames or r4ml.matrices or Spark SparkDataFrame is returned, and each
 #'   element in the list represents a partition.
 #' @export
 #' @examples \dontrun{
 #'
 #' # Generate a 10% random sample of data
-#' iris_hf <- as.hydrar.frame(iris)
-#' sample_iris_hf <- hydrar.sample(iris_hf, 0.1)
+#' iris_hf <- as.r4ml.frame(iris)
+#' sample_iris_hf <- r4ml.sample(iris_hf, 0.1)
 #' 
 #' # Generate the 50 samples 
-#' sample_50_iris_hf <- hydrar.sample(iris_hf, 50/nrow(iris_hf))
+#' sample_50_iris_hf <- r4ml.sample(iris_hf, 50/nrow(iris_hf))
 #' 
 #' # Randomly split the data into training (70%) and test (30%) sets
-#' iris_hf_split <- hydrar.sample(iris_hf, c(0.7, 0.3))
+#' iris_hf_split <- r4ml.sample(iris_hf, c(0.7, 0.3))
 #' nrow(iris_hf_split[[1]]) / nrow(iris_hf)
 #' nrow(iris_hf_split[[2]]) / nrow(iris_hf)
 #' 
 #' # Randomly split the data for 10-fold cross-validation
-#' iris_cv <- hydrar.sample(iris_hf, rep(0.1, 10))
+#' iris_cv <- r4ml.sample(iris_hf, rep(0.1, 10))
 #' }
 
-hydrar.sample <- function(data, perc, experimental=FALSE,
+r4ml.sample <- function(data, perc, experimental=FALSE,
                           cache = FALSE) {
-  logSource <- "hydrar.sample"
+  logSource <- "r4ml.sample"
   
   # Parameter validation
   if (missing(data)) {
@@ -70,15 +70,15 @@ hydrar.sample <- function(data, perc, experimental=FALSE,
     perc <- NULL
   }
   
-  if (.hydrar.isNullOrEmpty(data)) {
-    hydrar.err(logSource, "A dataset must be specified")   
+  if (.r4ml.isNullOrEmpty(data)) {
+    r4ml.err(logSource, "A dataset must be specified")   
   }    
-  if (.hydrar.isNullOrEmpty(perc)) {
-    hydrar.err(logSource, "perc must be specified.")
+  if (.r4ml.isNullOrEmpty(perc)) {
+    r4ml.err(logSource, "perc must be specified.")
   }
   
-  if (!inherits(data, "hydrar.frame") & !inherits(data, "hydrar.matrix") & !inherits(data, "SparkDataFrame")) {
-    hydrar.err(logSource, "The specified dataset must either be a hydrar.frame, hydrar.matrix, or SparkDataFrame.")
+  if (!inherits(data, "r4ml.frame") & !inherits(data, "r4ml.matrix") & !inherits(data, "SparkDataFrame")) {
+    r4ml.err(logSource, "The specified dataset must either be a r4ml.frame, r4ml.matrix, or SparkDataFrame.")
   }
 
   # function to convert the output type to the relevant input type
@@ -86,14 +86,14 @@ hydrar.sample <- function(data, perc, experimental=FALSE,
     data_type <- class(data)
     castDF <- function(df) {
       casted_df = df
-      if (data_type == 'hydrar.frame') {
-        casted_df <- as.hydrar.frame(df, repartition = FALSE)
-      } else if (data_type == 'hydrar.matrix') {
-        casted_df <- as.hydrar.matrix(df)
+      if (data_type == 'r4ml.frame') {
+        casted_df <- as.r4ml.frame(df, repartition = FALSE)
+      } else if (data_type == 'r4ml.matrix') {
+        casted_df <- as.r4ml.matrix(df)
       } else if (data_type == 'SparkDataFrame') {
         casted_df <- df
       } else {
-        hydrar.err(logSource, "Unsupported type " %++% data_type %++% " passed in")
+        r4ml.err(logSource, "Unsupported type " %++% data_type %++% " passed in")
       }
      
       if (cache) {
@@ -108,15 +108,15 @@ hydrar.sample <- function(data, perc, experimental=FALSE,
   }
   if (length(perc) == 1) {
     if (perc > 1) {
-      hydrar.err(logSource, "perc must be <= 1")
+      r4ml.err(logSource, "perc must be <= 1")
     }
     df1 <- SparkR::sample(data, FALSE, perc)
     return(outputType(df1))
   } else if (length(perc) == 2 && experimental == TRUE && # this features doesn't always work on cluster
-      (class(data) %in% c('hydrar.frame', 'hydrar.matrix', 'SparkDataFrame'))) {
+      (class(data) %in% c('r4ml.frame', 'r4ml.matrix', 'SparkDataFrame'))) {
     # this is probably slightly faster version of when length(perc)>2
     if (abs(sum(perc) - 1.0) >= 1e-6) {
-      hydrar.err(logSource, "Random splits must sum to 1")
+      r4ml.err(logSource, "Random splits must sum to 1")
     } 
     
     perc_1 <- perc[1]
@@ -128,12 +128,12 @@ hydrar.sample <- function(data, perc, experimental=FALSE,
     return (out)
   } else if (length(perc) >= 2) {
     if (abs(sum(perc) - 1.0) >= 1e-6) {
-      hydrar.err(logSource, "sum of perc weights must be equal 1")
+      r4ml.err(logSource, "sum of perc weights must be equal 1")
     }
-    rcolname = "__hydrar_dummy_runif__"
+    rcolname = "__r4ml_dummy_runif__"
     
     if (rcolname %in% SparkR::colnames(data)) {
-      hydrar.err(logSource, "data already has column " %++% rcolname)
+      r4ml.err(logSource, "data already has column " %++% rcolname)
     }
     # create the uniform random (0,1) in the column rcolname
     aug_data <- SparkR::withColumn(data, rcolname, SparkR::rand())
@@ -157,7 +157,7 @@ hydrar.sample <- function(data, perc, experimental=FALSE,
     out <- do.call(outputType, folded_data)
     return(out)
   } else {
-    hydrar.err(logSource, "Other forms of sampling not implemented yet")
+    r4ml.err(logSource, "Other forms of sampling not implemented yet")
     #@TODO
   }
   return (NULL)

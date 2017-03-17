@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
 # limitations under the License.
 #
 
-#load the hydrar 
-library(HydraR)
-hydrar.session()
+#load the r4ml 
+library(R4ML)
+r4ml.session()
 
 # we would like to limit the dataset to a size so that we can run test faster
 #df_max_size <- 1000
@@ -30,22 +30,22 @@ D_names <- c("ActualElapsedTime", "DayofMonth", "DayOfWeek",
 # use the following for the custom dataset
 # path <- "/user/data-scientist/airline/1987.csv"
 # path <- "/user/data-scientist/airline/*.csv"
-# df <- HydraR:::hydrar.read.csv(path, inferSchema=TRUE, header=TRUE)
+# df <- R4ML:::r4ml.read.csv(path, inferSchema=TRUE, header=TRUE)
 
-# this example use the airline dataset shipped with HydraR
-df <- as.hydrar.frame(airline)
+# this example use the airline dataset shipped with R4ML
+df <- as.r4ml.frame(airline)
 
 # limit the number of rows so that we can control the size
 df <- limit(df, df_max_size)
 ignore <- cache(df) # very important step otherwise the partition gets screw up
 
-# convert to the hydrar frame
+# convert to the r4ml frame
 df <- SparkR::select(df, D_names)
 ignore <- cache(df)
-hf = as.hydrar.frame(df)
+hf = as.r4ml.frame(df)
 
 # do the preprocess of the data set
-phf_info <- hydrar.ml.preprocess(
+phf_info <- r4ml.ml.preprocess(
   hf
   ,transformPath = "/tmp"
   ,recodeAttrs=D_names
@@ -60,16 +60,16 @@ phf <- phf_info$data
 # metadata for the transform
 pmdb <- phf_info$metadata
 
-# hydrar matrix as the input
-hm <- as.hydrar.matrix(phf)
+# r4ml matrix as the input
+hm <- as.r4ml.matrix(phf)
 ignore <- cache(hm)
 
-pca_m <- hydrar.pca(hm, center=T, scale=T, projData=T, k = 2)
+pca_m <- r4ml.pca(hm, center=T, scale=T, projData=T, k = 2)
 
 # look at the dataset after the transform
 pca_m
 
-# exit R/HydraR
-hydrar.session.stop()
+# exit R/R4ML
+r4ml.session.stop()
 quit("no")
 

@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,26 +14,26 @@
 # limitations under the License.
 #
 
-context("Testing hydrar.matrix\n")
+context("Testing r4ml.matrix\n")
 
-test_that("is.hydrar.matrix", {
+test_that("is.r4ml.matrix", {
 
-  expect_false(is.hydrar.matrix(iris))
-  expect_false(is.hydrar.matrix(as.hydrar.frame(iris)))
-  expect_true(is.hydrar.matrix(as.hydrar.matrix(as.hydrar.frame(iris[, -5]))))
+  expect_false(is.r4ml.matrix(iris))
+  expect_false(is.r4ml.matrix(as.r4ml.frame(iris)))
+  expect_true(is.r4ml.matrix(as.r4ml.matrix(as.r4ml.frame(iris[, -5]))))
   
 })
 
-test_that("as.hydrar.matrix", {
+test_that("as.r4ml.matrix", {
 
-  hm <- as.hydrar.matrix(iris[, -5])
+  hm <- as.r4ml.matrix(iris[, -5])
   
 })
 
 # begin one hot testing
-test_that("hydrar.onehot generic case 1", {
+test_that("r4ml.onehot generic case 1", {
   rdf2hm <- function(rdf) {
-    as.hydrar.matrix(rdf)
+    as.r4ml.matrix(rdf)
   }
   # out data set contains mix columns
   data <- rdf2hm(data.frame( c1=c(2,3,4), c2=c(1,4,3), c3=c(5,5,5), c4=c(3,1,2) ))
@@ -54,7 +54,7 @@ test_that("hydrar.onehot generic case 1", {
     c2 = c("c2_1", "c2_2", "c2_3", "c2_4")
   )
   onehot_cols <- c("c2", "c4")
-  hf_oh_db <- hydrar.onehot(data, onehot_cols)
+  hf_oh_db <- r4ml.onehot(data, onehot_cols)
   hf_oh <- hf_oh_db$data
   hf_oh_md <- hf_oh_db$metadata
   showDF(hf_oh)
@@ -71,8 +71,8 @@ test_that("hydrar.onehot generic case 1", {
 
 # end one hot encoding
 
-test_that("hydrar.impute", {
-  df <- as.hydrar.matrix(airquality)
+test_that("r4ml.impute", {
+  df <- as.r4ml.matrix(airquality)
   ml.coltypes(df) <- c("scale", "scale", "scale", "scale", "nominal", "nominal")
-  new_df <- hydrar.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
+  new_df <- r4ml.impute(df, list("Ozone"=4000, "Solar_R"="mean"))
 })

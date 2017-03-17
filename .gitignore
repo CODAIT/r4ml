@@ -17,7 +17,7 @@ target/
 .Rproj.user
 *.Rproj
 *.Rcheck
-# HydraR gen files/dir
+# R4ML gen files/dir
 lib/
 html/
 man/

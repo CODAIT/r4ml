@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ requireNamespace("SparkR")
 setOldClass("family")
 
 setClass(
-  "hydrar.glm",
+  "r4ml.glm",
   representation(
     coefficients = "data.frame",
     family="family",
@@ -30,19 +30,19 @@ setClass(
     dispersion = "numeric", 
     outer.iter.max = "numeric", 
     inner.iter.max = "numeric"
-  ), contains = "hydrar.model"
+  ), contains = "r4ml.model"
 )
 
 #' @title Generalized Linear Models
-#' @description Fits a Generalized Linear Model for a \code{hydrar.matrix}.
+#' @description Fits a Generalized Linear Model for a \code{r4ml.matrix}.
 #' @param formula (formula) A formula in the form Y ~ ., where Y is the response variable.
-#' @param data (hydrar.matrix) Dataset to fit the model.
+#' @param data (r4ml.matrix) Dataset to fit the model.
 #' @param family (family) Distribution family and link function. 
 #'                Supported families are "binomial", "gaussian", "poisson", "gamma", and "inverse.gaussian".
 #'                Supported link functions are "identity", "inverse", "log", "sqrt", "1/mu^2", "logit", "probit", "cloglog", and "cauchit".
 #'                gaussian(identity) is used by default.
 #' @param neg.binomial.class (numeric) Only required if \code{family} is set to binomial. It is the response value for the "No" label. 
-#' If the response variable was recoded, method link{hydrar.recodeMaps}
+#' If the response variable was recoded, method link{r4ml.recodeMaps}
 #' can be used to set \code{neg.binomial.class} accordingly. Values in the response variable that are different than \code{neg.binomial.class} will be considered as the "Yes" class.
 #' @param intercept (logical) Boolean value specifying whether the intercept term should be part of the model.
 #' @param shiftAndRescale (logical) Boolean value indicating if shifting and rescaling X columns to mean = 0, variance = 1 should be performed.
@@ -52,10 +52,10 @@ setClass(
 #' @param outer.iter.max (integer) Maximum number of outer (Newton / Fisher Scoring) iterations.
 #' @param inner.iter.max (integer) Maximum number of inner (Conjugate Gradient) iterations. A value of 0 indicates no maximum.
 #' are specified.
-#' @return An S4 object of class hydrar.glm which contains the arguments above as well as the following additional fields:
+#' @return An S4 object of class r4ml.glm which contains the arguments above as well as the following additional fields:
 ##' \tabular{rlll}{
 ##'\tab\code{coefficients}          \tab (numeric) \tab Coefficients of the regression \cr
-##'\tab\code{transformPath} \tab (character)   \tab HDFS location where the \code{hydrar.transform()} metadata are stored \cr
+##'\tab\code{transformPath} \tab (character)   \tab HDFS location where the \code{r4ml.transform()} metadata are stored \cr
 ##'\tab\code{yColId}          \tab (numeric) \tab Column id of the response variable\cr
 ##'\tab\code{yColname}      \tab (character) \tab Column name of the response variable \cr
 ##'\tab\code{featureNames}      \tab (character) \tab The features used to build the model \cr
@@ -69,10 +69,10 @@ setClass(
 #' airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
 #'                                 "Distance", "ArrDelay")]
 #'
-#' airlineFiltered <- as.hydrar.frame(airlineFiltered)
+#' airlineFiltered <- as.r4ml.frame(airlineFiltered)
 #'
 #'# Apply required transformations for Machine Learning
-#' airlineFiltered <- hydrar.ml.preprocess(
+#' airlineFiltered <- r4ml.ml.preprocess(
 #'   hf = airlineFiltered,
 #'   transformPath = "/tmp",
 #'   recodeAttrs = c("DayOfWeek"),
@@ -80,15 +80,15 @@ setClass(
 #'   dummycodeAttrs = c("DayOfWeek")
 #' )
 #'
-#' airlineMatrix <- as.hydrar.matrix(airlineFiltered$data)
+#' airlineMatrix <- as.r4ml.matrix(airlineFiltered$data)
 #'
 #' # Split the data into 70% for training and 30% for testing
-#' samples <- hydrar.sample(airlineMatrix, perc=c(0.7, 0.3))
+#' samples <- r4ml.sample(airlineMatrix, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
 #' test <- samples[[2]]
 #'
 #' # Create a generalized linear model
-#' glm <- hydrar.glm(ArrDelay ~ ., data=train, family=gaussian(identity))
+#' glm <- r4ml.glm(ArrDelay ~ ., data=train, family=gaussian(identity))
 #'
 #' # Get the coefficients of the regression
 #' glm
@@ -98,64 +98,64 @@ setClass(
 #' print(pred)
 #' }       
 #' 
-#' @seealso \link{predict.hydrar.glm}
+#' @seealso \link{predict.r4ml.glm}
 #' @export
-hydrar.glm <- function(formula, data, family=gaussian(link="identity"), neg.binomial.class, intercept = FALSE, shiftAndRescale = FALSE,
+r4ml.glm <- function(formula, data, family=gaussian(link="identity"), neg.binomial.class, intercept = FALSE, shiftAndRescale = FALSE,
                        lambda, tolerance, dispersion, outer.iter.max, inner.iter.max) {
   
-  new("hydrar.glm", modelType="regression", formula=formula, data=data, family=family, 
+  new("r4ml.glm", modelType="regression", formula=formula, data=data, family=family, 
       neg.binomial.class=neg.binomial.class, intercept = intercept, 
       shiftAndRescale = shiftAndRescale, lambda=lambda, tolerance=tolerance, 
       dispersion=dispersion, outer.iter.max=outer.iter.max, inner.iter.max=inner.iter.max)
 }
 
 setMethod(
-  "hydrar.model.validateTrainingParameters", 
-  signature="hydrar.glm", 
+  "r4ml.model.validateTrainingParameters", 
+  signature="r4ml.glm", 
   def = 
     function(model, args) {
-      logSource <- "hydrar.model.validateTrainingParameters(hydrar.glm)"
+      logSource <- "r4ml.model.validateTrainingParameters(r4ml.glm)"
       with(args, {
-        .hydrar.checkParameter(logSource, family, c("family"))
-        .hydrar.checkParameter(logSource, neg.binomial.class, c("numeric", "integer"), isOptional=T)
-        .hydrar.checkParameter(logSource, intercept, c("logical"))
-        .hydrar.checkParameter(logSource, shiftAndRescale, c("logical"))    
-        .hydrar.checkParameter(logSource, lambda, "numeric", isOptional=T)
-        .hydrar.checkParameter(logSource, tolerance, "numeric", isOptional=T)
-        .hydrar.checkParameter(logSource, dispersion, "numeric", isOptional=T)
+        .r4ml.checkParameter(logSource, family, c("family"))
+        .r4ml.checkParameter(logSource, neg.binomial.class, c("numeric", "integer"), isOptional=T)
+        .r4ml.checkParameter(logSource, intercept, c("logical"))
+        .r4ml.checkParameter(logSource, shiftAndRescale, c("logical"))    
+        .r4ml.checkParameter(logSource, lambda, "numeric", isOptional=T)
+        .r4ml.checkParameter(logSource, tolerance, "numeric", isOptional=T)
+        .r4ml.checkParameter(logSource, dispersion, "numeric", isOptional=T)
         
-        .hydrar.checkParameter(logSource, outer.iter.max, "numeric", isOptional=T)
-        .hydrar.checkParameter(logSource, inner.iter.max, "numeric", isOptional=T)
+        .r4ml.checkParameter(logSource, outer.iter.max, "numeric", isOptional=T)
+        .r4ml.checkParameter(logSource, inner.iter.max, "numeric", isOptional=T)
         
         if (family$family == "binomial") {
           if (missing(neg.binomial.class)) {
-            hydrar.err(logSource, "When family is set to binomial, parameter neg.binomial.class must be set.")
+            r4ml.err(logSource, "When family is set to binomial, parameter neg.binomial.class must be set.")
           }
         } else {
           if (!missing(neg.binomial.class)) {
-            hydrar.err(logSource, "Parameter neg.binomial.class can only be set when family is set to binomial.")
+            r4ml.err(logSource, "Parameter neg.binomial.class can only be set when family is set to binomial.")
           }
         }
         if (!missing(outer.iter.max) && (outer.iter.max <= 0)) {
-          hydrar.err(logSource, "Parameter outer.iter.max must be a positive integer.")
+          r4ml.err(logSource, "Parameter outer.iter.max must be a positive integer.")
         }
         if (!missing(inner.iter.max) && (inner.iter.max < 0)) {
-          hydrar.err(logSource, "Parameter inner.iter.max must be a natural number.")
+          r4ml.err(logSource, "Parameter inner.iter.max must be a natural number.")
         }
         if (!missing(tolerance) && (tolerance <= 0)) {
-          hydrar.err(logSource, "Parameter tolerance must be a positive number.")
+          r4ml.err(logSource, "Parameter tolerance must be a positive number.")
         }
         if (!missing(lambda) && (lambda < 0)) {
-          hydrar.err(logSource, "Parameter lambda must be a non-negative number.")
+          r4ml.err(logSource, "Parameter lambda must be a non-negative number.")
         }    
         if (!missing(dispersion) && (dispersion < 0)) {
-          hydrar.err(logSource, "Parameter dispersion must be a positive number.")
+          r4ml.err(logSource, "Parameter dispersion must be a positive number.")
         }
         if(ncol(data) < 2) {
-          hydrar.err(logSource, "Given training dataset must have at least two columns.")
+          r4ml.err(logSource, "Given training dataset must have at least two columns.")
         }
         
-        hydrar.debug(logSource, "Parameters checked")
+        r4ml.debug(logSource, "Parameters checked")
         
         return(model)
       })
@@ -163,23 +163,23 @@ setMethod(
 )
 
 setMethod(
-  "hydrar.model.buildTrainingArgs", 
-  signature="hydrar.glm", 
+  "r4ml.model.buildTrainingArgs", 
+  signature="r4ml.glm", 
   def = 
     function(model, args) {
-      logSource <- "hydrar.model.buildTrainingArgs.hydrar.glm"                  
+      logSource <- "r4ml.model.buildTrainingArgs.r4ml.glm"                  
       with(args,  {
         # Extract parameters from family: Default = gaussian, identity
-        familyInfo <- hydrar.ml.parseFamilyAndLink(family)    
+        familyInfo <- r4ml.ml.parseFamilyAndLink(family)    
         distFamily <- familyInfo$distFamily
         powerOfVariance <- familyInfo$powerOfVariance
         linkFunction <- familyInfo$linkFunction
         powerOfLink <- familyInfo$powerOfLink
         
-        hydrar.debug(logSource, "\ndistFamily: " %++% distFamily)
-        hydrar.debug(logSource, "\npowerOfVariance: " %++% powerOfVariance)
-        hydrar.debug(logSource, "\nlinkFunction: " %++% linkFunction)
-        hydrar.debug(logSource, "\npowerOfLink: " %++% powerOfLink)                      
+        r4ml.debug(logSource, "\ndistFamily: " %++% distFamily)
+        r4ml.debug(logSource, "\npowerOfVariance: " %++% powerOfVariance)
+        r4ml.debug(logSource, "\nlinkFunction: " %++% linkFunction)
+        r4ml.debug(logSource, "\npowerOfLink: " %++% powerOfLink)                      
         
         # Compute the value for parameter icpt, which combines both intercept and shiftAndRescale
         icpt = if(intercept && !shiftAndRescale) {
@@ -189,7 +189,7 @@ setMethod(
         } else if (!intercept && !shiftAndRescale) {
           0
         } else {
-          hydrar.err(logSource, "Parameter 'intercept' must be TRUE when 'shiftAndRescale' is TRUE")
+          r4ml.err(logSource, "Parameter 'intercept' must be TRUE when 'shiftAndRescale' is TRUE")
         }
         
         X <- X
@@ -199,10 +199,10 @@ setMethod(
         model@shiftAndRescale <- shiftAndRescale
         
         if (args$intercept == TRUE) {
-          model@featureNames <- c(hydrar.env$INTERCEPT, model@featureNames)
+          model@featureNames <- c(r4ml.env$INTERCEPT, model@featureNames)
         }
         
-        statsPath <- file.path(hydrar.env$WORKSPACE_ROOT("hydrar.glm"), "stats.csv")
+        statsPath <- file.path(r4ml.env$WORKSPACE_ROOT("r4ml.glm"), "stats.csv")
         
         ###########################################################
         # Invoke the SystemML script with the following parameters:
@@ -228,7 +228,7 @@ setMethod(
         # disp  Double  0.0     (Over-)dispersion value, or 0.0 to estimate it from data
         # moi   Int     200     Maximum number of outer (Newton / Fisher Scoring) iterations
         # mii   Int     0       Maximum number of inner (Conjugate Gradient) iterations, 0 = no maximum
-        dmlArgs <- list(dml=file.path(hydrar.env$SYSML_ALGO_ROOT(),hydrar.env$DML_GLM_SCRIPT), 
+        dmlArgs <- list(dml=file.path(r4ml.env$SYSML_ALGO_ROOT(),r4ml.env$DML_GLM_SCRIPT), 
                         X=X,
                         Y=Y,
                         "beta_out",
@@ -271,13 +271,13 @@ setMethod(
 # overwrite the base model's post training function so that one can
 # post process the final outputs from the dml scripts
 setMethod(
-  "hydrar.model.postTraining", 
-  signature="hydrar.glm", 
+  "r4ml.model.postTraining", 
+  signature="r4ml.glm", 
   def =
     function(model) {
       outputs <- model@dmlOuts$sysml.execute
       statsPath <- model@dmlArgs$O
-      statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+      statsCsv <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
       if (model@dispersion == 0) {
         model@dispersion <- as.numeric(statsCsv[8, 2])
       }
@@ -293,12 +293,12 @@ setMethod(
         i <- i + 1
         model@dmlOuts[outName] <- output
       }
-      model@coefficients <- .hydrar.glm.buildCoef(model)
+      model@coefficients <- .r4ml.glm.buildCoef(model)
       return(model)
     }
 )
 
-.hydrar.glm.buildCoef <- function(object) {
+.r4ml.glm.buildCoef <- function(object) {
   df <- as.data.frame(t(SparkR::as.data.frame(object@dmlOuts[["beta_out"]])))
   if (object@shiftAndRescale) {
     row.names(df) <- c("no-shift-and-rescale", "shift-and-rescale")
@@ -317,13 +317,13 @@ setMethod(
 #' @title GLM model fitted coefficients
 #' @description Get the coefficients of the fitted model
 #' @name coef
-#' @param object (hydrar.glm) The linear regression model
+#' @param object (r4ml.glm) The linear regression model
 #' @return A data.frame with the coefficient for the learned model
 #' @seealso \link{show}
 #' @export
 setMethod(
   "coef", 
-  signature="hydrar.glm", 
+  signature="r4ml.glm", 
   def =
     function(object) {
       object@coefficients
@@ -332,10 +332,10 @@ setMethod(
 
 setMethod(
   f = "show", 
-  signature = "hydrar.glm", 
+  signature = "r4ml.glm", 
   definition = 
     function(object) {
-      logSource <- "show.hydrar.glm"                  
+      logSource <- "show.r4ml.glm"                  
       callNextMethod()                  
       cat("\n\nFamily: \n" %++% object@family$family)
       cat("\n\nLink: \n" %++% object@family$link)                  
@@ -348,12 +348,12 @@ setMethod(
 #' @description With this method we can get the statistics of a learned model
 #'              represented by the object
 #' @name stats
-#' @param object (hydrar.glm) The GLM model
+#' @param object (r4ml.glm) The GLM model
 #' @return A data.frame with the statistics data for the learned model
 #' @export
 setMethod(
   "stats", 
-  signature="hydrar.glm", 
+  signature="r4ml.glm", 
   def =
     function(object) {
       return(object@dmlOuts$stats)
@@ -361,8 +361,8 @@ setMethod(
 )
 
 # @TODO: Add validations for inconsistent combinations of link/families
-hydrar.ml.parseFamilyAndLink <- function(family) {
-  logSource <- "hydrar.ml.parseFamilyAndLink"
+r4ml.ml.parseFamilyAndLink <- function(family) {
+  logSource <- "r4ml.ml.parseFamilyAndLink"
   
   distFamily <- 0
   powerOfVariance <- 0
@@ -385,7 +385,7 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
     distFamily <- 2
     powerOfVariance <- 0 # Default
   } else {
-    hydrar.err(logSource, "Invalid family: " %++% family$family)
+    r4ml.err(logSource, "Invalid family: " %++% family$family)
   }
   
   if (family$link == "identity") { 
@@ -416,24 +416,24 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
     linkFunction <- 5
     powerOfLink <- 1 # Default
   } else {
-    hydrar.err(logSource, "Invalid link function: " %++% family$link)
+    r4ml.err(logSource, "Invalid link function: " %++% family$link)
   }    
   list("distFamily"=distFamily, "powerOfVariance"=powerOfVariance, "linkFunction"=linkFunction, "powerOfLink"=powerOfLink)
 }
 
 #' @title Predict method for Generalized Linear Models
-#' @name predict.hydrar.glm
-#' @description This method allows to score/test a GLM model for a given hydrar.matrix. If the testing set is labeled,
+#' @name predict.r4ml.glm
+#' @description This method allows to score/test a GLM model for a given r4ml.matrix. If the testing set is labeled,
 #' testing will be done and some statistics will be computed to measure the quality of the model. Otherwise, scoring will be performed
 #' and only the predictions will be computed.
-#' @param object (hydrar.glm) a GLM model built by Big R
-#' @param data (hydrar.matrix) the testing set
+#' @param object (r4ml.glm) a GLM model built by Big R
+#' @param data (r4ml.matrix) the testing set
 #' @param family (family) the distribution family and link function. Supported families are "gaussian", "poisson", "gamma", and "inverse.gaussian".
 #' Supported link functions are "identity", "inverse", "log", "sqrt", "1/mu^2", "logit" "probit", "cloglog", and "cauchit"
 #' @param dispersion (numeric) (Over-) dispersion value. If not provided, the dispersion provided/estimated in the training phase will be used.
-#' @return If scoring (i.e., testing dataset is unlabeled), the result will be a hydrar.matrix with the predictions.
+#' @return If scoring (i.e., testing dataset is unlabeled), the result will be a r4ml.matrix with the predictions.
 #' In the case of testing (i.e., testing dataset is labeled), the result will be a list with two elements: (1) the
-#' predictions as a hydrar.matrix, and (2) a data.frame with some goodness-of-fit statistics. These statistics are as follows:
+#' predictions as a r4ml.matrix, and (2) a data.frame with some goodness-of-fit statistics. These statistics are as follows:
 #' 
 #' \tabular{rlll}{
 #' \tab LOGLHOOD Z \tab Log-likelihood Z-score (in st. dev.'s from the mean)\cr
@@ -461,10 +461,10 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
 #' airlineFiltered <- airline[, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
 #'                                 "Distance", "ArrDelay")]
 #'
-#' airlineFiltered <- as.hydrar.frame(airlineFiltered)
+#' airlineFiltered <- as.r4ml.frame(airlineFiltered)
 #'
 #'# Apply required transformations for Machine Learning
-#' airlineFiltered <- hydrar.ml.preprocess(
+#' airlineFiltered <- r4ml.ml.preprocess(
 #'   hf = airlineFiltered,
 #'   transformPath = "/tmp",
 #'   recodeAttrs = c("DayOfWeek"),
@@ -472,15 +472,15 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
 #'   dummycodeAttrs = c("DayOfWeek")
 #' )
 #'
-#' airlineMatrix <- as.hydrar.matrix(airlineFiltered$data)
+#' airlineMatrix <- as.r4ml.matrix(airlineFiltered$data)
 #'
 #' # Split the data into 70% for training and 30% for testing
-#' samples <- hydrar.sample(airlineMatrix, perc=c(0.7, 0.3))
+#' samples <- r4ml.sample(airlineMatrix, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
 #' test <- samples[[2]]
 #'
 #' # Create a generalized linear model
-#' glm <- hydrar.glm(ArrDelay ~ ., data=train, family=gaussian(identity))
+#' glm <- r4ml.glm(ArrDelay ~ ., data=train, family=gaussian(identity))
 #'
 #' # Get the coefficients of the regression
 #' glm
@@ -490,20 +490,20 @@ hydrar.ml.parseFamilyAndLink <- function(family) {
 #' print(pred)
 #' }       
 #' 
-#' @seealso \link{hydrar.glm}
+#' @seealso \link{r4ml.glm}
 #' @export
-predict.hydrar.glm <- function(object, data, family, dispersion) {
-  logSource <- "hydrar.predict.glm"
+predict.r4ml.glm <- function(object, data, family, dispersion) {
+  logSource <- "r4ml.predict.glm"
   
-  hydrar.info(logSource, "Predicting labels using given GLM model on data")
+  r4ml.info(logSource, "Predicting labels using given GLM model on data")
   glm <- object
   
-  .hydrar.checkParameter(logSource, data, inheritsFrom="hydrar.matrix")
-  .hydrar.checkParameter(logSource, family, "family", isOptional=T)
-  .hydrar.checkParameter(logSource, dispersion, c("numeric", "integer"), isOptional=T)
+  .r4ml.checkParameter(logSource, data, inheritsFrom="r4ml.matrix")
+  .r4ml.checkParameter(logSource, family, "family", isOptional=T)
+  .r4ml.checkParameter(logSource, dispersion, c("numeric", "integer"), isOptional=T)
   
   if (!missing(dispersion) && (dispersion < 0)) {
-    hydrar.err(logSource, "Parameter dispersion must be a positive number.")
+    r4ml.err(logSource, "Parameter dispersion must be a positive number.")
   }
   
   # Extract parameters from family: Default values are obtained from the model.
@@ -515,17 +515,17 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
     dispersion <- object@dispersion
   }    
   
-  familyInfo <- hydrar.ml.parseFamilyAndLink(family)
+  familyInfo <- r4ml.ml.parseFamilyAndLink(family)
   
   distFamily <- familyInfo$distFamily
   powerOfVariance <- familyInfo$powerOfVariance
   linkFunction <- familyInfo$linkFunction
   powerOfLink <- familyInfo$powerOfLink    
   
-  hydrar.info(logSource, "\ndistFamily: " %++% distFamily)
-  hydrar.info(logSource, "\npowerOfVariance: " %++% powerOfVariance)
-  hydrar.info(logSource, "\nlinkFunction: " %++% linkFunction)
-  hydrar.info(logSource, "\npowerOfLink: " %++% powerOfLink)    
+  r4ml.info(logSource, "\ndistFamily: " %++% distFamily)
+  r4ml.info(logSource, "\npowerOfVariance: " %++% powerOfVariance)
+  r4ml.info(logSource, "\nlinkFunction: " %++% linkFunction)
+  r4ml.info(logSource, "\npowerOfLink: " %++% powerOfLink)    
   
   # Check if scoring or testing should be done:
   # if the data has the label column, then it is a testing request, otherwise, it is a scoring request
@@ -541,11 +541,11 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
   }
   
   # Clean up old results
-  statsPath <- file.path(hydrar.env$WORKSPACE_ROOT("hydrar.glm"), "stats_predict.csv")
+  statsPath <- file.path(r4ml.env$WORKSPACE_ROOT("r4ml.glm"), "stats_predict.csv")
   
   # TEMP: build the coefficients.csv file
-  args <- list(dml=file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_GLM_TEST_SCRIPT),
-               B_full = as.hydrar.matrix(as.hydrar.frame(object@dmlOuts[['beta_out']], repartition = FALSE)),
+  args <- list(dml=file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_GLM_TEST_SCRIPT),
+               B_full = as.r4ml.matrix(as.r4ml.frame(object@dmlOuts[['beta_out']], repartition = FALSE)),
                "means", # this is output $M
                O=statsPath,
                dfam=distFamily,
@@ -565,7 +565,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
       testing <- F
     }
     else {
-      hydrar.err(logSource, "Invalid dataset is passed in.")
+      r4ml.err(logSource, "Invalid dataset is passed in.")
     }
   }
   else {
@@ -575,12 +575,12 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
       testing <- T
     }
     else {
-      hydrar.err(logSource, "Invalid dataset is passed in.")
+      r4ml.err(logSource, "Invalid dataset is passed in.")
     }
   }
   
   if(testing) {
-    XY <- hydrar.model.splitXY(data, glm@yColname)        
+    XY <- r4ml.model.splitXY(data, glm@yColname)        
     testset_x <- XY$X
     testset_y <- XY$Y
     
@@ -638,7 +638,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
     glm@yColname
   }
   
-  preds <- as.hydrar.matrix(as.hydrar.frame(dmlOuts[['means']], repartition = FALSE))
+  preds <- as.r4ml.matrix(as.r4ml.frame(dmlOuts[['means']], repartition = FALSE))
   # Output probabilities/predictions accordingly
   output <- if (glm@family$family == "binomial") {
     list("probabilities" = preds)
@@ -648,7 +648,7 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
   
   # Add stats
   if (testing) {
-    statsCsv <- SparkR::as.data.frame(hydrar.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
+    statsCsv <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
     colnames(statsCsv) <- c("name", "column", "scaled", "value")
   }
   else {
@@ -659,4 +659,4 @@ predict.hydrar.glm <- function(object, data, family, dispersion) {
   return(output)
 }
 #'@export
-setMethod("predict", "hydrar.glm", predict.hydrar.glm)
+setMethod("predict", "r4ml.glm", predict.r4ml.glm)

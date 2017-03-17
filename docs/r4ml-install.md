@@ -1,4 +1,4 @@
-#<img src="../HydraR/inst/images/hydraR-logo.png" alt="HydraR Logo"/>
+#<img src="../R4ML/inst/images/r4ml-logo.png" alt="R4ML Logo"/>
 
 ## __**How to install**__
 
@@ -74,9 +74,9 @@
    SPARK_HOME=~/sparktc/spark
    ```
 
-#### 3.0 __**Install HydraR's dependencies (R packages)**__
+#### 3.0 __**Install R4ML's dependencies (R packages)**__
 
-   Install all the as per the DESCRIPTION file of HydraR using the install.packages R cmd
+   Install all the as per the DESCRIPTION file of R4ML using the install.packages R cmd
    Here is the R shell command to achieve the above
    ```
    # start the R shell in the OS prompt
@@ -84,27 +84,27 @@
    # now you have the R shell, run the following R cmds
    R>
 
-   # must have the follow packages
-   R>hydrar_mandory_pkgs <- c("uuid", "R6", "survival")
-   R>install.packages(hydrar_mandatory_pkgs)
+   # must have the following packages
+   R>r4ml_mandatory_pkgs <- c("uuid", "R6", "survival")
+   R>install.packages(r4ml_mandatory_pkgs)
 
    # the following packages are needed for dev, testing and documentations
-   R>hydrar_dev_pkgs <- c("testthat", "knitr", "devtools", "roxygen2")
-   R>install.packages(hydrar_dev_pkgs)
+   R>r4ml_dev_pkgs <- c("testthat", "knitr", "devtools", "roxygen2")
+   R>install.packages(r4ml_dev_pkgs)
 
    R>quit("no")
    ```
   
 
-### 4.0 __**Install HydraR**__
+### 4.0 __**Install R4ML**__
 
-  A) clone github and install HydraR.
+  A) clone github and install R4ML.
 
    ```
    mkdir -p ~/sparktc
    pushd ~/sparktc
-   git clone https://github.com/SparkTC/spark-hydrar
-   pushd spark-hydrar
+   git clone https://github.com/SparkTC/R4ML R4ML
+   pushd R4ML
    bin/install-all.sh
    popd
    popd
@@ -114,5 +114,5 @@
 
    ```
   # note: replace <VAR> with the appropriate value for your environment
-  R_LIBS=<PREVIOUS_PATH_FOR_R_LIBRARY>:<PATH_FOR_SPARKR_LIB>:~/sparktc/spark-hydrar/lib:$R_LIBS 
+  R_LIBS=<PREVIOUS_PATH_FOR_R_LIBRARY>:<PATH_FOR_SPARKR_LIB>:~/sparktc/R4ML/lib:$R_LIBS 
    ```

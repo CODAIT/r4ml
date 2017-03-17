@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
 # limitations under the License.
 #
 
-#load the hydrar 
-library(HydraR)
-hydrar.session()
+#load the r4ml 
+library(R4ML)
+r4ml.session()
 
 # these are the different dataset we will analysis
 # path <- "/user/data-scientist/airline/1987.csv"
@@ -29,17 +29,17 @@ df_max_size <- 1000
 
 ## use the following for the custom dataset
 # path <- "/user/data-scientist/airline/1987.csv"
-# df <- HydraR:::hydrar.read.csv(path, inferSchema=TRUE, header=TRUE)
+# df <- R4ML:::r4ml.read.csv(path, inferSchema=TRUE, header=TRUE)
 
-# this example use the airline dataset shipped with HydraR
-df <- as.hydrar.frame(airline)
+# this example use the airline dataset shipped with R4ML
+df <- as.r4ml.frame(airline)
 
 # limit the number of rows so that we can control the size
 df <- limit(df, df_max_size)
 ignore <- cache(df) # very important step otherwise the partition gets screw up
 
-# convert to the hydrar frame
-al_hf = as.hydrar.frame(df)
+# convert to the r4ml frame
+al_hf = as.r4ml.frame(df)
 
 # Let air be the airline dataset
  
@@ -66,5 +66,5 @@ head(ifelse(al_hf$ArrDelay > 15, "Delayed", "Early"), 1000)
 # Count distinct
 countDistinct(al_hf$UniqueCarrier)
 
-hydrar.session.stop()
+r4ml.session.stop()
 q("no")

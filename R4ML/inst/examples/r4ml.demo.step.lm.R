@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,21 +14,21 @@
 # limitations under the License.
 #
 
-# load library HydraR
-library(HydraR)
-hydrar.session()
+# load library R4ML
+library(R4ML)
+r4ml.session()
 
 # example paths for custom dataset
 # path = "/user/data-scientist/airline/1987.csv"
 #path = "/user/data-scientist/airline/*1987.csv"
-# df <- HydraR:::hydrar.read.csv(path, inferSchema=TRUE, header=TRUE)
+# df <- R4ML:::r4ml.read.csv(path, inferSchema=TRUE, header=TRUE)
 
 # we would like to limit the dataset to a size so that we can run test faster
 #df_max_size <- 1000
 df_max_size <- 100000
 
 # read in data
-airline_hf <- as.hydrar.frame(airline)
+airline_hf <- as.r4ml.frame(airline)
 
 # remove CancellationCode from dataset
 names <- colnames(airline_hf)
@@ -37,17 +37,17 @@ to_remove <- c("CancellationCode", "FlightNum", "TailNum", "Cancelled", "Diverte
               "LateAircraftDelay", "WeatherDelay", "Origin", "Dest", "ArrTime")
 
 selected_columns <- names[!(names %in% to_remove)]
-airline_hf <- as.hydrar.frame(select(airline_hf, selected_columns))
+airline_hf <- as.r4ml.frame(select(airline_hf, selected_columns))
 
 # limit the number of rows so that we can control the size
 airline_hf <- limit(airline_hf, df_max_size)
 airline_hf <- cache(airline_hf)
 
-#convert to hydrar frame
-airline_hf <- as.hydrar.frame(airline_hf)
+#convert to r4ml frame
+airline_hf <- as.r4ml.frame(airline_hf)
 
 # do the preprocessing of the data set
-airline_transform <- hydrar.ml.preprocess(
+airline_transform <- r4ml.ml.preprocess(
   airline_hf,
   transformPath = "/tmp",
   recodeAttrs = c("Month", "DayOfWeek"),
@@ -58,12 +58,12 @@ airline_transform <- hydrar.ml.preprocess(
 # sample dataset into train and test
 
 # actual data
-sampled_data <- hydrar.sample(airline_transform$data, perc = c(0.7, 0.3))
+sampled_data <- r4ml.sample(airline_transform$data, perc = c(0.7, 0.3))
 # metadata to look at the decode value and other attributes
 metadata <- airline_transform$metadata
 
-train <- as.hydrar.matrix(sampled_data[[1]])
-test <- as.hydrar.matrix(sampled_data[[2]])
+train <- as.r4ml.matrix(sampled_data[[1]])
+test <- as.r4ml.matrix(sampled_data[[2]])
 ignore <- cache(train)
 ignore <- cache(test)
 
@@ -71,7 +71,7 @@ ignore <- cache(test)
 ml.coltypes(train) <- rep("scale", ncol(train))
 
 # train the step.lm model
-step_lm <- hydrar.step.lm(formula = ActualElapsedTime ~ .,
+step_lm <- r4ml.step.lm(formula = ActualElapsedTime ~ .,
                           data = train,
                           intercept = FALSE,
                           shiftAndRescale = FALSE,
@@ -82,11 +82,11 @@ step_lm <- hydrar.step.lm(formula = ActualElapsedTime ~ .,
 coef(step_lm)
 
 # run the prediction
-test <- as.hydrar.matrix(test)
+test <- as.r4ml.matrix(test)
 pred <- predict(step_lm, test)
 # To print all outputs, just call pred
 head(pred$predictions)
 pred$statistics
 
-hydrar.session.stop()
+r4ml.session.stop()
 quit("no")

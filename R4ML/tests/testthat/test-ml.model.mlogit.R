@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,20 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#library (HydraR)
+#library (R4ML)
 
-context("Testing hydrar.mlogit\n")
+context("Testing r4ml.mlogit\n")
 
 library("SparkR")
-# test hydra logistic regression
+# test r4ml logistic regression
 
-test_that("hydrar.mlogit", {
+test_that("r4ml.mlogit", {
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
@@ -34,14 +34,14 @@ test_that("hydrar.mlogit", {
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
-test_that("hydrar.mlogit_labelnames", {   
+test_that("r4ml.mlogit_labelnames", {   
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
   labels = c("setosa", "versicolor", "virginica")
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, labelNames=labels)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, labelNames=labels)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
@@ -49,13 +49,13 @@ test_that("hydrar.mlogit_labelnames", {
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
-test_that("hydrar.mlogit_intercept", { 
+test_that("r4ml.mlogit_intercept", { 
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, intercept=T)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, intercept=T)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==5, ncol(coef(iris_log_reg))==2)
@@ -68,13 +68,13 @@ test_that("hydrar.mlogit_intercept", {
   expect_equal(sort(coef(iris_log_reg)[,1])[5], 15.9683, tolerance=1e-2) 
 })
   
-test_that("hydrar.mlogit_shiftAndRescale", {  
+test_that("r4ml.mlogit_shiftAndRescale", {  
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, shiftAndRescale=T, intercept=T)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, shiftAndRescale=T, intercept=T)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==5, ncol(coef(iris_log_reg))==2)
@@ -82,13 +82,13 @@ test_that("hydrar.mlogit_shiftAndRescale", {
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
-test_that("hydrar.mlogit_inner.iter", {   
+test_that("r4ml.mlogit_inner.iter", {   
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, inner.iter.max=2)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, inner.iter.max=2)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
@@ -96,13 +96,13 @@ test_that("hydrar.mlogit_inner.iter", {
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
-test_that("hydrar.mlogit_outer.iter", {
+test_that("r4ml.mlogit_outer.iter", {
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, outer.iter.max=2)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, outer.iter.max=2)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
@@ -110,13 +110,13 @@ test_that("hydrar.mlogit_outer.iter", {
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
-test_that("hydrar.mlogit_inner+outer", {   
+test_that("r4ml.mlogit_inner+outer", {   
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, inner.iter.max=2, outer.iter.max=2)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, inner.iter.max=2, outer.iter.max=2)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
@@ -124,13 +124,13 @@ test_that("hydrar.mlogit_inner+outer", {
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
-test_that("hydrar.mlogit_lambda2.5", {   
+test_that("r4ml.mlogit_lambda2.5", {   
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, lambda=2.5)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, lambda=2.5)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
@@ -138,13 +138,13 @@ test_that("hydrar.mlogit_lambda2.5", {
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
-test_that("hydrar.mlogit_lambda0", {   
+test_that("r4ml.mlogit_lambda0", {   
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, lambda=0)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, lambda=0)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
@@ -152,13 +152,13 @@ test_that("hydrar.mlogit_lambda0", {
   expect_true(ncol(coef(iris_log_reg))==2)
 })
 
-test_that("hydrar.mlogit_lambda500", {   
+test_that("r4ml.mlogit_lambda500", {   
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, lambda=500)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, lambda=500)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(abs(coef(iris_log_reg)[[1]][1]) - 1 <.001)
@@ -168,13 +168,13 @@ test_that("hydrar.mlogit_lambda500", {
   expect_true(ncol(coef(iris_log_reg))==2)
 })
 
-test_that("hydrar.mlogit_tolerance", { 
+test_that("r4ml.mlogit_tolerance", { 
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
   ml.coltypes(iris_mat) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = iris_mat, tolerance=10)
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = iris_mat, tolerance=10)
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
@@ -185,29 +185,29 @@ test_that("hydrar.mlogit_tolerance", {
 test_that("scoring", {   
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
-  s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
+  s <- r4ml.sample(iris_mat, perc=c(0.2,0.8))
   test <- s[[1]]
   train <- s[[2]]
   ml.coltypes(train) <- c("scale", "scale", "scale", "scale", "nominal") 
   ml.coltypes(test) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = train, labelNames=c("Setosa","Versicolor","Virginica")) 
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = train, labelNames=c("Setosa","Versicolor","Virginica")) 
   output <- predict(iris_log_reg, test)
 })
   
 test_that("testing/prediction", {   
   df <- iris
   df$Species <- (as.numeric(df$Species))
-  iris_df <- as.hydrar.frame(df, repartition = FALSE)
-  iris_mat <- as.hydrar.matrix(iris_df)
-  s <- hydrar.sample(iris_mat, perc=c(0.2,0.8))
+  iris_df <- as.r4ml.frame(df, repartition = FALSE)
+  iris_mat <- as.r4ml.matrix(iris_df)
+  s <- r4ml.sample(iris_mat, perc=c(0.2,0.8))
   test <- s[[1]]
   train <- s[[2]]
   ml.coltypes(train) <- c("scale", "scale", "scale", "scale", "nominal") 
   ml.coltypes(test) <- c("scale", "scale", "scale", "scale", "nominal") 
-  iris_log_reg <- hydrar.mlogit(Species ~ . , data = train, labelNames=c("Setosa","Versicolor","Virginica")) 
-  test <- as.hydrar.matrix(test[, c(1:4)])
+  iris_log_reg <- r4ml.mlogit(Species ~ . , data = train, labelNames=c("Setosa","Versicolor","Virginica")) 
+  test <- as.r4ml.matrix(test[, c(1:4)])
   output <- predict(iris_log_reg, test)
 })
 

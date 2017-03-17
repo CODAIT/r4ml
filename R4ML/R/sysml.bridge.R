@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
 #' @export
 #' @examples \dontrun{
 #'    #sysmlSparkContext # the default spark context
-#'    mlCtx = HydraR:::sysml.MLContext$new(sysmlSparkContext)
+#'    mlCtx = R4ML:::sysml.MLContext$new(sysmlSparkContext)
 #' }
 sysml.MLContext <- setRefClass("sysml.MLContext",
   fields = list(env="environment"),
@@ -128,7 +128,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       } else if (cls == 'jobj') {
         jrdd = rdd_or_df
       } else {
-        hydrar.err(logSource, "unsupported argument rdd_or_df only rdd or dataframe is supported")
+        r4ml.err(logSource, "unsupported argument rdd_or_df only rdd or dataframe is supported")
       }
 
       SparkR:::callJMethod(env$jref, "registerInput", dmlname, jrdd, mc$env$jref)
@@ -205,7 +205,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       out_jref <- NULL
       
       previous_log_level <- jlogger$getLevel()
-      invisible(jlogger$setLevel(hydrar.env$SYSML_LOG_LEVEL))
+      invisible(jlogger$setLevel(r4ml.env$SYSML_LOG_LEVEL))
       
       if (is.file) {
         if (is_namedargs) {
@@ -327,7 +327,7 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
       # manage global order we do the sort sort wrt to _INDEX first
       # note that SparkR::arrange i.e spark.sort is efficiency implemented using merge
       # algo
-      index_col <- hydrar.env$SYSML_MATRIX_INDEX_COL
+      index_col <- r4ml.env$SYSML_MATRIX_INDEX_COL
       df <- SparkR::arrange(df_unsorted, index_col)
 
       # note that the sysml internal order col is not needed by user and hence
@@ -356,16 +356,16 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
 #'        along with java ref corresponding to jvm
 #' @export
 #' @examples \dontrun{
-#' airr <- HydraR::airline
+#' airr <- R4ML::airline
 #' airrt <- airr$Distance
 #' airrt[is.na(airrt)] <- 0
 #' airrtd <- as.data.frame(airrt)
 #' air_dist <- createDataFrame(airrtd)
 #' 
 #' X_cnt <- SparkR::count(air_dist)
-#' X_mc <- HydraR:::sysml.MatrixCharacteristics$new(X_cnt, 1, 10, 1)
-#' rdd_utils <- HydraR:::sysml.RDDConverterUtils$new()
-#' air_dist <- as.hydrar.matrix(air_dist)
+#' X_mc <- R4ML:::sysml.MatrixCharacteristics$new(X_cnt, 1, 10, 1)
+#' rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
+#' air_dist <- as.r4ml.matrix(air_dist)
 #' bb_df <- rdd_utils$dataFrameToBinaryBlock(air_dist, X_mc)
 #' }
 #'
@@ -429,7 +429,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
         \\tab convert the spark dataframe to systemML binary block.\\cr
       }'
       # args checking
-      stopifnot(class(df) == "hydrar.matrix",
+      stopifnot(class(df) == "r4ml.matrix",
                 class(mc) == "sysml.MatrixCharacteristics")
       fname <- "dataFrameToBinaryBlock"
       # Conversion happens in two phases: DataFrame --> Frame --> Matrix
@@ -443,12 +443,12 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
   )
 )
 
-#' @title An interface to execute dml via the Hydra.matrix and SystemML
+#' @title An interface to execute dml via the r4ml.matrix and SystemML
 #' @description execute the dml code or script via the systemML library
 #' @name sysml.execute
 #' @param dml a string containing dml code or the file containing dml code
 #' @param ... arguments to be passed to the DML
-#' @return a named list containing hydrar.matrix for each output
+#' @return a named list containing r4ml.matrix for each output
 #' @export
 #' @examples \dontrun{
 #'
@@ -458,7 +458,7 @@ sysml.execute <- function(dml, ...) {
   log_source <- "sysml.execute"
   
   if (missing(dml)) {
-    hydrar.err(log_source, "Must have the dml file or script")
+    r4ml.err(log_source, "Must have the dml file or script")
   }
   # extract the DML code to be run
   # note dml can be file or string.
@@ -470,16 +470,16 @@ sysml.execute <- function(dml, ...) {
     if (file.exists(dml)) {
       is.file <- TRUE
     } else {
-      dml = file.path(hydrar.env$SYSML_ALGO_ROOT(), dml)
+      dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), dml)
       if (file.exists(dml)) {
         is.file <- TRUE
       } else {
-        hydrar.err(log_source, dml %++% " file doesn't exists")
+        r4ml.err(log_source, dml %++% " file doesn't exists")
       }
     }
   }
 
-  # extract the arguement which are non hydrar.frame
+  # extract the arguement which are non r4ml.frame
   ml_ctx = sysml.MLContext$new()
   ml_ctx$reset()
   dml_arg_keys <- c()
@@ -487,20 +487,20 @@ sysml.execute <- function(dml, ...) {
   out_args <- c()
   if (!missing(...)) {
     args <- list(...)
-    rdd_utils<- HydraR:::sysml.RDDConverterUtils$new()
+    rdd_utils<- R4ML:::sysml.RDDConverterUtils$new()
     arg_names <- names(args)
     i = 1
     for (arg_val in args) {
       arg_name <- arg_names[i]
       i <- i + 1
-      if (class(arg_val) == "hydrar.matrix") {
+      if (class(arg_val) == "r4ml.matrix") {
         hm = arg_val
         # now v is the numeric dataframe
         #find the characteristics of the dataframe
         hm_nrows <- SparkR:::count(hm)
         hm_ncols <- length(SparkR:::colnames(hm))
-        bm_nrows <- min(hm_nrows, hydrar.env$SYSML_BLOCK_MATRIX_SIZE$nrows)
-        bm_ncols <- min(hm_ncols,  hydrar.env$SYSML_BLOCK_MATRIX_SIZE$ncols)
+        bm_nrows <- min(hm_nrows, r4ml.env$SYSML_BLOCK_MATRIX_SIZE$nrows)
+        bm_ncols <- min(hm_ncols,  r4ml.env$SYSML_BLOCK_MATRIX_SIZE$ncols)
         mc = sysml.MatrixCharacteristics(hm_nrows, hm_ncols, bm_nrows, bm_ncols)
         hm_jrdd <- rdd_utils$dataFrameToBinaryBlock(hm, mc)
         ml_ctx$registerInput(arg_name, hm_jrdd, mc)
@@ -524,9 +524,9 @@ sysml.execute <- function(dml, ...) {
        ml_ctx$executeScript(dml_code, dml_arg_keys, dml_arg_vals)
      }
    }, warning = function(war) {
-        hydrar.err(log_source, paste("DML returned warning:", war))
+        r4ml.err(log_source, paste("DML returned warning:", war))
    }, error = function(err) {
-        hydrar.err(log_source, paste("DML returned error:", err))
+        r4ml.err(log_source, paste("DML returned error:", err))
    }, finally = {
         options(warning.length = previous_warning_length)
    }
@@ -537,7 +537,7 @@ sysml.execute <- function(dml, ...) {
   outputs <- list()
   for (out_arg in out_args) {
     out_df <- sysml_outs$getDF(out_arg)
-    out_hm <- as.hydrar.matrix(as.hydrar.frame(out_df, repartition = FALSE))
+    out_hm <- as.r4ml.matrix(as.r4ml.frame(out_df, repartition = FALSE))
     outputs[out_arg] <- out_hm
   }
   outputs

@@ -16,14 +16,14 @@
 #
 
 
-# Method to transform a hydrar.frame to a hydrar.matrix that can be read by DML 
+# Method to transform a r4ml.frame to a r4ml.matrix that can be read by DML 
 #'
-#' @name hydrar.ml.preprocess
+#' @name r4ml.ml.preprocess
 #' @title Data preparation for statistical analysis and machine learning algorithms
-#' @description Performs various data preparation operations on a \code{hydrar.frame} and produces a \code{hydrar.matrix}.
+#' @description Performs various data preparation operations on a \code{r4ml.frame} and produces a \code{r4ml.matrix}.
 #'              Five operations are supported:
 #'              
-#'              1. \emph{Imputation of missing values}: Missing values (i.e., NA's in the input \code{hydrar.frame})
+#'              1. \emph{Imputation of missing values}: Missing values (i.e., NA's in the input \code{r4ml.frame})
 #'              on the specified columns will be replaced according to the method set in \code{imputationMethod}.
 #'              \strong{Note}: NA values must be handled by either imputation (parameter \code{missingAttrs})
 #'              or exclusion (parameter \code{omit.na}).
@@ -45,18 +45,18 @@
 #'
 #'              The resulting matrix and the transform metadata will be returned and it's user's responsibility to store the data
 #'             \code{transformPath}). The transform metadata can be  
-#'              used to perform the same set of transformations on another \code{hydrar.frame}, through parameter \code{applyTransformPath}.
-#' @param data (hydrar.frame) The data to be transformed.
+#'              used to perform the same set of transformations on another \code{r4ml.frame}, through parameter \code{applyTransformPath}.
+#' @param data (r4ml.frame) The data to be transformed.
 #' @param transformPath (character) Path on HDFS where the transform metadata (e.g., recode maps, dummy-code maps, etc.) will be stored.
 #' @param applyTransformPath (character) Path of an existing transform metadata folder. 
-#'                                       If specified, \code{hydrar.ml.preprocess()} will apply the same transformations to \code{bf}.
-#'                                       Transform metadata for the resulting hydrar.matrix will be copied to the location specified in \code{transformPath}.
+#'                                       If specified, \code{r4ml.ml.preprocess()} will apply the same transformations to \code{bf}.
+#'                                       Transform metadata for the resulting r4ml.matrix will be copied to the location specified in \code{transformPath}.
 #'                                       Parameter \code{applyTransformPath} is optional.
 #' @param recodeAttrs (character) Names of attributes to be recoded. All columns of type 'character' will be recoded, even if they do not
 #'                                appear in \code{recodeAttrs}.
 #' @param missingAttrs (character) Names of of attributes containing missing values to be filled in using an imputation method.
-#'                                 \strong{Note}: 1) Function \code{hydrar.which.na.cols()} can be run to find out which columns contain missing values.
-#'                                       2) If no imputation is done on a column with missing values, and such column is not part of \code{omit.na}, hydrar.ml.preprocess 
+#'                                 \strong{Note}: 1) Function \code{r4ml.which.na.cols()} can be run to find out which columns contain missing values.
+#'                                       2) If no imputation is done on a column with missing values, and such column is not part of \code{omit.na}, r4ml.ml.preprocess 
 #'                                       will throw an error, as all NA values must be handled. Parameter \code{omit.na} can be used to remove all rows which have missing values
 #'                                       in specific columns.
 #' @param imputationMethod (character) String value or vector containing the imputation method(s) to be used to fill in missing values.
@@ -86,10 +86,10 @@
 #'                      Current options for scaling methods include "mean-subtraction" and "z-score".
 #' @param omit.na (character) Names of columns for which, if there are any missing values not handled in \code{missingAttrs},
 #'                          the corresponding rows are excluded from the dataset.
-#' @return A \code{hydrar.matrix} object as the result of the transformations. \code{hydrar.matrix}
-#' @details The transformed dataset will be returned as a \code{hydrar.matrix} object.
+#' @return A \code{r4ml.matrix} object as the result of the transformations. \code{r4ml.matrix}
+#' @details The transformed dataset will be returned as a \code{r4ml.matrix} object.
 #'                      The transform meta-info is also returned. 
-#'                      of the resulting \code{hydrar.matrix}. This is helpful to keep track of which transformations
+#'                      of the resulting \code{r4ml.matrix}. This is helpful to keep track of which transformations
 #'                      were performed as well as to apply the same set of transformations to a different dataset.
 #'           
 #'                      
@@ -106,15 +106,15 @@
 #' @examples \dontrun{
 #' 
 #' # Load the Iris dataset to the cluster
-#' irisBF <- as.hydrar.frame(iris)
+#' irisBF <- as.r4ml.frame(iris)
 #' 
 #' # Find out which columns have NA values
-#' hydrar.which.na.cols(irisBF)
+#' r4ml.which.na.cols(irisBF)
 #' 
-#' # Create a hydrar.matrix object from the dataset. Column Species will be automatically recoded.
+#' # Create a r4ml.matrix object from the dataset. Column Species will be automatically recoded.
 #' # as it is of type character. Since the dataset doesn't have missing values, no further
 #' # action is required.
-#' irisBM <- hydrar.ml.preprocess(irisBF, transformPath = "/tmp")
+#' irisBM <- r4ml.ml.preprocess(irisBF, transformPath = "/tmp")
 #' 
 #' 
 #' # Create a copy of the Iris dataset and introduce some NA values in it
@@ -124,14 +124,14 @@
 #' iris2[100, 4] <- NA
 #' 
 #' # Upload the modified version of Iris to HDFS
-#' irisBF <- as.hydrar.frame(iris2)
+#' irisBF <- as.r4ml.frame(iris2)
 #' 
 #' # Find out which columns have NA values
-#' hydrar.which.na.cols(irisBF)
+#' r4ml.which.na.cols(irisBF)
 #' 
-#' # Create a hydrar.matrix after dummycoding, binning, and scaling some attributes. Missing values
+#' # Create a r4ml.matrix after dummycoding, binning, and scaling some attributes. Missing values
 #' # must be handled accordingly.
-#' irisBM <- hydrar.ml.preprocess(irisBF, transformPath = "/tmp",
+#' irisBM <- r4ml.ml.preprocess(irisBF, transformPath = "/tmp",
 #'             dummycodeAttrs = "Species",
 #'             binningAttrs = c("Sepal_Length", "Sepal_Width"),
 #'             numBins = 4,
@@ -141,11 +141,11 @@
 #'  )
 #'                                                                            
 #' # Apply existing transformations to a new dataset
-#' irisbf2 <- as.hydrar.frame(iris)
-#' irisBM2 <- hydrar.ml.preprocess(irisbf2, applyTransformPath = "/tmp", 
+#' irisbf2 <- as.r4ml.frame(iris)
+#' irisBM2 <- r4ml.ml.preprocess(irisbf2, applyTransformPath = "/tmp", 
 #'                           transformPath = "/tmp")
 #' }
-hydrar.ml.preprocess <- function(
+r4ml.ml.preprocess <- function(
   data,
   transformPath = NULL,
   applyTransformPath = NULL, 
@@ -161,8 +161,8 @@ hydrar.ml.preprocess <- function(
   scalingMethod = "mean-subtraction",
   omit.na = colnames(data))
 {
-  logSource <- "hydrar.ml.preprocess"
- .hydrar.transform.argumentsPreconditions(
+  logSource <- "r4ml.ml.preprocess"
+ .r4ml.transform.argumentsPreconditions(
     data, 
     transformPath,
     applyTransformPath, 
@@ -192,7 +192,7 @@ hydrar.ml.preprocess <- function(
   }
   
   
-  .hydrar.transform.validateTransformOptions(
+  .r4ml.transform.validateTransformOptions(
     data,
     transformPath,
     recodeAttrs,
@@ -217,7 +217,7 @@ hydrar.ml.preprocess <- function(
   
   # @TODO ALOK comment this out and we will have it in future, when we have applyTransform
   # if (!is.null(applyTransformPath) && (applyTransformPath!="")) {
-  #  return(hydrar.apply.transform(data, outData, transformPath, applyTransformPath))
+  #  return(r4ml.apply.transform(data, outData, transformPath, applyTransformPath))
   #}
   
   # @TODO BEGIN dml_transform
@@ -249,7 +249,7 @@ hydrar.ml.preprocess <- function(
   #         error = function(e) )
   # END dml_transform
  
-  #create a hydrar matrix 
+  #create a r4ml matrix 
   # here is the order of application of the code
   # 1. we apply the na omit
   # 2. we apply the na imputation
@@ -265,7 +265,7 @@ hydrar.ml.preprocess <- function(
   proxy.omit.na <- function(data) {
     rhf = data
     if (is.omit.na) {
-      rhf <- as.hydrar.frame(SparkR::dropna(data, cols = omit.na), repartition = FALSE)
+      rhf <- as.r4ml.frame(SparkR::dropna(data, cols = omit.na), repartition = FALSE)
       ignore <- cache(rhf)
     }
     metadata <- list()
@@ -287,11 +287,11 @@ hydrar.ml.preprocess <- function(
         } else if (method == "constant") {
           iargs[[missingAttr]] <- imputationValues[[missingAttr]]
         } else {
-          hydrar.err(logSource, "unknown method")
+          r4ml.err(logSource, "unknown method")
         }
       }
-      hf_info <- do.call("hydrar.impute", list(data, iargs))
-      #hf_info <- hydrar.impute(unlist(iargs))
+      hf_info <- do.call("r4ml.impute", list(data, iargs))
+      #hf_info <- r4ml.impute(unlist(iargs))
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
@@ -301,10 +301,10 @@ hydrar.ml.preprocess <- function(
     list(data=rhf, metadata=rmd)
   }
   #3.
-  #hf3 = hydrar.scale(hf2$data)
+  #hf3 = r4ml.scale(hf2$data)
   proxy.normalize <- function(data) {
     if (length(scalingAttrs) > 0) {
-      hf_info <- hydrar.normalize(data, scalingAttrs)
+      hf_info <- r4ml.normalize(data, scalingAttrs)
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
@@ -316,7 +316,7 @@ hydrar.ml.preprocess <- function(
   #4.
   proxy.binning <- function(data) {
     if (length(binningAttrs) > 0) {
-      hf_info <- hydrar.binning(data, binningAttrs, numBins)
+      hf_info <- r4ml.binning(data, binningAttrs, numBins)
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
@@ -329,7 +329,7 @@ hydrar.ml.preprocess <- function(
   proxy.recode <- function(data) {
     if (length(recodeAttrs) > 0) {
       rargs <- list(data, recodeAttrs)
-      hf_info <- hydrar.recode(data, recodeAttrs)
+      hf_info <- r4ml.recode(data, recodeAttrs)
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
@@ -343,8 +343,8 @@ hydrar.ml.preprocess <- function(
     if (length(dummycodeAttrs) > 0) {
       # now by this time everything should be convertable to 
       # matrix
-      hf_m <- as.hydrar.matrix(data)
-      hf_info <- hydrar.onehot(hf_m, dummycodeAttrs)
+      hf_m <- as.r4ml.matrix(data)
+      hf_info <- r4ml.onehot(hf_m, dummycodeAttrs)
       rhf <- hf_info$data
       rmd <- hf_info$metadata
     } else {
@@ -363,7 +363,7 @@ hydrar.ml.preprocess <- function(
   next_frame <- curr_frame
   metadata = list(order=pp_order)
   for (pp in pp_order) {
-    hydrar.info(logSource, paste("running", pp))
+    r4ml.info(logSource, paste("running", pp))
     curr_frame <- next_frame
     pp_res_info <- do.call(pp, list(curr_frame))
     next_frame <- pp_res_info$data
@@ -377,7 +377,7 @@ hydrar.ml.preprocess <- function(
 
 
 
-.hydrar.transform.argumentsPreconditions <- function(
+.r4ml.transform.argumentsPreconditions <- function(
   data, 
   transformPath,
   applyTransformPath, 
@@ -400,39 +400,39 @@ hydrar.ml.preprocess <- function(
     otherParamsSpecified <- otherParamsSpecified || !is.null(binningAttrs) && binningAttrs!=""
     otherParamsSpecified <- otherParamsSpecified || !is.null(missingAttrs) && missingAttrs!=""
     if (otherParamsSpecified) {
-      hydrar.err(logSource, "Transform parameters (recodeAttrs, dummycodeAttrs, scalingAttrs, binningAttrs, missingAttrs)
+      r4ml.err(logSource, "Transform parameters (recodeAttrs, dummycodeAttrs, scalingAttrs, binningAttrs, missingAttrs)
                       must not be specified when applyTransformPath is provided.")
     }
   }
-  .hydrar.checkParameter(logSource, data, "hydrar.frame")
-  .hydrar.checkParameter(logSource, transformPath, "character", isNullOK=T, isOptional=T, checkExistence=T, expectedExistence=F)
-  .hydrar.checkParameter(logSource, applyTransformPath, "character", isNullOK=T, isOptional=T, checkExistence=T, expectedExistence=T)
-  .hydrar.checkParameter(logSource, recodeAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
-  .hydrar.checkParameter(logSource, missingAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
-  .hydrar.checkParameter(logSource, imputationMethod, "character", c("global_mean", "constant"), isNullOK=T, isOptional=T)
-  .hydrar.checkParameter(logSource, imputationValues, "list", , isNullOK=F, isOptional=T)
-  .hydrar.checkParameter(logSource, numBins, c("integer", "numeric"), isNullOK=T, isOptional=T, isSingleton=F)
-  .hydrar.checkParameter(logSource, binningMethod, "character", c("equi-width"), isNullOK=T, isOptional=T)
-  .hydrar.checkParameter(logSource, dummycodeAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
-  .hydrar.checkParameter(logSource, scalingAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
-  .hydrar.checkParameter(logSource, scalingMethod, "character", c("mean-subtraction", "z-score"), isNullOK=T, isOptional=T, isSingleton=F)
-  .hydrar.checkParameter(logSource, omit.na, "character", isNullOK=T, isOptional=T, isSingleton=F)
+  .r4ml.checkParameter(logSource, data, "r4ml.frame")
+  .r4ml.checkParameter(logSource, transformPath, "character", isNullOK=T, isOptional=T, checkExistence=T, expectedExistence=F)
+  .r4ml.checkParameter(logSource, applyTransformPath, "character", isNullOK=T, isOptional=T, checkExistence=T, expectedExistence=T)
+  .r4ml.checkParameter(logSource, recodeAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
+  .r4ml.checkParameter(logSource, missingAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
+  .r4ml.checkParameter(logSource, imputationMethod, "character", c("global_mean", "constant"), isNullOK=T, isOptional=T)
+  .r4ml.checkParameter(logSource, imputationValues, "list", , isNullOK=F, isOptional=T)
+  .r4ml.checkParameter(logSource, numBins, c("integer", "numeric"), isNullOK=T, isOptional=T, isSingleton=F)
+  .r4ml.checkParameter(logSource, binningMethod, "character", c("equi-width"), isNullOK=T, isOptional=T)
+  .r4ml.checkParameter(logSource, dummycodeAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
+  .r4ml.checkParameter(logSource, scalingAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
+  .r4ml.checkParameter(logSource, scalingMethod, "character", c("mean-subtraction", "z-score"), isNullOK=T, isOptional=T, isSingleton=F)
+  .r4ml.checkParameter(logSource, omit.na, "character", isNullOK=T, isOptional=T, isSingleton=F)
   
 
   #Disabling tranformPath checking for now
-  hydrar.debug(logSource,"Disabling transformPath checking for now")  
+  r4ml.debug(logSource,"Disabling transformPath checking for now")  
   #if (transformPath == "") {
-  #  hydrar.err(logSource, "Parameter 'transformPath' is not a valid path.")
+  #  r4ml.err(logSource, "Parameter 'transformPath' is not a valid path.")
   #}
   
   if (!is.null(applyTransformPath) && (applyTransformPath == "")) applyTransformPath <- NULL
   # @TODO ALOK in the future
-  # if (!is.null(applyTransformPath) && (.hydrar.isFileOrDirectory(applyTransformPath) != "DIRECTORY")) {
-  #  hydrar.err(logSource, "Parameter 'applyTransformPath' is not a valid path.")
+  # if (!is.null(applyTransformPath) && (.r4ml.isFileOrDirectory(applyTransformPath) != "DIRECTORY")) {
+  #  r4ml.err(logSource, "Parameter 'applyTransformPath' is not a valid path.")
   # }
 }
 
-.hydrar.transform.validateTransformOptions <- function(
+.r4ml.transform.validateTransformOptions <- function(
   data, 
   transformPath, 
   recodeAttrs,
@@ -450,30 +450,30 @@ hydrar.ml.preprocess <- function(
   logSource <- "validateTransformOptions"
   columnNames <- SparkR::colnames(data)
   if (!is.null(recodeAttrs) && any(is.na(match(recodeAttrs, columnNames)))) {
-    hydrar.err(logSource, "One or more columns specified in recodeAttrs do not exist in the dataset. [" %++%
+    r4ml.err(logSource, "One or more columns specified in recodeAttrs do not exist in the dataset. [" %++%
                paste(recodeAttrs, sep=",") %++% "].")
   }
   if (!is.null(missingAttrs) ) {
     if (any(is.na(match(missingAttrs, columnNames)))) {
-      hydrar.err(logSource, "One or more columns specified in missingAttrs do not exist in the dataset.")
+      r4ml.err(logSource, "One or more columns specified in missingAttrs do not exist in the dataset.")
     }
     missingAttrsIndex <- 1
     for (missingAttr in missingAttrs) {
       coltype <- SparkR::coltypes(data)[SparkR::colnames(data) %in% missingAttr]
       if (!coltype  %in% c("integer", "double", "numeric")) {
         if(!any(imputationMethod[missingAttrs %in% missingAttr] == c("constant"))){
-          hydrar.err(logSource, "Only 'constant' imputation method is supported on non-numeric columns [" %++% missingAttr %++% "].")
+          r4ml.err(logSource, "Only 'constant' imputation method is supported on non-numeric columns [" %++% missingAttr %++% "].")
         }
       }
       if (imputationMethod[missingAttrsIndex] == "constant" && length(imputationValues) != 0) {
         number_class = c("integer", "double", "numeric")
         if (coltype  %in% number_class) {
           if (!class(imputationValues[missingAttr][[1]]) %in% number_class) {
-            hydrar.err (logSource, "The class of the imputationValues must match the column type.")
+            r4ml.err (logSource, "The class of the imputationValues must match the column type.")
           }
         } else {
           if (coltype != class(imputationValues[missingAttr][[1]]) ) {
-            hydrar.err (logSource, "The class of the imputationValues must match the column type.")
+            r4ml.err (logSource, "The class of the imputationValues must match the column type.")
           }
         }
       }
@@ -483,11 +483,11 @@ hydrar.ml.preprocess <- function(
   
   if (!is.null(omit.na) ) {
     if (any(is.na(match(omit.na, columnNames)))) {
-      hydrar.err(logSource, "One or more columns specified in omit.na do not exist in the dataset.")
+      r4ml.err(logSource, "One or more columns specified in omit.na do not exist in the dataset.")
     }
     if (!is.null(missingAttrs) ) {
       if (any(!is.na(match(omit.na, missingAttrs)))) {
-        hydrar.err(logSource, "omit.na and missingAttrs should have an empty intersection.")
+        r4ml.err(logSource, "omit.na and missingAttrs should have an empty intersection.")
       }
     }
   }
@@ -496,25 +496,25 @@ hydrar.ml.preprocess <- function(
     if (!is.null(numBins)) {
       rows <- nrow(data)
       if (rows < max(numBins)) {
-        hydrar.err(logSource, "Number of bins is larger than the number of rows in the dataset [" %++% rows %++% "].")
+        r4ml.err(logSource, "Number of bins is larger than the number of rows in the dataset [" %++% rows %++% "].")
       }
     }
     if (any(is.na(match(binningAttrs, columnNames)))) {
-      hydrar.err(logSource, "One or more columns specified in binningAttrs do not exist in the dataset.")
+      r4ml.err(logSource, "One or more columns specified in binningAttrs do not exist in the dataset.")
     }
   }
   if (!is.null(dummycodeAttrs)) {
     if(any(is.na(match(dummycodeAttrs, columnNames)))) {
-      hydrar.err(logSource, "One or more columns specified in dummycodeAttrs do not exist in the dataset.")
+      r4ml.err(logSource, "One or more columns specified in dummycodeAttrs do not exist in the dataset.")
     }
     
     #         if(isAnyAttrOfType(hm = data, attrs = dummycodeAttrs, type = "numeric")) {
-    #             hydrar.err(logSource, "Numeric attributes are not allowed to be dummy coded.")
+    #             r4ml.err(logSource, "Numeric attributes are not allowed to be dummy coded.")
     #         }
   }
   if (!is.null(scalingAttrs)) {
     if (any(is.na(match(scalingAttrs, columnNames)))) {
-      hydrar.err(logSource, "One or more columns specified in scalingAttrs do not exist in the dataset.")
+      r4ml.err(logSource, "One or more columns specified in scalingAttrs do not exist in the dataset.")
     }
     if (missing(scalingMethod)) {
       scalingMethod <- rep("mean-subtraction", length(scalingAttrs))
@@ -524,39 +524,39 @@ hydrar.ml.preprocess <- function(
         scalingMethod <- rep(scalingMethod, length(scalingAttrs))
       }
       else {
-        hydrar.err(logSource, "The number of scaling columns does not match the length of scalingMethod.")
+        r4ml.err(logSource, "The number of scaling columns does not match the length of scalingMethod.")
       }
     }
   
     if(isAnyAttrOfType(data, scalingAttrs, "character")) {
-      hydrar.err(logSource, "Scaling can not be performed on nominal columns.")
+      r4ml.err(logSource, "Scaling can not be performed on nominal columns.")
     }
     if (!is.null(recodeAttrs)) {
       if (any(scalingAttrs %in% recodeAttrs)) {
-        hydrar.err(logSource, "recoded attributes can not be scaled.")
+        r4ml.err(logSource, "recoded attributes can not be scaled.")
       }
     }
   }
   if (!is.null(binningAttrs)) {
     if (missing(numBins)) {
-      hydrar.err(logSource, "numBins must be specified for each attribute in binningAttrs.")
+      r4ml.err(logSource, "numBins must be specified for each attribute in binningAttrs.")
     }
     if (length(numBins) != length(binningAttrs)) {
       if (length(numBins) == 1) {
         numBins <- rep(numBins, length(binningAttrs))
       }
       else {
-        hydrar.err(logSource, "The number of binning columns does not match the length of numBins.")
+        r4ml.err(logSource, "The number of binning columns does not match the length of numBins.")
       }
     }
   }
   
   if (!is.null(numBins)) {
     if (any(numBins < 2)) {
-      hydrar.err(logSource, "The number of bins for binning columns must be greater than or equal to 2.")
+      r4ml.err(logSource, "The number of bins for binning columns must be greater than or equal to 2.")
     }
     if (any(ceiling(numBins) != floor(numBins))) {
-      hydrar.err(logSource, "One or more values in the numBins is invalid, expect positive integers.")
+      r4ml.err(logSource, "One or more values in the numBins is invalid, expect positive integers.")
     }
   }
   
@@ -568,23 +568,23 @@ hydrar.ml.preprocess <- function(
   
   # the intersection between binningAttrs and rcdList should be empty
   if (!is.null(rcdList) && !is.null(binningAttrs) && (length(intersect(rcdList, binningAttrs)) != 0)) {
-    hydrar.err(logSource, "The intersection between binningAttrs and the columns to be recoded should be empty.")
+    r4ml.err(logSource, "The intersection between binningAttrs and the columns to be recoded should be empty.")
   }
   
   # dummy code column is either a recoded or binning column
   binningOrRecodeList <- union(binningAttrs, rcdList)
   if (!is.null(dummycodeAttrs) && any(is.na(match(dummycodeAttrs, binningOrRecodeList)))) {
-    hydrar.err(logSource, "One or more columns specified in dummycodeAttrs are not part of the recoded or binning column list.")
+    r4ml.err(logSource, "One or more columns specified in dummycodeAttrs are not part of the recoded or binning column list.")
   }
   
   # missing imputation can't be done on a recoded column
   #     if (!is.null(rcdList) && !is.null(missingAttrs) && (length(intersect(rcdList, missingAttrs)) != 0)) {
-  #         hydrar.err(logSource, "The intersection between missingAttrs and the columns to be recoded should be empty.")
+  #         r4ml.err(logSource, "The intersection between missingAttrs and the columns to be recoded should be empty.")
   #     }
   
   # a column can not be both binning and scaling
   if (!is.null(binningAttrs) && !is.null(scalingAttrs) && (length(intersect(binningAttrs, scalingAttrs) != 0))) {
-    hydrar.err(logSource, "The intersection between binningAttrs and scalingAttrs should be empty.")
+    r4ml.err(logSource, "The intersection between binningAttrs and scalingAttrs should be empty.")
   }
   list("rcdList" = rcdList)
 }

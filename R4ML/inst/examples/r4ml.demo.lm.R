@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,37 +14,37 @@
 # limitations under the License.
 #
 
-# load library HydraR
-library(HydraR)
-hydrar.session()
+# load library R4ML
+library(R4ML)
+r4ml.session()
 
 # example paths for custom dataset
 # path = "/user/data-scientist/airline/1987.csv"
 #path = "/user/data-scientist/airline/*1987.csv"
-# df <- HydraR:::hydrar.read.csv(path, inferSchema=TRUE, header=TRUE)
+# df <- R4ML:::r4ml.read.csv(path, inferSchema=TRUE, header=TRUE)
 
 # we would like to limit the dataset to a size so that we can run test faster
 # df_max_size <- 1000
 df_max_size <- 100000
 
 # read in data
-airline_hf <- as.hydrar.frame(airline)
+airline_hf <- as.r4ml.frame(airline)
 
 # remove CancellationCode from dataset
 names <- colnames(airline_hf)
 to_remove = c("CancellationCode")
 selected_columns <- names[(names!=to_remove)]
-airline_hf <- as.hydrar.frame(select(airline_hf, selected_columns))
+airline_hf <- as.r4ml.frame(select(airline_hf, selected_columns))
 
 # limit the number of rows so that we can control the size
 airline_hf <- limit(airline_hf, df_max_size)
 airline_hf <- cache(airline_hf)
 
-#convert to hydrar frame
-airline_hf <- as.hydrar.frame(airline_hf)
+#convert to r4ml frame
+airline_hf <- as.r4ml.frame(airline_hf)
 
 # do the preprocessing of the data set
-airline_transform <- hydrar.ml.preprocess(
+airline_transform <- r4ml.ml.preprocess(
   airline_hf, transformPath="/tmp",
   recodeAttrs=c("UniqueCarrier", "TailNum", "Origin", "Dest", "Month", "DayOfWeek"),
   omit.na=c("UniqueCarrier", "TailNum", "Origin", "Dest"),
@@ -55,25 +55,25 @@ airline_transform <- hydrar.ml.preprocess(
 # sample dataset into train and test
 
 # actual data
-sampled_data <- hydrar.sample(airline_transform$data, perc=c(0.7, 0.3))
+sampled_data <- r4ml.sample(airline_transform$data, perc=c(0.7, 0.3))
 # metadata to look at the decode value and other attributes
 metadata <- airline_transform$metadata
 
-train <- as.hydrar.matrix(sampled_data[[1]])
-test <- as.hydrar.matrix(sampled_data[[2]])
+train <- as.r4ml.matrix(sampled_data[[1]])
+test <- as.r4ml.matrix(sampled_data[[2]])
 ignore <- cache(train)
 ignore <- cache(test)
 
 # train the lm model
-lm <- hydrar.lm(DepTime ~ ., train)
+lm <- r4ml.lm(DepTime ~ ., train)
 
 # run the prediction
-test <- as.hydrar.matrix(test)
+test <- as.r4ml.matrix(test)
 pred <- predict(lm, test)
 # To print all outputs, just call pred
 head(pred$predictions)
 pred$statistics
 
-# exit R/HydraR
-hydrar.session.stop()
+# exit R/R4ML
+r4ml.session.stop()
 quit("no")

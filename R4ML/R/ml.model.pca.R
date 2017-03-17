@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,39 +15,39 @@
 #
 # This class represents a Principal Component Analysis model
 setClass(
-  "hydrar.pca",
+  "r4ml.pca",
   representation(
     k = "numeric",
     eigen.vectors = "data.frame",
     std.deviations = "data.frame",
     eigen.values = "data.frame"
   ),
-  contains = "hydrar.model"
+  contains = "r4ml.model"
 )
 
 # @TODO To implement fraction of retained variance
 # @TODO Implement predict and summary functions
 
-#' @name hydrar.pca
+#' @name r4ml.pca
 #' @title Principal Component Analysis (PCA)
-#' @description Builds a Principal Component Analysis (PCA) model on a given hydrar.matrix, allows to project
+#' @description Builds a Principal Component Analysis (PCA) model on a given r4ml.matrix, allows to project
 #' a given dataset into the new feature space.
-#' @details hydrar.pca() computes the eigen vectors, eigen values, and square roots of
+#' @details r4ml.pca() computes the eigen vectors, eigen values, and square roots of
 #' the eigen values on the given dataset.
-#' @param data (hydrar.matrix) the dataset which PCA will be applied to
+#' @param data (r4ml.matrix) the dataset which PCA will be applied to
 #' @param k (integer) the number of dimensions in the new feature space
 #' @param center (logical) a boolean value indicating whether all columns in the data should be centered to have zero mean.
 #' Default is set to FALSE.
 #' @param scale (logical) a boolean value indicating whether all columns in the data should be scaled to have variance one.
 #' Default is set to FALSE.
 #' @param projData (logical) a boolean value indicating whether the data should be projected in the new feature space. If
-#' set to TRUE, a list (hydrar.pca model, hydrar.matrix projData) is returned. If set to FALSE, only the hydrar.pca model is returned.
+#' set to TRUE, a list (r4ml.pca model, r4ml.matrix projData) is returned. If set to FALSE, only the r4ml.pca model is returned.
 #' Default value for \code{projData} is TRUE.
-#' @param applyPCA (hydrar.pca) (optional) Currently is not supported. In future this option will import an existing hydrar.pca model. If provided, \code{data} will be projected to the
-#' new feature space given the existing eigen vectors. In this case, a new hydrar.matrix will be returned.
+#' @param applyPCA (r4ml.pca) (optional) Currently is not supported. In future this option will import an existing r4ml.pca model. If provided, \code{data} will be projected to the
+#' new feature space given the existing eigen vectors. In this case, a new r4ml.matrix will be returned.
 #' @export
-#' @return hydrar.pca S4 object is returned if projData is set to FALSE:\cr
-#' A hydrar.pca S4 object contains the following additional fields:
+#' @return r4ml.pca S4 object is returned if projData is set to FALSE:\cr
+#' A r4ml.pca S4 object contains the following additional fields:
 #'
 ##' \tabular{rlll}{
 ##'\tab\code{eigen.vectors}       \tab (data.frame) \tab The eigen vectors. \cr
@@ -57,28 +57,28 @@ setClass(
 ##'including the parameters and values passed to it.\cr
 ##'}
 #'
-#' If projData is set to TRUE a list is returned containing (1) a hydrar.pca model and (2) a hydrar.matrix with the new data
-## @TODO add  @seealso link{hydrar.transform}
+#' If projData is set to TRUE a list is returned containing (1) a r4ml.pca model and (2) a r4ml.matrix with the new data
+## @TODO add  @seealso link{r4ml.transform}
 #'
 #' @examples \dontrun{
 #'
 #' # Load the Iris dataset to HDFS
-#' train <- as.hydrar.matrix(iris[, -5])
+#' train <- as.r4ml.matrix(iris[, -5])
 #'
-#' # Create a hydrar.pca model on Iris and projected data. Then display the new feature set(ie the principal components),
+#' # Create a r4ml.pca model on Iris and projected data. Then display the new feature set(ie the principal components),
 #' # eigen values, eigen vectors, standard deviations (i.e., the square roots of the eigen values)
-#' iris_pca <- hydrar.pca(train, center = TRUE, scale = TRUE, k = 2)
+#' iris_pca <- r4ml.pca(train, center = TRUE, scale = TRUE, k = 2)
 #' show(iris_pca$model)
 #'
 #' # projData set to False: Only the eigen values, eigen vectors and standard deviations are returned.
-#' iris_pca <- hydrar.pca(train, center = TRUE, scale = TRUE, k = 2, projData = FALSE)
+#' iris_pca <- r4ml.pca(train, center = TRUE, scale = TRUE, k = 2, projData = FALSE)
 #' show(iris_pca)
 #'
 #' }
 #'
-hydrar.pca <- function(data, k, center, scale, projData, applyPCA) {
+r4ml.pca <- function(data, k, center, scale, projData, applyPCA) {
   pca <- new(
-    "hydrar.pca",
+    "r4ml.pca",
     modelType = "feature-extraction",
     data = data,
     k = k,
@@ -104,37 +104,37 @@ hydrar.pca <- function(data, k, center, scale, projData, applyPCA) {
   # @TODO Support applyPCA for future. applyPCA allows import of an existing PCA model
   # @NOTE cannot use read.csv since it is not scalable
   # If an existing model is provided, one should only project in the new feature space
-  # and return a hydrar.matrix with the new dataset
+  # and return a r4ml.matrix with the new dataset
   
   
 }
 
 # overloaded method which checks the training parameters of the pca model
 setMethod(
-  "hydrar.model.validateTrainingParameters",
-  signature = "hydrar.pca",
+  "r4ml.model.validateTrainingParameters",
+  signature = "r4ml.pca",
   def =
     function(model, args) {
-      logSource <- "hydrar.model.validateTrainingParameters.hydrar.pca"
+      logSource <- "r4ml.model.validateTrainingParameters.r4ml.pca"
       with(args, {
-        .hydrar.checkParameter(logSource, center, "logical", c(T, F), isOptional =
+        .r4ml.checkParameter(logSource, center, "logical", c(T, F), isOptional =
                                  T)
-        .hydrar.checkParameter(logSource, scale, "logical", c(T, F), isOptional =
+        .r4ml.checkParameter(logSource, scale, "logical", c(T, F), isOptional =
                                  T)
-        .hydrar.checkParameter(logSource, k, c("numeric", "integer"), isOptional =
+        .r4ml.checkParameter(logSource, k, c("numeric", "integer"), isOptional =
                                  T)
-        .hydrar.checkParameter(logSource, projData, "logical", c(T, F), isOptional =
+        .r4ml.checkParameter(logSource, projData, "logical", c(T, F), isOptional =
                                  T)
-        .hydrar.checkParameter(logSource, applyPCA, "hydrar.pca", isOptional =
+        .r4ml.checkParameter(logSource, applyPCA, "r4ml.pca", isOptional =
                                  T)
         
         if (!missing(k)) {
           if (k < 1) {
-            hydrar.err(logSource,
+            r4ml.err(logSource,
                        "Parameter k must be a positive integer number.")
           }
           if (k >= SparkR::ncol(data)) {
-            hydrar.err(logSource,
+            r4ml.err(logSource,
                        "Parameter k must be less than the original number of features.")
           }
         }
@@ -146,14 +146,14 @@ setMethod(
 # Overwrite the base model's method to build the traning args which will be
 # passed to the dml script to run
 setMethod(
-  "hydrar.model.buildTrainingArgs",
-  signature = "hydrar.pca",
+  "r4ml.model.buildTrainingArgs",
+  signature = "r4ml.pca",
   def =
     function(model, args) {
-      logSource <- "hydrar.model.buildTrainingArgs.hydrar.pca"
+      logSource <- "r4ml.model.buildTrainingArgs.r4ml.pca"
       dmlArgs <- list()
       dmlPath <-
-        file.path(hydrar.env$SYSML_ALGO_ROOT(), hydrar.env$DML_PCA_SCRIPT)
+        file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_PCA_SCRIPT)
       with(args,  {
         dmlArgs <- list(
           dml = dmlPath,
@@ -198,13 +198,13 @@ setMethod(
 # overwrite the base model's post training function so that one can
 # post process the final outputs from the dml scripts
 setMethod(
-  "hydrar.model.postTraining",
-  signature = "hydrar.pca",
+  "r4ml.model.postTraining",
+  signature = "r4ml.pca",
   def =
     function(model) {
       outputs <- model@dmlOuts$sysml.execute
       
-      #Converting hydra.matrix to data.frame for consumption
+      #Converting r4ml to data.frame for consumption
       model@std.deviations <-
         SparkR::as.data.frame(outputs$eval_stdev_dominant)
       colnames(model@std.deviations) <- "StdDev"
@@ -228,10 +228,10 @@ setMethod(
 
 setMethod(
   f = "show",
-  signature = "hydrar.pca",
+  signature = "r4ml.pca",
   definition =
     function(object) {
-      logSource <- "show.hydrar.pca"
+      logSource <- "show.r4ml.pca"
       callNextMethod()
       
       # Add model specific values to be displayed

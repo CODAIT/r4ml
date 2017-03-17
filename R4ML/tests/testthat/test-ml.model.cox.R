@@ -1,5 +1,5 @@
 #
-# (C) Copyright IBM Corp. 2015, 2016
+# (C) Copyright IBM Corp. 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
 # limitations under the License.
 #
 
-context("Testing hydrar.cox\n")
+context("Testing r4ml.cox\n")
 
-test_that("hydrar.coxph", {
+test_that("r4ml.coxph", {
   
   # this test case works by building 2 cox models: 1 using survival::coxph and
-  # 1 using HydraR::hydrar.coxph. It then checks to make sure the outputs are
+  # 1 using R4ML::r4ml.coxph. It then checks to make sure the outputs are
   # the same
   
   
@@ -38,32 +38,32 @@ test_that("hydrar.coxph", {
   lung$ph_karno[which(is.na(lung$ph_karno))] <- 80
   
   
-  hydrar_lung <- as.hydrar.frame(lung, repartition = FALSE)
+  r4ml_lung <- as.r4ml.frame(lung, repartition = FALSE)
   
-  hydrar_lung_pp <- hydrar.ml.preprocess(hydrar_lung,
+  r4ml_lung_pp <- r4ml.ml.preprocess(r4ml_lung,
                                          transformPath = file.path(tempdir(), "cox"),
                                          dummycodeAttrs = c("sex", "ph_ecog"),
                                          recodeAttrs = c("sex", "ph_ecog"))
-  lung <- SparkR::as.data.frame(hydrar_lung_pp$data)
+  lung <- SparkR::as.data.frame(r4ml_lung_pp$data)
   
   surv_formula <- Surv(time, status) ~ age + sex_1 + ph_ecog_1 + ph_ecog_2 + ph_ecog_3
   
   cox_fit <- coxph(surv_formula, lung)
-  hydrar_cox_fit <- hydrar.coxph(hydrar_lung_pp$data, surv_formula,
+  r4ml_cox_fit <- r4ml.coxph(r4ml_lung_pp$data, surv_formula,
                                  baseline = list("sex_1", "ph_ecog_1", "ph_ecog_2", "ph_ecog_3"))
 
-  expect_true(abs(hydrar_cox_fit@coxModel["age","coef"] - cox_fit$coefficients["age"]) < .1)
+  expect_true(abs(r4ml_cox_fit@coxModel["age","coef"] - cox_fit$coefficients["age"]) < .1)
   
   #@TODO test predict
   
   #predict(cox_fit, type = "lp")
-  #hydrar_pred <- predict.hydrar.coxph(hydrar_cox_fit, hydrar_lung_pp$data)
+  #r4ml_pred <- predict.r4ml.coxph(r4ml_cox_fit, r4ml_lung_pp$data)
   #predict(cox_fit, type = "expected")
   #predict(cox_fit, type = "risk", se.fit = TRUE)
   #predict(cox_fit, type = "terms", se.fit = TRUE)
   })
 
-test_that("hydrar.coxph accuracy", {
+test_that("r4ml.coxph accuracy", {
   df <- survival::lung
   df$inst <- NULL
   df$sex <- NULL
@@ -71,12 +71,12 @@ test_that("hydrar.coxph accuracy", {
   colnames(df) <- c("time", "status", "age", "ph_ecog", "ph_karno", "pat_karno",
                     "meal_cal", "wt_loss")
 
-  hf <- as.hydrar.matrix(df)
+  hf <- as.r4ml.matrix(df)
 
   library("survival")
   cox_formula <- Surv(time, status) ~ age + ph_karno + pat_karno + wt_loss
 
-  h_cox <- hydrar.coxph(hf, cox_formula)
+  h_cox <- r4ml.coxph(hf, cox_formula)
   r_cox <- coxph(formula = cox_formula, data = df)
 
   h_cm <- h_cox@coxModel
