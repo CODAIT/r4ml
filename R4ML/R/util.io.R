@@ -133,28 +133,16 @@ create.r4ml.fs <- function() {
 r4ml.fs.mode <- function() {
   logSource <- "r4ml.fs.mode"
 
-  # yarn client and yarn both are the cluster mode
-  if (SparkR::sparkR.conf()$spark.master == "yarn-client") {
-    return("cluster")
-  }
-  if (SparkR::sparkR.conf()$spark.master == "yarn") {
-    return("cluster")
-  }
-  
-  # also if user specify the master url, then it is the cluster mode too
-  if (substr(SparkR::sparkR.conf()$spark.master, 1, 8) == "spark://") {
-    return("cluster")
-  }
-  
-  #user input or env has local[*] kind of settings
-  if (substr(SparkR::sparkR.conf()$spark.master, 1, 5) == "local") {
+  hadoop_conf <- SparkR:::callJMethod(sysmlSparkContext, "hadoopConfiguration")
+  default_fs <- SparkR:::callJMethod(hadoop_conf, "get", "fs.defaultFS")
+
+  if (substr(default_fs, 0, 4) == "file") {
     return("local")
   }
-  
-  # if the input is not one of the above it is most liklely some other kind of spark cluster
-  # TODO discuss, if it has to be local?
-  r4ml.warn(logSource, "Unable to determine file system. Defaulting to cluster mode.")
-  return("cluster")
+
+  if (substr(default_fs, 0, 4) == "hdfs") {
+    return("cluster")
+  }
 }
 
 # predicate to check if it is the local mode
