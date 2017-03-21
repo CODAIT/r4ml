@@ -87,11 +87,10 @@ r4ml.fatal <- r4ml.gen.logger("FATAL")
 r4ml.infoShow <- function(source, message) {
   if (exists("r4ml.logger", envir=.GlobalEnv)) {
     if (!r4ml.logger$isLoggable("INFO")) {
-      return
+      return(invisible(NULL))
     }
   } 
   source <- ifelse(missing(source), "", source)
-  message <- ifelse(missing(message), "", message)
   
   cat(sprintf("INFO[%s]", source))
   show(message)
@@ -102,11 +101,10 @@ r4ml.infoShow <- function(source, message) {
 r4ml.debugShow <- function(source, message) {
   if (exists("r4ml.logger", envir=.GlobalEnv)) {
     if (!r4ml.logger$isLoggable("DEBUG")) {
-      return
+      return(invisible(NULL))
     }
   }
   source <- ifelse(missing(source), "", source)
-  message <- ifelse(missing(message), "", message)
 
   cat(sprintf("DEBUG[%s]", source))
   show(message)
