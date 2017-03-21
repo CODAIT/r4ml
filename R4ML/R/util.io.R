@@ -143,6 +143,11 @@ r4ml.fs.mode <- function() {
   if (substr(default_fs, 0, 4) == "hdfs") {
     return("cluster")
   }
+
+  r4ml.warn(logSource,
+            "Unable to determine file system. Defaulting to cluster mode.")
+  
+  return("cluster")
 }
 
 # predicate to check if it is the local mode
