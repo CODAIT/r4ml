@@ -107,7 +107,7 @@ r4ml.coxph <- function(data,
                          formula,
                          baseline,
                          tolerance = 0.000001, # DML default
-                         conf.int = 0.05, # DML default
+                         conf.int = 0.95, # alpha = 0.05 is DML default
                          iter.max.inner = 0, # DML default
                          iter.max.outer = 100, # DML default
                          directory = file.path(tempdir(), "R4ML", "cox")) {
@@ -211,7 +211,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.coxph", def =
                 }
                   
                 if (!missing(conf.int)) {
-                  dmlArgs <- c(dmlArgs, alpha = conf.int)
+                  dmlArgs <- c(dmlArgs, alpha = 1 - conf.int)
                   model@conf.int <- conf.int
                 }
                 
