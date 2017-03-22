@@ -123,7 +123,7 @@ r4ml.startup.message <- function(libname, pkgname, ...) {
   packageStartupMessage(
     sprintf("[%s]: Default log level will be set to '%s'", logsrc, loglevel))
   packageStartupMessage(
-    sprintf("[%s]: To change call r4ml.logger$setLevel(NewLevel)", logsrc))
+    sprintf("[%s]: To change call r4ml.setLogLevel(NewLevel)", logsrc))
 }
 
 # a utlity function to check is sparkR loaded and is initialized
