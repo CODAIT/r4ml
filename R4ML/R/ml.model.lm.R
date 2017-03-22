@@ -119,7 +119,7 @@ r4ml.lm <- function(formula, data, method = "direct-solve", intercept=F, shiftAn
 }
 
 # overloaded method which checks the training parameters of the linear model
-setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.lm", def =
+setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.lm", definition =
   function(model, args) {
     logSource <- "r4ml.model.validateTrainingParameters"
     with(args, {
@@ -153,7 +153,7 @@ setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.lm", def =
 
 # Overwrite the base model's method to build the traning args which will be
 # passed to the dml script to run
-setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", def =
+setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
   function(model, args) {
     with(args,  {
       model@method <- method
@@ -200,7 +200,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", def =
 
 # overwrite the base model's post training function so that one can
 # post process the final outputs from the dml scripts
-setMethod("r4ml.model.postTraining", signature="r4ml.lm", def =
+setMethod("r4ml.model.postTraining", signature="r4ml.lm", definition =
   function(model) {
     outputs <- model@dmlOuts$sysml.execute
     #DEBUG browser()
@@ -248,7 +248,7 @@ setMethod(f = "show", signature = "r4ml.lm", definition =
 #' @param object (r4ml.lm) The linear regression model
 #' @return A data.frame with the coefficient for the learned model
 #' @seealso \link{show}
-setMethod("coef", signature="r4ml.lm", def =
+setMethod("coef", signature="r4ml.lm", definition =
   function(object) {
     obj <- SparkR::as.data.frame(object@dmlOuts[["beta_out"]])
     rownames(obj) <- object@featureNames
@@ -262,7 +262,7 @@ setMethod("coef", signature="r4ml.lm", def =
 #' @name stats
 #' @param object (r4ml.lm) The linear regression model
 #' @return A data.frame with the statistics data for the learned model
-setMethod("stats", signature="r4ml.lm", def =
+setMethod("stats", signature="r4ml.lm", definition =
   function(object) {
     return(object@dmlOuts$stats)
   }

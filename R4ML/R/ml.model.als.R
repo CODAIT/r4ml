@@ -65,7 +65,7 @@ r4ml.als <- function(data, rank, reg.type, lambda, iter.max, tolerance) {
       rank=rank, reg.type = reg.type, lambda=lambda, iter.max=iter.max, tolerance=tolerance)
 }
 
-setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.als", def =
+setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.als", definition =
   function(model, args) {
     
     logSource <- "r4ml.als"
@@ -112,7 +112,7 @@ setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.als", def =
 )
 
 
-setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.als", def =
+setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.als", definition =
   function(model, args) {
     with(args, {
       
@@ -152,7 +152,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.als", def =
   }
 )
 
-setMethod("r4ml.model.postTraining", signature = "r4ml.als", def =
+setMethod("r4ml.model.postTraining", signature = "r4ml.als", definition =
   function (model) {
     model@leftFactor <- model@dmlOuts$sysml.execute$L
     model@rightFactor <- model@dmlOuts$sysml.execute$Rt

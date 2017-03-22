@@ -43,8 +43,8 @@ setClass("r4ml.model",
 # ------------------------------------------------------
 # This method must be overloaded by every subclass of r4ml.model. In here, specific
 # model parameters can be validated: e.g., 'laplace' for Naive Bayes or 'intercept' for linear models.
-setGeneric("r4ml.model.validateTrainingParameters", def =
-  r4ml.model.validateTrainingParameters <- function(model, args) {
+setGeneric("r4ml.model.validateTrainingParameters", definition = 
+             r4ml.model.validateTrainingParameters <- function(model, args) {
     r4ml.err("r4ml.model.validateParmaters", "Class " %++% class(model) %++%
                " doesn't implement method r4ml.model.validateTrainingParameters.")
   }
@@ -55,7 +55,7 @@ setGeneric("r4ml.model.validateTrainingParameters", def =
 # This method must be overloaded by every subclass of r4ml.model. In here, each model
 # constructs the list of arguments that will be passed along to the DML script through
 # sysml.execute().
-setGeneric("r4ml.model.buildTrainingArgs", def =
+setGeneric("r4ml.model.buildTrainingArgs", definition =
   r4ml.model.buildTrainingArgs <- function(model, args) {
     r4ml.err("r4ml.model.buildTrainingArgs", "Class " %++% class(model) %++%
                 " doesn't implement method r4ml.model.buildTrainingArgs.")
@@ -66,7 +66,7 @@ setGeneric("r4ml.model.buildTrainingArgs", def =
 # ----------------------------------------------
 # This method must be overloaded by every subclass of r4ml.model. In here, each model
 # process, the output information created by dml scripts by calling sysml.execute()
-setGeneric("r4ml.model.postTraining", def =
+setGeneric("r4ml.model.postTraining", definition =
       r4ml.model.postTraining <- function(model) {
         r4ml.err("r4ml.model.postTraining", "Class " %++% class(model) %++%
        " doesn't implement method r4ml.model.postTraining.")
@@ -81,7 +81,7 @@ setGeneric("r4ml.model.postTraining", def =
 # Note: Argument emptyModelForDispatch is just an empty model. It is used for the
 # generic function to dispatch the corresponding version of r4ml.model.import for
 # each class extending from r4ml.model.
-setGeneric("r4ml.model.import", def =
+setGeneric("r4ml.model.import", definition =
   function(emptyModelForDispatch, directory) {
     r4ml.err("r4ml.model.import", "Class " %++% class(emptyModelForDispatch) %++%
               " doesn't implement method r4ml.model.import.")
@@ -125,30 +125,30 @@ setMethod("initialize", "r4ml.model",
     formula <- argValues$formula
     data <- argValues$data
     directory <- argValues$directory
-    .Object@call <- deparse(sys.call(sys.parent(3)), 500, nlines=1)
+    .Object@call <- deparse(sys.call(sys.parent(3)), 500, nlines = 1)
     .Object@modelType <- modelType
 
     # Validation of common parameters
     r4ml.debug(logSource, "Common parameter validation...")
-    .r4ml.checkParameter(logSource, data, inheritsFrom="r4ml.matrix", isOptional=T)
-    .r4ml.checkParameter(logSource, formula, "formula", isOptional=T, isNullOK=T)
+    .r4ml.checkParameter(logSource, data, inheritsFrom = "r4ml.matrix", isOptional = T)
+    .r4ml.checkParameter(logSource, formula, "formula", isOptional = T, isNullOK = T)
 
     # If neither formula nor data are provided, we should import the model from the
     # specified directory.
     if (isSupervised == TRUE) {
       if (missing(formula) && missing(data)) {
-        .r4ml.checkParameter(logSource, directory, "character", checkExistence=T, expectedExistence=T)
-        return (r4ml.model.import(new(class(.Object)), directory))
+        .r4ml.checkParameter(logSource, directory, "character", checkExistence = T, expectedExistence = T)
+        return(r4ml.model.import(new(class(.Object)), directory))
       } else if (missing(formula) || missing(data)) {
         # If the model requires a formula, check that both formula and data are provided
         r4ml.err(logSource, "Both formula and data arguments must be provided.")
       }
     } else if (missing(data)) {
-      .r4ml.checkParameter(logSource, directory, "character", checkExistence=T, expectedExistence=T)
-      return (r4ml.model.import(new(class(.Object)), directory))
+      .r4ml.checkParameter(logSource, directory, "character", checkExistence = T, expectedExistence = T)
+      return(r4ml.model.import(new(class(.Object)), directory))
     }
 
-    if(isFeatureExtraction == TRUE) {
+    if (isFeatureExtraction == TRUE) {
       r4ml.debug(logSource, "Feature Extraction is true, assigning data as INPUT param...")
       # place holder for future feature-extraction specific code
       #@TODO
@@ -180,7 +180,7 @@ setMethod("initialize", "r4ml.model",
     .Object@yColname <-
       if (isSupervised == TRUE) {
          r4ml.debug(logSource, "Getting response variable...")
-         r4ml.model.getResponseVariable(formula=formula, data=data, model=.Object)
+         r4ml.model.getResponseVariable(formula = formula, data = data, model = .Object)
       } else {
          as.character(NA)
       }
@@ -235,7 +235,7 @@ setMethod("initialize", "r4ml.model",
   }
 )
 
-setGeneric("r4ml.model.getResponseVariable", def =
+setGeneric("r4ml.model.getResponseVariable", definition =
   function(model, formula, data) {
     r4ml.err("r4ml.model.getResponseVariable", "Class " %++% class(model) %++%
               " doesn't implement method r4ml.model.getResponseVariable")
@@ -243,7 +243,7 @@ setGeneric("r4ml.model.getResponseVariable", def =
 )
 
 # Extract the response variable from a given formula
-setMethod("r4ml.model.getResponseVariable", signature="r4ml.model", definition =
+setMethod("r4ml.model.getResponseVariable", signature = "r4ml.model", definition =
   function(model, formula, data) {
     logSource <- "r4ml.model.getResponseVariable"
     #@TODO implement later
@@ -314,7 +314,7 @@ r4ml.getFunctionArguments <- function(call, env) {
   r4ml.debug(logSource, "Length of argValues: " %++% length(argValues))
   r4ml.debug(logSource, "Length of argNames: " %++% length(argNames))
   r4ml.debugShow(logSource,  argStrings)
-  for (i in 3 : length(argNames)) {
+  for (i in 3:length(argNames)) {
     #env <- sys.parent()
     if (!.r4ml.isNullOrEmpty(argStrings[[i]])) {
       #if (exists(as.character(argNames[[i]]), envir=env)) {
@@ -481,7 +481,7 @@ r4ml.getFunctionArguments <- function(call, env) {
         r4ml.err(logSource, "Target column for histograms and box plots must be numeric")
       }
 
-      if (length(groupByColnames) == 1 && groupByColnames==".") {
+      if (length(groupByColnames) == 1 && groupByColnames == ".") {
         groupByColnames = SparkR::colnames(data)[-targetColId]
         if (length(groupByColnames) < 1) {
    r4ml.err(logSource, sprintf("The %s specified does not have any groupby column. Colnames='%s'", class(data), colnames(data)))
@@ -492,7 +492,7 @@ r4ml.getFunctionArguments <- function(call, env) {
     groupByColIds <- match(groupByColnames, SparkR::colnames(data))
 
     if (checkNamesInData) {
-      if (.r4ml.hasNullOrEmpty(groupByColIds)){
+      if (.r4ml.hasNullOrEmpty(groupByColIds)) {
         r4ml.err(logSource, "At least one specified column does not belong to the given dataset")
       }
     }
