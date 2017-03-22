@@ -80,7 +80,7 @@ r4ml.step.lm <- function(formula, data, intercept=FALSE, shiftAndRescale=FALSE, 
       lambda=0, directory=directory, tolerance=r4ml.emptySymbol(), iter.max=r4ml.emptySymbol(), threshold=threshold)
 }
 
-setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.step.lm", def = 
+setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.step.lm", definition = 
   function(model, args) {
     logSource <- "r4ml.model.validateTrainingParameters"
       callNextMethod()
@@ -102,7 +102,7 @@ setMethod(f = "show", signature = "r4ml.step.lm", definition =
   }
 )
 
-setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.step.lm", def = 
+setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.step.lm", definition = 
   function(model, args) {
     with(args,{
       model@method <- method

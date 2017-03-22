@@ -124,7 +124,7 @@ r4ml.coxph <- function(data,
       directory = directory)
 }
 
-setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.coxph", def = 
+setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.coxph", definition = 
             function(model, args) {
               logSource <- "r4ml.model.validateTrainingParameters"
               with(args, {
@@ -155,7 +155,7 @@ setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.coxph", def =
               return (model)
               })
       
-setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.coxph", def = 
+setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.coxph", definition = 
             function(model, args) {
               logSource <- "r4ml.model.buildTrainingArgs.coxph"
               with(args, {
@@ -233,7 +233,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.coxph", def =
 
 # overwrite the base model's post training function so that one can
 # post process the final outputs from the dml scripts
-setMethod("r4ml.model.postTraining", signature="r4ml.coxph", def =
+setMethod("r4ml.model.postTraining", signature="r4ml.coxph", definition =
   function(model) {
     outputs <- model@dmlOuts$sysml.execute
 
