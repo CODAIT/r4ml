@@ -96,20 +96,20 @@ r4ml.fatal <- r4ml.gen.logger("FATAL")
 #' r4ml.session()
 #' r4ml.setLogLevel("WARN")
 #' }
-# allow user to set the log level
+#' @export
 r4ml.setLogLevel <- function(level, set.java.log = FALSE) {
-  if(!exists("r4ml.logger", envir=.GlobalEnv)) {
+  if (!exists("r4ml.logger", envir = .GlobalEnv)) {
     stop("R4ML session does not exist.")
   }
-  r4ml.logger$setLevel(level, ...)
+  r4ml.logger$setLevel(level, set.java.log)
 }
 
 #' r4ml.getLogLevel
 #' @description Get log level for the current session.
 #' @usage r4ml.getLogLevel()
-# allow use to get current log level
+#' @export
 r4ml.getLogLevel <- function(level) {
-  if (!exists("r4ml.logger", envir=.GlobalEnv)) {
+  if (!exists("r4ml.logger", envir = .GlobalEnv)) {
     stop("R4ML session does not exist.")
   }
   r4ml.logger$getLevel()
