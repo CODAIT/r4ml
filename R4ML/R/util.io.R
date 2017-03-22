@@ -83,6 +83,38 @@ r4ml.warn <- r4ml.gen.logger("WARN")
 r4ml.err <- r4ml.gen.logger("ERROR")
 r4ml.fatal <- r4ml.gen.logger("FATAL")
 
+#' r4ml.setLogLevel
+#' @description Set log level for the current session.
+#' @param level the level to be used. The various log levels that are supported are "ALL", "TRACE",
+#' "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF" in the increasing priority.
+#' @param set.java.log logical variable to set java log level. Default is FALSE.
+#' @details When R4ML session is started, the defalult log level is set to "INFO". This function allows to
+#' set the desired log level after the session is started. The java log level used by SystemML is set to ERROR
+#' by default. That behaviour can also be changed by setting the set.java.log flag to TRUE.
+#' @usage r4ml.setLogLevel("WARN")
+#' @examples \dontrun{
+#' r4ml.session()
+#' r4ml.setLogLevel("WARN")
+#' }
+# allow user to set the log level
+r4ml.setLogLevel <- function(level, set.java.log = FALSE) {
+  if(!exists("r4ml.logger", envir=.GlobalEnv)) {
+    stop("R4ML session does not exist.")
+  }
+  r4ml.logger$setLevel(level, ...)
+}
+
+#' r4ml.getLogLevel
+#' @description Get log level for the current session.
+#' @usage r4ml.getLogLevel()
+# allow use to get current log level
+r4ml.getLogLevel <- function(level) {
+  if (!exists("r4ml.logger", envir=.GlobalEnv)) {
+    stop("R4ML session does not exist.")
+  }
+  r4ml.logger$getLevel()
+}
+
 # in case we want to show the whole object. This might go away in future
 r4ml.infoShow <- function(source, message) {
   if (exists("r4ml.logger", envir=.GlobalEnv)) {
