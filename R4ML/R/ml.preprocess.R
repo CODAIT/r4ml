@@ -405,8 +405,8 @@ r4ml.ml.preprocess <- function(
     }
   }
   .r4ml.checkParameter(logSource, data, "r4ml.frame")
-  .r4ml.checkParameter(logSource, transformPath, "character", isNullOK=T, isOptional=T, checkExistence=T, expectedExistence=F)
-  .r4ml.checkParameter(logSource, applyTransformPath, "character", isNullOK=T, isOptional=T, checkExistence=T, expectedExistence=T)
+  .r4ml.checkParameter(logSource, transformPath, "character", isNullOK = TRUE, isOptional = TRUE)
+  .r4ml.checkParameter(logSource, applyTransformPath, "character", isNullOK = TRUE, isOptional = TRUE)
   .r4ml.checkParameter(logSource, recodeAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
   .r4ml.checkParameter(logSource, missingAttrs, "character", isNullOK=T, isOptional=T, isSingleton=F)
   .r4ml.checkParameter(logSource, imputationMethod, "character", c("global_mean", "constant"), isNullOK=T, isOptional=T)

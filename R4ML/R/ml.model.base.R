@@ -137,14 +137,14 @@ setMethod("initialize", "r4ml.model",
     # specified directory.
     if (isSupervised == TRUE) {
       if (missing(formula) && missing(data)) {
-        .r4ml.checkParameter(logSource, directory, "character", checkExistence=T, expectedExistence=T)
+        .r4ml.checkParameter(logSource, directory, "character")
         return (r4ml.model.import(new(class(.Object)), directory))
       } else if (missing(formula) || missing(data)) {
         # If the model requires a formula, check that both formula and data are provided
         r4ml.err(logSource, "Both formula and data arguments must be provided.")
       }
     } else if (missing(data)) {
-      .r4ml.checkParameter(logSource, directory, "character", checkExistence=T, expectedExistence=T)
+      .r4ml.checkParameter(logSource, directory, "character")
       return (r4ml.model.import(new(class(.Object)), directory))
     }
 
