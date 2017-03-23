@@ -208,7 +208,7 @@ predict.r4ml.als <- function(object, data, type, k){
   
   
   .r4ml.checkParameter(logSource, data, inheritsFrom="r4ml.matrix", isOptional=F);
-  .r4ml.checkParameter(logSource, directory, inheritsFrom="character", checkExistence=T, expectedExistence=F);
+  .r4ml.checkParameter(logSource, directory, inheritsFrom = "character")
   .r4ml.checkParameter(logSource, type, inheritsFrom="character", isOptional=T);
   .r4ml.checkParameter(logSource, k, inheritsFrom=c("integer","numeric"), isOptional=T);
   

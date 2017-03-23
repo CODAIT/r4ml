@@ -43,7 +43,7 @@ setClass("r4ml.model",
 # ------------------------------------------------------
 # This method must be overloaded by every subclass of r4ml.model. In here, specific
 # model parameters can be validated: e.g., 'laplace' for Naive Bayes or 'intercept' for linear models.
-setGeneric("r4ml.model.validateTrainingParameters", definition = 
+setGeneric("r4ml.model.validateTrainingParameters", def = 
              r4ml.model.validateTrainingParameters <- function(model, args) {
     r4ml.err("r4ml.model.validateParmaters", "Class " %++% class(model) %++%
                " doesn't implement method r4ml.model.validateTrainingParameters.")
@@ -55,7 +55,7 @@ setGeneric("r4ml.model.validateTrainingParameters", definition =
 # This method must be overloaded by every subclass of r4ml.model. In here, each model
 # constructs the list of arguments that will be passed along to the DML script through
 # sysml.execute().
-setGeneric("r4ml.model.buildTrainingArgs", definition =
+setGeneric("r4ml.model.buildTrainingArgs", def =
   r4ml.model.buildTrainingArgs <- function(model, args) {
     r4ml.err("r4ml.model.buildTrainingArgs", "Class " %++% class(model) %++%
                 " doesn't implement method r4ml.model.buildTrainingArgs.")
@@ -66,7 +66,7 @@ setGeneric("r4ml.model.buildTrainingArgs", definition =
 # ----------------------------------------------
 # This method must be overloaded by every subclass of r4ml.model. In here, each model
 # process, the output information created by dml scripts by calling sysml.execute()
-setGeneric("r4ml.model.postTraining", definition =
+setGeneric("r4ml.model.postTraining", def =
       r4ml.model.postTraining <- function(model) {
         r4ml.err("r4ml.model.postTraining", "Class " %++% class(model) %++%
        " doesn't implement method r4ml.model.postTraining.")
@@ -81,7 +81,7 @@ setGeneric("r4ml.model.postTraining", definition =
 # Note: Argument emptyModelForDispatch is just an empty model. It is used for the
 # generic function to dispatch the corresponding version of r4ml.model.import for
 # each class extending from r4ml.model.
-setGeneric("r4ml.model.import", definition =
+setGeneric("r4ml.model.import", def =
   function(emptyModelForDispatch, directory) {
     r4ml.err("r4ml.model.import", "Class " %++% class(emptyModelForDispatch) %++%
               " doesn't implement method r4ml.model.import.")
@@ -137,15 +137,15 @@ setMethod("initialize", "r4ml.model",
     # specified directory.
     if (isSupervised == TRUE) {
       if (missing(formula) && missing(data)) {
-        .r4ml.checkParameter(logSource, directory, "character", checkExistence = T, expectedExistence = T)
-        return(r4ml.model.import(new(class(.Object)), directory))
+        .r4ml.checkParameter(logSource, directory, "character")
+        return (r4ml.model.import(new(class(.Object)), directory))
       } else if (missing(formula) || missing(data)) {
         # If the model requires a formula, check that both formula and data are provided
         r4ml.err(logSource, "Both formula and data arguments must be provided.")
       }
     } else if (missing(data)) {
-      .r4ml.checkParameter(logSource, directory, "character", checkExistence = T, expectedExistence = T)
-      return(r4ml.model.import(new(class(.Object)), directory))
+      .r4ml.checkParameter(logSource, directory, "character")
+      return (r4ml.model.import(new(class(.Object)), directory))
     }
 
     if (isFeatureExtraction == TRUE) {
@@ -235,7 +235,7 @@ setMethod("initialize", "r4ml.model",
   }
 )
 
-setGeneric("r4ml.model.getResponseVariable", definition =
+setGeneric("r4ml.model.getResponseVariable", def =
   function(model, formula, data) {
     r4ml.err("r4ml.model.getResponseVariable", "Class " %++% class(model) %++%
               " doesn't implement method r4ml.model.getResponseVariable")
