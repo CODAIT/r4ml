@@ -110,7 +110,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.step.lm", def =
       model@shiftAndRescale <- shiftAndRescale
 
       if (args$intercept == TRUE) {
-        model@featureNames <- c("(intercept)", model@featureNames)
+        model@featureNames <- c(model@featureNames, r4ml.env$INTERCEPT)
       }
 
       dmlArgs <- list(
