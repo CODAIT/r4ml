@@ -241,7 +241,7 @@ r4ml.read.csv <- function(
     }
     df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors,
                           sep = sep, na.strings = na.strings, ...)
-    return(df)
+    return(as.r4ml.frame(df))
   }
   
   # we need to pass in these arguments as strings
@@ -276,7 +276,7 @@ r4ml.read.csv <- function(
           delimiter = sep,
           ...
         )
-  return(df)
+  return(as.r4ml.frame(df))
 }
 
 #' R4ML Logging class
