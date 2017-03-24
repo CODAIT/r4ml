@@ -96,7 +96,7 @@ setClass("r4ml.mlogit",
 #' }
 #'
 
-r4ml.mlogit <- function(formula, data, intercept = FALSE, shiftAndRescale = FALSE, tolerance,
+r4ml.mlogit <- function(formula, data, intercept = TRUE, shiftAndRescale = FALSE, tolerance,
                                outer.iter.max, inner.iter.max, lambda, labelNames=character(0)) {
   new("r4ml.mlogit", modelType="classification", formula=formula, data = data, 
     intercept = intercept, shiftAndRescale=shiftAndRescale, tolerance=tolerance,

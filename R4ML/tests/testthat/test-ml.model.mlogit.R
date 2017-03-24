@@ -30,7 +30,7 @@ test_that("r4ml.mlogit", {
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
-  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(nrow(coef(iris_log_reg))==5)
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
@@ -45,7 +45,7 @@ test_that("r4ml.mlogit_labelnames", {
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
-  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(nrow(coef(iris_log_reg))==5)
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
@@ -92,7 +92,7 @@ test_that("r4ml.mlogit_inner.iter", {
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
-  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(nrow(coef(iris_log_reg))==5)
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
@@ -106,7 +106,7 @@ test_that("r4ml.mlogit_outer.iter", {
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
-  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(nrow(coef(iris_log_reg))==5)
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
@@ -120,7 +120,7 @@ test_that("r4ml.mlogit_inner+outer", {
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
-  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(nrow(coef(iris_log_reg))==5)
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
@@ -134,7 +134,7 @@ test_that("r4ml.mlogit_lambda2.5", {
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
-  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(nrow(coef(iris_log_reg))==5)
   expect_true(ncol(coef(iris_log_reg))==2)
 })
   
@@ -148,7 +148,7 @@ test_that("r4ml.mlogit_lambda0", {
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
-  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(nrow(coef(iris_log_reg))==5)
   expect_true(ncol(coef(iris_log_reg))==2)
 })
 
@@ -164,7 +164,7 @@ test_that("r4ml.mlogit_lambda500", {
   #stopifnot(abs(coef(iris_log_reg)[[1]][1]) - 1 <.001)
   expect_true(abs(coef(iris_log_reg)[[1]][1]) - 1 <.001)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
-  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(nrow(coef(iris_log_reg))==5)
   expect_true(ncol(coef(iris_log_reg))==2)
 })
 
@@ -178,7 +178,7 @@ test_that("r4ml.mlogit_tolerance", {
   show(iris_log_reg)
   coef(iris_log_reg)
   #stopifnot(nrow(coef(iris_log_reg))==4, ncol(coef(iris_log_reg))==2)
-  expect_true(nrow(coef(iris_log_reg))==4)
+  expect_true(nrow(coef(iris_log_reg))==5)
   expect_true(ncol(coef(iris_log_reg))==2)
 })
 
