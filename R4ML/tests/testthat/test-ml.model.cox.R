@@ -49,7 +49,7 @@ test_that("r4ml.coxph", {
   surv_formula <- Surv(time, status) ~ age + sex_1 + ph_ecog_1 + ph_ecog_2 + ph_ecog_3
   
   cox_fit <- coxph(surv_formula, lung)
-  r4ml_cox_fit <- r4ml.coxph(r4ml_lung_pp$data, surv_formula,
+  r4ml_cox_fit <- r4ml.coxph(as.r4ml.matrix(r4ml_lung_pp$data), surv_formula,
                                  baseline = list("sex_1", "ph_ecog_1", "ph_ecog_2", "ph_ecog_3"))
 
   expect_true(abs(r4ml_cox_fit@coxModel["age","coef"] - cox_fit$coefficients["age"]) < .1)

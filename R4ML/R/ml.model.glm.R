@@ -100,7 +100,7 @@ setClass(
 #' 
 #' @seealso \link{predict.r4ml.glm}
 #' @export
-r4ml.glm <- function(formula, data, family=gaussian(link="identity"), neg.binomial.class, intercept = FALSE, shiftAndRescale = FALSE,
+r4ml.glm <- function(formula, data, family=gaussian(link="identity"), neg.binomial.class, intercept = TRUE, shiftAndRescale = FALSE,
                        lambda, tolerance, dispersion, outer.iter.max, inner.iter.max) {
   
   new("r4ml.glm", modelType="regression", formula=formula, data=data, family=family, 

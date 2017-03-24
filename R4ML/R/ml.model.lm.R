@@ -110,7 +110,7 @@ setClass("r4ml.lm",
 #' }
 #'
 #' @seealso {predict.r4ml.lm} #NOTE add link after predict func
-r4ml.lm <- function(formula, data, method = "direct-solve", intercept=F, shiftAndRescale=F,
+r4ml.lm <- function(formula, data, method = "direct-solve", intercept=T, shiftAndRescale=F,
                       tolerance, iter.max, lambda, directory) {
   new("r4ml.lm", modelType="regression",
       formula=formula, data=data, method=method, intercept=intercept, shiftAndRescale=shiftAndRescale,

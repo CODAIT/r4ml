@@ -369,7 +369,7 @@ r4ml.ml.preprocess <- function(
     next_frame <- pp_res_info$data
     metadata[[pp]] <- pp_res_info$metadata
   }
-  res_hm <- next_frame
+  res_hm <- as.r4ml.frame(next_frame)
   res_md <- metadata
   res <- list(data=res_hm, metadata=res_md)
   return(res)
