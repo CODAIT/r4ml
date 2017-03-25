@@ -295,31 +295,32 @@ r4ml.read.csv <- function(
 #' seperately.
 #' @section Methods:
 #' \describe{
-#'   \item{\code{isValidLevel(logLevel)}}
-#'      {check if the log level is valid. Valid log levels are"ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"}
-#'   \item{\code{setLevel(logLevel, force_java = TRUE)}}
-#'      {set the R4ML logger to the specified level. force_java=FALSE will not update the java log level}
-#'  \item{\code{getLevel(is_java = FALSE)}}
-#'      {get the R4ML loglevel. If is_java is TRUE then return the jvm log level. Usually both of them will be in sync but there is no gurantee}
-#'  \item{\code{isLoggable(logLevel)}}
-#'      {See if this log level will log the message or not}
-#'  \item{\code{trace(msg, root = "")}}
-#'      {trace level logging for message with the a given root name}
-#'  \item{\code{debug(msg, root = "")}}
-#'      {debug level logging for message with the a given root name}
-#'  \item{\code{info(msg, root = "")}}
-#'      {info level logging for message with the a given root name}
-#'  \item{\code{warn(msg, root = "")}}
-#'      {warn level logging for message with the a given root name}
-#'  \item{\code{error(msg, root = "")}}
-#'      {error level logging for message with the a given root name}
-#'  \item{\code{fatal(msg, root = "")}}
-#'      {fatal level logging for message with the a given root name}
-#'  \item{\code{message(msg, root = "", ilevel = "")}}
-#'      {this is helper routine for other logger. It can be use for debug also
-#'       It returns the string that will be printed by other logger}
+#'  \item{\code{isValidLevel(logLevel)}}{check if the log level is valid. Valid 
+#'  log levels are "ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"}
+#'  \item{\code{setLevel(logLevel, force_java = TRUE)}}{set the R4ML logger to
+#'  the specified level. force_java=FALSE will not update the java log level}
+#'  \item{\code{getLevel(is_java = FALSE)}}{get the R4ML loglevel. If is_java is
+#'  TRUE then return the jvm log level. Usually both of them will be in sync but
+#'  there is no gurantee}
+#'  \item{\code{isLoggable(logLevel)}}{See if this log level will log the
+#'  message or not}
+#'  \item{\code{trace(msg, root = "")}}{trace level logging for message with the
+#'  a given root name}
+#'  \item{\code{debug(msg, root = "")}}{debug level logging for message with the
+#'  a given root name}
+#'  \item{\code{info(msg, root = "")}}{info level logging for message with the a
+#'  given root name}
+#'  \item{\code{warn(msg, root = "")}}{warn level logging for message with the a
+#'  given root name}
+#'  \item{\code{error(msg, root = "")}}{error level logging for message with the
+#'  a given root name}
+#'  \item{\code{fatal(msg, root = "")}}{fatal level logging for message with the
+#'  a given root name}
+#'  \item{\code{message(msg, root = "", ilevel = "")}}{this is helper routine
+#'  for other logger. It can be use for debug. Also it returns the string that
+#'  will be printed by other logger}
 #'}      
-#' 
+#'
 #' @examples \dontrun{
 #'   mylogger <- R4ML:::Logging$new();
 #'   # default levels
@@ -458,22 +459,20 @@ Logging <- R6::R6Class(
 #' R4ML:::LinuxFS and R4ML::HadoopFS (see examples below)
 #' @section Methods:
 #' \describe{
-#'   \item{\code{create(file_path, is_dir=TRUE)}}
-#'      {Create the zero length file or directory. 
-#'       Returns TRUE on sucess and FALSE on failure}
-#'   \item{\code{remove(file_path)}}
-#'      {remove the file_path (file/dir) from the FileSystem}
-#'  \item{\code{exists(file_path)}}
-#'      {check if the file_path (file/dir) exists on the FileSystem}
-#'  \item{\code{sh.exec()}}
-#'      {system execution of a unix like shell cmd, Note that in all the filesystem,
-#'       this is always call the underlying os}
-#'  \item{\code{user.home()}}
-#'      {Every filesystem has it's own home dir defined, so this creates the uniform interface}
-#'  \item{\code{uu_name()}}
-#'      {universal unique file full path: note files are not created. see also tempdir()}  
-#'  \item{\code{tempdir()}}
-#'      {create the universal unique file full path: note this uses internall uu_name()}    
+#'  \item{\code{create(file_path, is_dir=TRUE)}}{Create the zero length file or
+#'  directory. Returns TRUE on sucess and FALSE on failure}
+#'  \item{\code{remove(file_path)}}{remove the file_path (file/dir) from the
+#'  FileSystem}
+#'  \item{\code{exists(file_path)}}{check if the file_path (file/dir) exists on
+#'  the FileSystem}
+#'  \item{\code{sh.exec()}}{system execution of a unix like shell cmd, Note that
+#'  in all the filesystem, this is always call the underlying os}
+#'  \item{\code{user.home()}}{Every filesystem has it's own home dir defined, so
+#'  this creates the uniform interface}
+#'  \item{\code{uu_name()}}{universal unique file full path: note files are not
+#'  created. see also tempdir()}  
+#'  \item{\code{tempdir()}}{create the universal unique file full path: note
+#'  this uses internal uu_name()}    
 #' }      
 #' 
 #' @examples \dontrun{
