@@ -302,10 +302,6 @@ r4ml.session <- function(
     r4ml.warn(logsrc, " R4ML session already initialized")
     return()
   }
- 
-  if (nchar(master) == 0) {
-    master = NULL
-  }
   
   if (nchar(sparkHome) == 0) {
     r4ml.err(logsrc, "SPARK_HOME not defined")
@@ -319,7 +315,6 @@ r4ml.session <- function(
   # SparkR session init
   sparkr.init <- function() {
     sc <- SparkR::sparkR.session(
-      master = master,
       appName = "R4ML",
       sparkHome = sparkHome,
       sparkConfig = sparkConfig,
