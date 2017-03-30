@@ -113,7 +113,7 @@ r4ml.pca <- function(data, k, center, scale, projData, applyPCA) {
 setMethod(
   "r4ml.model.validateTrainingParameters",
   signature = "r4ml.pca",
-  def =
+  definition =
     function(model, args) {
       logSource <- "r4ml.model.validateTrainingParameters.r4ml.pca"
       with(args, {
@@ -148,7 +148,7 @@ setMethod(
 setMethod(
   "r4ml.model.buildTrainingArgs",
   signature = "r4ml.pca",
-  def =
+  definition =
     function(model, args) {
       logSource <- "r4ml.model.buildTrainingArgs.r4ml.pca"
       dmlArgs <- list()
@@ -200,7 +200,7 @@ setMethod(
 setMethod(
   "r4ml.model.postTraining",
   signature = "r4ml.pca",
-  def =
+  definition =
     function(model) {
       outputs <- model@dmlOuts$sysml.execute
       
