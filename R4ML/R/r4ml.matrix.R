@@ -71,8 +71,7 @@ setMethod("as.r4ml.matrix",
       #@TODO try to figure our all the details if needed
       ml.coltypes(result) <- rep("scale", ncol)
     } else {
-      #@TODO auto convert
-      r4ml.err(logSource, "conversion from non numeric r4ml.frame is not supported yet")
+      r4ml.err(logSource, "Conversion from non numeric r4ml.frame is not supported yet. Use hydrar.ml.preprocess to convert r4ml.frame to numeric r4ml.matrix")
     }
     result
   }
