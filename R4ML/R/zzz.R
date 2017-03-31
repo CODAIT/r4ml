@@ -313,7 +313,7 @@ r4ml.session <- function(
   }
   
   # SparkR session init
-  sparkr.init <- function() {
+  sparkr.init <- function(...) {
     sc <- SparkR::sparkR.session(
       appName = "R4ML",
       sparkHome = sparkHome,
@@ -324,7 +324,7 @@ r4ml.session <- function(
     # spark context is now replace by sparkSession
     assign("sc", sc, envir = .GlobalEnv)
   }
-  sparkr.init()
+  sparkr.init(...)
   
   #sysml related initialization
   sysml.init()
