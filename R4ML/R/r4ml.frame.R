@@ -115,6 +115,14 @@ r4ml.calc.num.partitions <- function(object_size) {
 #' }
 setGeneric("as.r4ml.frame", function(object, repartition = TRUE,
                                        numPartitions = NA, ...) {
+  logSource <- "as.r4ml.frame"
+  .r4ml.checkParameter(logSource, parm = repartition, isOptional = TRUE,
+                       expectedClasses = "logical",
+                       expectedValues = c(TRUE, FALSE))
+
+  .r4ml.checkParameter(logSource, parm = numPartitions, isOptional = TRUE,
+                       isNAOK = TRUE, expectedClasses = "numeric")
+
   standardGeneric("as.r4ml.frame")
 })
 
