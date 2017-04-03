@@ -112,7 +112,7 @@ r4ml.glm <- function(formula, data, family=gaussian(link="identity"), neg.binomi
 setMethod(
   "r4ml.model.validateTrainingParameters", 
   signature="r4ml.glm", 
-  def = 
+  definition = 
     function(model, args) {
       logSource <- "r4ml.model.validateTrainingParameters(r4ml.glm)"
       with(args, {
@@ -165,7 +165,7 @@ setMethod(
 setMethod(
   "r4ml.model.buildTrainingArgs", 
   signature="r4ml.glm", 
-  def = 
+  definition = 
     function(model, args) {
       logSource <- "r4ml.model.buildTrainingArgs.r4ml.glm"                  
       with(args,  {
@@ -273,7 +273,7 @@ setMethod(
 setMethod(
   "r4ml.model.postTraining", 
   signature="r4ml.glm", 
-  def =
+  definition =
     function(model) {
       outputs <- model@dmlOuts$sysml.execute
       statsPath <- model@dmlArgs$O
@@ -324,7 +324,7 @@ setMethod(
 setMethod(
   "coef", 
   signature="r4ml.glm", 
-  def =
+  definition =
     function(object) {
       object@coefficients
     }
@@ -354,7 +354,7 @@ setMethod(
 setMethod(
   "stats", 
   signature="r4ml.glm", 
-  def =
+  definition =
     function(object) {
       return(object@dmlOuts$stats)
     }

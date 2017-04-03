@@ -105,7 +105,7 @@ r4ml.mlogit <- function(formula, data, intercept = TRUE, shiftAndRescale = FALSE
 }
 
 # check the training parameters of the model
-setMethod("r4ml.model.validateTrainingParameters", signature = "r4ml.mlogit", def =
+setMethod("r4ml.model.validateTrainingParameters", signature = "r4ml.mlogit", definition =
   function(model, args) {
     logSource <- "r4ml.model.validateTrainingParameters"
     with(args, {
@@ -139,7 +139,7 @@ setMethod("r4ml.model.validateTrainingParameters", signature = "r4ml.mlogit", de
 
 
 # Organize arguments for the Multinomial Logistic Regression dml script
-setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.mlogit", def =
+setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.mlogit", definition =
   function(model, args) {
     with(args, {
       model@labelNames <- labelNames
@@ -177,7 +177,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.mlogit", def =
 )
 
 # Set up display for output
-setMethod("r4ml.model.postTraining", signature = "r4ml.mlogit", def =
+setMethod("r4ml.model.postTraining", signature = "r4ml.mlogit", definition =
   function (model) {
     outputs <- model@dmlOuts$sysml.execute
     outNames <- names(outputs)
@@ -221,7 +221,7 @@ setMethod(f = "show", signature = "r4ml.mlogit", definition =
   }
 )
 
-setMethod("coef", signature="r4ml.mlogit", def =
+setMethod("coef", signature="r4ml.mlogit", definition =
   function(object) {
     SparkR::as.data.frame(object@beta)
   }

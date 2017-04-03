@@ -74,25 +74,32 @@ r4ml.emptySymbol <- function() (quote(f(,)))[[2]]
 # .r4ml.checkParameter
 #
 # Utility function used to raise errors when invalid parameter values are specified.
-.r4ml.checkParameter <- function(logSource, parm, expectedClasses, expectedValues,
-                                 isOptional = F, isNullOK = F, isNAOK=F, isSingleton=T,
-                                 checkExistence=F, expectedExistence=F, inheritsFrom) {
+.r4ml.checkParameter <- function(logSource, parm, expectedClasses,
+                                 expectedValues, isOptional = FALSE,
+                                 isNullOK = FALSE, isNAOK = FALSE,
+                                 isSingleton = TRUE, inheritsFrom) {
 
   # If the parm is missing, and it's optional, everything is OK
-  if (missing(parm) & isOptional)
-    return(T)
+  if (missing(parm) & isOptional) {
+    return(TRUE)
+  }
 
   # If param is not missing, do a quick check for NULLs
-  if (! missing(parm)) {
-    if (is.null(parm) & isNullOK)
-      return(T)
+  if (!missing(parm)) {
+    if (is.null(parm) & isNullOK) {
+      return(TRUE)
+    } else if (is.null(parm) & !isNullOK) {
+      r4ml.err(logSource, paste(dQuote(parm), "cannot be NULL"))
+    }
   }
 
   # If parm is not missing or NULL, do a quick check for NA's
   if (!missing(parm)) {
     if (length(parm) == 1 & !isS4(parm)) {
       if (is.na(parm) & isNAOK) {
-        return(T)
+        return(TRUE)
+      } else if (is.na(parm) & !isNAOK) {
+        r4ml.err(logSource, paste(dQuote(parm), "cannot be NA"))
       }
     }
   }
@@ -103,25 +110,25 @@ r4ml.emptySymbol <- function() (quote(f(,)))[[2]]
   # Format expected classes, if passed in.
   ecStr <- NULL
   evStr <- NULL
-  if (! missing(expectedClasses)) {
+  if (!missing(expectedClasses)) {
     ecStr <- dQuote(expectedClasses)
-    ecStr <- paste(ecStr, collapse=", ")
-    if (length(expectedClasses) > 1)
+    ecStr <- paste(ecStr, collapse = ", ")
+    if (length(expectedClasses) > 1) {
       ecStr <- "(" %++% ecStr %++% ")"
-
+    }
   }
 
   # Format expected values, if passed in
-  if (! missing(expectedValues)) {
+  if (!missing(expectedValues)) {
     if (length(expectedValues) > 1) {
-      if (is.character(expectedValues))
+      if (is.character(expectedValues)) {
         evStr <- dQuote(expectedValues)
-      else
+      } else {
         evStr <- expectedValues
-      evStr <- paste(evStr, collapse=", ")
+      }
+      evStr <- paste(evStr, collapse = ", ")
       evStr <- "(" %++% evStr %++% ")"
-    }
-    else {
+    } else {
       evStr <- ifelse(is.null(expectedValues), "NULL",
                       ifelse(is.character(expectedValues),
                              dQuote(expectedValues), expectedValues))
@@ -130,15 +137,16 @@ r4ml.emptySymbol <- function() (quote(f(,)))[[2]]
 
   # Check if parameter is missing
   if (missing(parm)) {
-    if (! is.null(ecStr))
+    if (!is.null(ecStr)) {
       error <- sprintf("Parameter %s is missing: Expected %s.", dQuote(parmName), ecStr)
-    else
+    } else {
       error <- sprintf("Parameter %s is missing: Expected %s.", dQuote(parmName), evStr)
+    }
     r4ml.err(logSource, error)
   }
   # Check parameter classes, if passed in.
-  if (! missing(expectedClasses)) {
-    if (! (class(parm) %in% expectedClasses)) {
+  if (!missing(expectedClasses)) {
+    if (!(class(parm) %in% expectedClasses)) {
       error <- sprintf("Invalid class for parameter %s. %s was expected but %s was specified.",
                        dQuote(parmName), ecStr, dQuote(class(parm)))
       r4ml.err(logSource, error)
@@ -151,14 +159,13 @@ r4ml.emptySymbol <- function() (quote(f(,)))[[2]]
     }
   }
 
-  if (! missing(expectedValues)) {
+  if (!missing(expectedValues)) {
     # Check for NULL equivalency right away
     if (is.null(parm)) {
       if (is.null(expectedValues))
-        return (T)
-    } else {
-      if (all(parm %in% expectedValues))
-        return (T)
+        return(TRUE)
+    } else if (all(parm %in% expectedValues)) {
+      return(TRUE)
     }
     if (class(parm) %in% c("logical", "integer", "numeric", "character")) {
       specified <- ifelse(is.null(parm), "NULL",
@@ -178,7 +185,7 @@ r4ml.emptySymbol <- function() (quote(f(,)))[[2]]
       r4ml.err(logSource, error)
     }
   }
-  return (F)
+  return(TRUE)
 }
 
 # Indicates whether a string pattern is contained into a given string x
@@ -218,13 +225,12 @@ r4ml.emptySymbol <- function() (quote(f(,)))[[2]]
 
 .r4ml.binary.splitXY <- function(xy, yColnames) {
   colnames <- SparkR::colnames(xy)
-  isYColName <- function (c) c %in% yColnames
+  isYColName <- function(c) c %in% yColnames
   yCols <- Filter(isYColName, colnames)
   xCols <- Filter(Negate(isYColName), colnames)
-  #DEBUG browser()
   yHM <- as.r4ml.matrix(SparkR::select(xy, yCols))
   xHM <- as.r4ml.matrix(SparkR::select(xy, xCols))
-  XandY <- c(X=xHM, Y=yHM)
+  XandY <- c(X = xHM, Y = yHM)
   return(XandY)
 }
 
@@ -316,7 +322,7 @@ r4ml.ml.checkModelFeaturesMatchData <- function (modelMatrix, dataMatrix, interc
 # It uses .r4ml.tree.traversal to traverse over nodes of the input tree
 # Afterwards it identifies the column-nodes and maps them to the corresponding ids
 # This method returns a vector of column-ids
-r4ml.extractColsFromFormulaTree  <- function(root, dataset=NULL, delimiter){
+r4ml.extractColsFromFormulaTree  <- function(root, dataset = NULL, delimiter = NA){
   logSource <- "parseFormula"
   # Repeat the same process for formula[[2]]
   r4ml.env$leaves <- list()

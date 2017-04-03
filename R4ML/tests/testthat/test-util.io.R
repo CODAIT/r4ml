@@ -39,6 +39,7 @@ test_that("r4ml.read.csv", {
       tmp_file <- paste0(tempfile(), ".csv")
       write.table(iris, file = tmp_file, sep = seperators[i], row.names = FALSE)
       df <- r4ml.read.csv(tmp_file, header = TRUE, sep = seperators[i])
+      df <- SparkR::as.data.frame(df)
       expect_equal(nrow(df), nrow(iris))
       expect_equal(ncol(df), ncol(iris))
       expect_true(all(df == iris))

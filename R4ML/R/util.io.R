@@ -83,15 +83,54 @@ r4ml.warn <- r4ml.gen.logger("WARN")
 r4ml.err <- r4ml.gen.logger("ERROR")
 r4ml.fatal <- r4ml.gen.logger("FATAL")
 
+#' r4ml.setLogLevel
+#' @description Set log level for the current session.
+#' @param level the level to be used. The various log levels that are supported are "ALL", "TRACE",
+#' "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF" in the increasing priority.
+#' @param java.log logical variable to set java log level. Default is FALSE.
+#' @details When R4ML session is started, the defalult log level is set to "INFO". This function allows to
+#' set the desired log level after the session is started. The java log level used by SystemML is set to ERROR
+#' by default. That behaviour can also be changed by setting the set.java.log flag to TRUE.
+#' @usage r4ml.setLogLevel("WARN")
+#' @seealso \link{r4ml.getLogLevel}
+#' @examples \dontrun{
+#' r4ml.session()
+#' r4ml.setLogLevel("WARN")
+#' }
+#' @export
+r4ml.setLogLevel <- function(level, java.log = FALSE) {
+  if (!exists("r4ml.logger", envir = .GlobalEnv)) {
+    stop("R4ML session does not exist.")
+  }
+  r4ml.logger$setLevel(level, java.log)
+}
+
+#' r4ml.getLogLevel
+#' @description Get log level for the current session. Possible return values are
+#' "ALL", "DEBUG", "ERROR", "FATAL", "INFO", "OFF", "TRACE", "WARN".
+#' Note that r4ml.session must exist before calling this function.
+#' @usage r4ml.getLogLevel()
+#' @seealso \link{r4ml.setLogLevel}
+#' @examples \dontrun{
+#' r4ml.session()
+#' log.level <- r4ml.getLogLevel()
+#' }
+#' @export
+r4ml.getLogLevel <- function(level) {
+  if (!exists("r4ml.logger", envir = .GlobalEnv)) {
+    stop("R4ML session does not exist.")
+  }
+  r4ml.logger$getLevel()
+}
+
 # in case we want to show the whole object. This might go away in future
 r4ml.infoShow <- function(source, message) {
   if (exists("r4ml.logger", envir=.GlobalEnv)) {
     if (!r4ml.logger$isLoggable("INFO")) {
-      return
+      return(invisible(NULL))
     }
   } 
   source <- ifelse(missing(source), "", source)
-  message <- ifelse(missing(message), "", message)
   
   cat(sprintf("INFO[%s]", source))
   show(message)
@@ -102,11 +141,10 @@ r4ml.infoShow <- function(source, message) {
 r4ml.debugShow <- function(source, message) {
   if (exists("r4ml.logger", envir=.GlobalEnv)) {
     if (!r4ml.logger$isLoggable("DEBUG")) {
-      return
+      return(invisible(NULL))
     }
   }
   source <- ifelse(missing(source), "", source)
-  message <- ifelse(missing(message), "", message)
 
   cat(sprintf("DEBUG[%s]", source))
   show(message)
@@ -133,27 +171,20 @@ create.r4ml.fs <- function() {
 r4ml.fs.mode <- function() {
   logSource <- "r4ml.fs.mode"
 
-  # yarn client and yarn both are the cluster mode
-  if (SparkR::sparkR.conf()$spark.master == "yarn-client") {
-    return("cluster")
-  }
-  if (SparkR::sparkR.conf()$spark.master == "yarn") {
-    return("cluster")
-  }
-  
-  # also if user specify the master url, then it is the cluster mode too
-  if (substr(SparkR::sparkR.conf()$spark.master, 1, 8) == "spark://") {
-    return("cluster")
-  }
-  
-  #user input or env has local[*] kind of settings
-  if (substr(SparkR::sparkR.conf()$spark.master, 1, 5) == "local") {
+  hadoop_conf <- SparkR:::callJMethod(sysmlSparkContext, "hadoopConfiguration")
+  default_fs <- SparkR:::callJMethod(hadoop_conf, "get", "fs.defaultFS")
+
+  if (substr(default_fs, 0, 4) == "file") {
     return("local")
   }
+
+  if (substr(default_fs, 0, 4) == "hdfs") {
+    return("cluster")
+  }
+
+  r4ml.warn(logSource,
+            "Unable to determine file system. Defaulting to cluster mode.")
   
-  # if the input is not one of the above it is most liklely some other kind of spark cluster
-  # TODO discuss, if it has to be local?
-  r4ml.warn(logSource, "Unable to determine file system. Defaulting to cluster mode.")
   return("cluster")
 }
 
@@ -210,7 +241,7 @@ r4ml.read.csv <- function(
     }
     df <- utils::read.csv(file, header = header, stringsAsFactors = stringsAsFactors,
                           sep = sep, na.strings = na.strings, ...)
-    return(df)
+    return(as.r4ml.frame(df))
   }
   
   # we need to pass in these arguments as strings
@@ -245,7 +276,7 @@ r4ml.read.csv <- function(
           delimiter = sep,
           ...
         )
-  return(df)
+  return(as.r4ml.frame(df))
 }
 
 #' R4ML Logging class
@@ -264,31 +295,32 @@ r4ml.read.csv <- function(
 #' seperately.
 #' @section Methods:
 #' \describe{
-#'   \item{\code{isValidLevel(logLevel)}}
-#'      {check if the log level is valid. Valid log levels are"ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"}
-#'   \item{\code{setLevel(logLevel, force_java = TRUE)}}
-#'      {set the R4ML logger to the specified level. force_java=FALSE will not update the java log level}
-#'  \item{\code{getLevel(is_java = FALSE)}}
-#'      {get the R4ML loglevel. If is_java is TRUE then return the jvm log level. Usually both of them will be in sync but there is no gurantee}
-#'  \item{\code{isLoggable(logLevel)}}
-#'      {See if this log level will log the message or not}
-#'  \item{\code{trace(msg, root = "")}}
-#'      {trace level logging for message with the a given root name}
-#'  \item{\code{debug(msg, root = "")}}
-#'      {debug level logging for message with the a given root name}
-#'  \item{\code{info(msg, root = "")}}
-#'      {info level logging for message with the a given root name}
-#'  \item{\code{warn(msg, root = "")}}
-#'      {warn level logging for message with the a given root name}
-#'  \item{\code{error(msg, root = "")}}
-#'      {error level logging for message with the a given root name}
-#'  \item{\code{fatal(msg, root = "")}}
-#'      {fatal level logging for message with the a given root name}
-#'  \item{\code{message(msg, root = "", ilevel = "")}}
-#'      {this is helper routine for other logger. It can be use for debug also
-#'       It returns the string that will be printed by other logger}
+#'  \item{\code{isValidLevel(logLevel)}}{check if the log level is valid. Valid 
+#'  log levels are "ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"}
+#'  \item{\code{setLevel(logLevel, force_java = TRUE)}}{set the R4ML logger to
+#'  the specified level. force_java=FALSE will not update the java log level}
+#'  \item{\code{getLevel(is_java = FALSE)}}{get the R4ML loglevel. If is_java is
+#'  TRUE then return the jvm log level. Usually both of them will be in sync but
+#'  there is no gurantee}
+#'  \item{\code{isLoggable(logLevel)}}{See if this log level will log the
+#'  message or not}
+#'  \item{\code{trace(msg, root = "")}}{trace level logging for message with the
+#'  a given root name}
+#'  \item{\code{debug(msg, root = "")}}{debug level logging for message with the
+#'  a given root name}
+#'  \item{\code{info(msg, root = "")}}{info level logging for message with the a
+#'  given root name}
+#'  \item{\code{warn(msg, root = "")}}{warn level logging for message with the a
+#'  given root name}
+#'  \item{\code{error(msg, root = "")}}{error level logging for message with the
+#'  a given root name}
+#'  \item{\code{fatal(msg, root = "")}}{fatal level logging for message with the
+#'  a given root name}
+#'  \item{\code{message(msg, root = "", ilevel = "")}}{this is helper routine
+#'  for other logger. It can be use for debug. Also it returns the string that
+#'  will be printed by other logger}
 #'}      
-#' 
+#'
 #' @examples \dontrun{
 #'   mylogger <- R4ML:::Logging$new();
 #'   # default levels
@@ -427,22 +459,20 @@ Logging <- R6::R6Class(
 #' R4ML:::LinuxFS and R4ML::HadoopFS (see examples below)
 #' @section Methods:
 #' \describe{
-#'   \item{\code{create(file_path, is_dir=TRUE)}}
-#'      {Create the zero length file or directory. 
-#'       Returns TRUE on sucess and FALSE on failure}
-#'   \item{\code{remove(file_path)}}
-#'      {remove the file_path (file/dir) from the FileSystem}
-#'  \item{\code{exists(file_path)}}
-#'      {check if the file_path (file/dir) exists on the FileSystem}
-#'  \item{\code{sh.exec()}}
-#'      {system execution of a unix like shell cmd, Note that in all the filesystem,
-#'       this is always call the underlying os}
-#'  \item{\code{user.home()}}
-#'      {Every filesystem has it's own home dir defined, so this creates the uniform interface}
-#'  \item{\code{uu_name()}}
-#'      {universal unique file full path: note files are not created. see also tempdir()}  
-#'  \item{\code{tempdir()}}
-#'      {create the universal unique file full path: note this uses internall uu_name()}    
+#'  \item{\code{create(file_path, is_dir=TRUE)}}{Create the zero length file or
+#'  directory. Returns TRUE on sucess and FALSE on failure}
+#'  \item{\code{remove(file_path)}}{remove the file_path (file/dir) from the
+#'  FileSystem}
+#'  \item{\code{exists(file_path)}}{check if the file_path (file/dir) exists on
+#'  the FileSystem}
+#'  \item{\code{sh.exec()}}{system execution of a unix like shell cmd, Note that
+#'  in all the filesystem, this is always call the underlying os}
+#'  \item{\code{user.home()}}{Every filesystem has it's own home dir defined, so
+#'  this creates the uniform interface}
+#'  \item{\code{uu_name()}}{universal unique file full path: note files are not
+#'  created. see also tempdir()}  
+#'  \item{\code{tempdir()}}{create the universal unique file full path: note
+#'  this uses internal uu_name()}    
 #' }      
 #' 
 #' @examples \dontrun{

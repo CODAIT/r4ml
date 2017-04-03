@@ -65,7 +65,7 @@ r4ml.als <- function(data, rank, reg.type, lambda, iter.max, tolerance) {
       rank=rank, reg.type = reg.type, lambda=lambda, iter.max=iter.max, tolerance=tolerance)
 }
 
-setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.als", def =
+setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.als", definition =
   function(model, args) {
     
     logSource <- "r4ml.als"
@@ -112,7 +112,7 @@ setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.als", def =
 )
 
 
-setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.als", def =
+setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.als", definition =
   function(model, args) {
     with(args, {
       
@@ -152,7 +152,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.als", def =
   }
 )
 
-setMethod("r4ml.model.postTraining", signature = "r4ml.als", def =
+setMethod("r4ml.model.postTraining", signature = "r4ml.als", definition =
   function (model) {
     model@leftFactor <- model@dmlOuts$sysml.execute$L
     model@rightFactor <- model@dmlOuts$sysml.execute$Rt
@@ -208,7 +208,7 @@ predict.r4ml.als <- function(object, data, type, k){
   
   
   .r4ml.checkParameter(logSource, data, inheritsFrom="r4ml.matrix", isOptional=F);
-  .r4ml.checkParameter(logSource, directory, inheritsFrom="character", checkExistence=T, expectedExistence=F);
+  .r4ml.checkParameter(logSource, directory, inheritsFrom = "character")
   .r4ml.checkParameter(logSource, type, inheritsFrom="character", isOptional=T);
   .r4ml.checkParameter(logSource, k, inheritsFrom=c("integer","numeric"), isOptional=T);
   

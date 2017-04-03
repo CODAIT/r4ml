@@ -123,7 +123,7 @@ r4ml.startup.message <- function(libname, pkgname, ...) {
   packageStartupMessage(
     sprintf("[%s]: Default log level will be set to '%s'", logsrc, loglevel))
   packageStartupMessage(
-    sprintf("[%s]: To change call r4ml.logger$setLevel(NewLevel)", logsrc))
+    sprintf("[%s]: To change call r4ml.setLogLevel(NewLevel)", logsrc))
 }
 
 # a utlity function to check is sparkR loaded and is initialized
@@ -291,7 +291,6 @@ r4ml.end <- function() {
 #' @param ... other arguments to be passed to sparkR.session()
 #' @export
 r4ml.session <- function(
-  master = Sys.getenv("R4ML_CLIENT"),
   sparkHome = Sys.getenv("SPARK_HOME"),
   sparkConfig = list("spark.driver.memory" = Sys.getenv("R4ML_SPARK_DRIVER_MEMORY")),
   ...
@@ -302,11 +301,6 @@ r4ml.session <- function(
   if (r4ml.env$R4ML_SESSION_EXISTS) {
     r4ml.warn(logsrc, " R4ML session already initialized")
     return()
-  }
-
-  if (nchar(master) == 0) {
-    r4ml.warn(logsrc, " master not defined. Defaulting to local[*]")
-    master <- "local[*]"
   }
   
   if (nchar(sparkHome) == 0) {
@@ -321,7 +315,6 @@ r4ml.session <- function(
   # SparkR session init
   sparkr.init <- function() {
     sc <- SparkR::sparkR.session(
-      master = master,
       appName = "R4ML",
       sparkHome = sparkHome,
       sparkConfig = sparkConfig,
