@@ -115,3 +115,26 @@ test_that("r4ml.glm accuracy", {
                as.data.frame(r_predict_icpt)$r_predict, tol = .01)
 
 })
+
+test_that("r4ml.glm sampling check", {
+  # this is a regression test for R4ML-195
+  df <- airline[1:500, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
+                         "Distance", "ArrDelay")]
+
+  df <- as.r4ml.frame(df)
+
+  df <- r4ml.ml.preprocess(
+    df,
+    transformPath = tempdir(),
+    recodeAttrs = c("DayOfWeek"),
+    omit.na = c("Distance", "ArrDelay"),
+    dummycodeAttrs = c("DayOfWeek")
+    )
+
+  df <- as.r4ml.matrix(df$data)
+
+  samples <- r4ml.sample(df, perc = c(0.7, 0.3))
+  train <- samples[[1]]
+
+  glm <- r4ml.glm(ArrDelay ~ ., data = train)
+})
