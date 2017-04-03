@@ -266,7 +266,9 @@ r4ml.ml.preprocess <- function(
     rhf = data
     if (is.omit.na) {
       rhf <- as.r4ml.frame(SparkR::dropna(data, cols = omit.na), repartition = FALSE)
-      ignore <- cache(rhf)
+      if (!rhf@env$isCached) {
+        ignore <- cache(rhf)
+        }
     }
     metadata <- list()
     list(data=rhf, metadata=metadata)

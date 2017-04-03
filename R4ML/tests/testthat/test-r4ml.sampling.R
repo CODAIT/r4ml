@@ -79,3 +79,27 @@ test_that("r4ml.sampling k split\n", {
   })
   cat("\n")
 })
+
+context("R4ML-195 regression test")
+test_that("sampling check", {
+  df <- airline[1:500, c("Month", "DayofMonth", "DayOfWeek", "CRSDepTime",
+                         "Distance", "ArrDelay")]
+
+  df <- as.r4ml.frame(df)
+
+  df <- r4ml.ml.preprocess(
+    df,
+    recodeAttrs = c("DayOfWeek"),
+    omit.na = c("Distance", "ArrDelay"),
+    dummycodeAttrs = c("DayOfWeek")
+    )
+
+  df <- as.r4ml.matrix(df$data)
+
+  samples <- r4ml.sample(df, perc = c(0.7, 0.3))
+  train <- samples[[1]]
+
+  r4_lm <- r4ml.lm(ArrDelay ~ ., data = train)
+  r4_glm <- r4ml.glm(ArrDelay ~ ., data = train)
+  r4_step_lm <- r4ml.step.lm(ArrDelay ~ ., data = train)
+})

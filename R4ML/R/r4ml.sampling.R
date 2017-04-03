@@ -96,7 +96,7 @@ r4ml.sample <- function(data, perc, experimental=FALSE,
         r4ml.err(logSource, "Unsupported type " %++% data_type %++% " passed in")
       }
      
-      if (cache) {
+      if (cache & !casted_df@env$isCached) {
         dummy <- cache(casted_df)
       }
       
