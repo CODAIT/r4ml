@@ -333,11 +333,11 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
       # note that the sysml internal order col is not needed by user and hence
       # drop the index id
       # rename the remaining column to 'colname'
-      oldnames <- SparkR:::colnames(df)
+      oldnames <- SparkR::colnames(df)
       no_ids <- oldnames[oldnames != index_col]
       df_noid <- SparkR:::select(df, no_ids)
       newnames <- as.vector(sapply(no_ids, function(x) colname))
-      SparkR:::colnames(df_noid) <- newnames
+      SparkR::colnames(df_noid) <- newnames
       df_noid
 
     }
@@ -498,7 +498,7 @@ sysml.execute <- function(dml, ...) {
         # now v is the numeric dataframe
         #find the characteristics of the dataframe
         hm_nrows <- SparkR:::count(hm)
-        hm_ncols <- length(SparkR:::colnames(hm))
+        hm_ncols <- length(SparkR::colnames(hm))
         bm_nrows <- min(hm_nrows, r4ml.env$SYSML_BLOCK_MATRIX_SIZE$nrows)
         bm_ncols <- min(hm_ncols,  r4ml.env$SYSML_BLOCK_MATRIX_SIZE$ncols)
         mc = sysml.MatrixCharacteristics(hm_nrows, hm_ncols, bm_nrows, bm_ncols)
