@@ -159,7 +159,7 @@ r4ml.ml.preprocess <- function(
   dummycodeAttrs = NULL,
   scalingAttrs = NULL, 
   scalingMethod = "mean-subtraction",
-  omit.na = colnames(data))
+  omit.na = SparkR::colnames(data))
 {
   logSource <- "r4ml.ml.preprocess"
  .r4ml.transform.argumentsPreconditions(

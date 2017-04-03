@@ -257,7 +257,7 @@ setMethod("r4ml.model.getResponseVariable", signature = "r4ml.model", definition
 
     responseName <- f[[3]]
     #responseType <- ml.coltypes(data)[match(responseName, colnames(data))]
-    responseType <- ml.coltypes(data)[match(responseName, SparkR:::colnames(data))]
+    responseType <- ml.coltypes(data)[match(responseName, SparkR::colnames(data))]
     if (model@modelType == "regression") {
       if (responseType != "scale") {
         r4ml.err(logSource, "Response variable must be 'scale' for regression algorithms.")
@@ -484,7 +484,8 @@ r4ml.getFunctionArguments <- function(call, env) {
       if (length(groupByColnames) == 1 && groupByColnames == ".") {
         groupByColnames = SparkR::colnames(data)[-targetColId]
         if (length(groupByColnames) < 1) {
-   r4ml.err(logSource, sprintf("The %s specified does not have any groupby column. Colnames='%s'", class(data), colnames(data)))
+          r4ml.err(logSource, sprintf("The %s specified does not have any groupby column. Colnames='%s'",
+                                      class(data), SparkR::colnames(data)))
         }
       }
     }

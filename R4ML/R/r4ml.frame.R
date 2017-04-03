@@ -200,7 +200,7 @@ setMethod(f = "show", signature = "r4ml.frame", definition =
     if (ncol(object) == 0) {
       cat("r4ml.frame with 0 columns\n")
     } else if (nrow(df) == 0) {
-      cat(paste(colnames(object), collapse="    "))
+      cat(paste(SparkR::colnames(object), collapse="    "))
       cat("\n<0 rows>\n")
     } else {
       # Show the contents of the r4ml.frame as a data.frame
