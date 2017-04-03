@@ -25,9 +25,17 @@ test_that("is.r4ml.matrix", {
 })
 
 test_that("as.r4ml.matrix", {
-
   hm <- as.r4ml.matrix(iris[, -5])
+})
+
+test_that("as.r4ml.matrix caching", {
+  r4m <- as.r4ml.matrix(datasets::beaver1)
+  r4m_cache_false <- as.r4ml.matrix(datasets::beaver1, cache = FALSE)
+  r4m_cache_true <- as.r4ml.matrix(datasets::beaver1, cache = TRUE)
   
+  expect_true(r4m@env$isCached) # by default cache
+  expect_false(r4m_cache_false@env$isCached)
+  expect_true(r4m_cache_true@env$isCached)
 })
 
 # begin one hot testing

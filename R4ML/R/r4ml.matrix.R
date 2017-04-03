@@ -46,19 +46,19 @@ setClass("r4ml.matrix",
 #'
 #' Convert an object to a r4ml.matrix
 #' @param object A r4ml.frame, data.frame, or Spark DataFrame
+#' @param cache (logical) should the object be cached
 #' @return A r4ml.matrix
 #' @examples \dontrun{
-#' r4ml_frame <-  as.r4ml.frame(beaver1)
-#' r4ml_matrix <- as.r4ml.matrix(r4ml_frame)
+#' r4ml_matrix <- as.r4ml.matrix(datasets::beaver1, cache = TRUE)
 #' }
 #' @export
-setGeneric("as.r4ml.matrix", function(object) {
+setGeneric("as.r4ml.matrix", function(object, cache = TRUE) {
   standardGeneric("as.r4ml.matrix")
 })
 
 setMethod("as.r4ml.matrix",
   signature(object = "r4ml.frame"),
-  function(object) {
+  function(object, cache) {
     logSource <- "as.r4ml.matrix"
     result = NULL
     if (is.r4ml.numeric(object)) {
@@ -73,24 +73,27 @@ setMethod("as.r4ml.matrix",
     } else {
       r4ml.err(logSource, "Use hydrar.ml.preprocess to convert r4ml.frame to numeric r4ml.matrix")
     }
-    result
+    if (cache & !result@env$isCached) {
+      result <- SparkR::cache(result)
+    }
+    return(result)
   }
 )
 
 setMethod("as.r4ml.matrix",
   signature(object = "data.frame"),
-  function(object) {
+  function(object, cache) {
   hf <- as.r4ml.frame(object)
-  hm <- as.r4ml.matrix(hf)
+  hm <- as.r4ml.matrix(hf, cache)
   return(hm)
   }
 )
 
 setMethod("as.r4ml.matrix",
   signature(object = "SparkDataFrame"),
-  function(object) {
+  function(object, cache) {
   hf <- as.r4ml.frame(object)
-  hm <- as.r4ml.matrix(hf)
+  hm <- as.r4ml.matrix(hf, cache)
   return(hm)
   }
 )
