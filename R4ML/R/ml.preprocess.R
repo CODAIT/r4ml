@@ -607,7 +607,6 @@ isAnyAttrOfType <- function(hm, attrs, type) {
 #' @export
 #' #' @examples \dontrun{
 #' 
-#' # Load the Iris dataset to the cluster
 #' irisBF <- as.r4ml.frame(iris)
 #' 
 #' irisBM <- r4ml.systemml.transform(irisBF, transformPath = "/tmp",
