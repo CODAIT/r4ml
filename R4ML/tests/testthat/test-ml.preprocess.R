@@ -20,7 +20,6 @@ context("Testing r4ml.pre.processing\n")
 
 
 test_that("r4ml.impute", {
-  # skip("skip for now")
   data("airquality")
   airq_hf <- as.r4ml.frame(as.data.frame(airquality))
   airq_hm <- as.r4ml.matrix(airq_hf)
@@ -29,7 +28,6 @@ test_that("r4ml.impute", {
 
 # begin r4ml.ml.preprocess
 test_that("r4ml.ml.preprocess", {
-  # skip("skip for now")
   data("iris")
   iris_hf <- as.r4ml.frame(as.data.frame(iris))
   
@@ -64,7 +62,6 @@ test_that("r4ml.ml.preprocess omit.na", {
 
 #Execute ml.preprocess without transformPath parameter
 test_that("r4ml.ml.preprocess excludetransformPath", {
-  
   data("iris")
   iris_hf <- as.r4ml.frame(as.data.frame(iris))
   
@@ -84,7 +81,6 @@ test_that("r4ml.ml.preprocess excludetransformPath", {
 })
 
 test_that("r4ml.systemml.transform", {
-  # skip("skip for now")
   data("iris")
   iris_hf <- as.r4ml.frame(as.data.frame(iris))
   
