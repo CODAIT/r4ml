@@ -20,7 +20,6 @@ context("Testing r4ml.pre.processing\n")
 
 
 test_that("r4ml.impute", {
-  # skip("skip for now")
   data("airquality")
   airq_hf <- as.r4ml.frame(as.data.frame(airquality))
   airq_hm <- as.r4ml.matrix(airq_hf)
@@ -29,7 +28,6 @@ test_that("r4ml.impute", {
 
 # begin r4ml.ml.preprocess
 test_that("r4ml.ml.preprocess", {
-  #skip("skip for now")
   data("iris")
   iris_hf <- as.r4ml.frame(as.data.frame(iris))
   
@@ -46,7 +44,7 @@ test_that("r4ml.ml.preprocess", {
     scalingAttrs=c("Petal_Length")
   )
   
-  showDF(iris_transform$data, n = 154)  
+  showDF(iris_transform$data, n = 154)
 })
 
 test_that("r4ml.ml.preprocess omit.na", {
@@ -64,7 +62,6 @@ test_that("r4ml.ml.preprocess omit.na", {
 
 #Execute ml.preprocess without transformPath parameter
 test_that("r4ml.ml.preprocess excludetransformPath", {
-  
   data("iris")
   iris_hf <- as.r4ml.frame(as.data.frame(iris))
   
@@ -83,3 +80,22 @@ test_that("r4ml.ml.preprocess excludetransformPath", {
   showDF(iris_transform$data, n = 154) 
 })
 
+test_that("r4ml.sysml.transform", {
+  data("iris")
+  iris_hf <- as.r4ml.frame(as.data.frame(iris))
+  
+  iris_transform <- r4ml.sysml.transform(
+    iris_hf,
+    dummycodeAttrs = "Species",
+    binningAttrs = c("Sepal_Length", "Sepal_Width"),
+    numBins=4,
+    missingAttrs = c("Petal_Length", "Sepal_Width"),
+    imputationMethod = c("global_mean", "constant"),
+    imputationValues = list("Sepal_Width" = 40),
+    omit.na="Petal_Width",
+    recodeAttrs=c("Species"),
+    scalingAttrs=c("Petal_Length")
+  )
+  
+  expect_true(class(iris_transform$data) == "r4ml.matrix")
+})
