@@ -97,7 +97,7 @@ r4ml.sample <- function(data, perc, experimental=FALSE,
       }
      
       if (cache & !casted_df@env$isCached) {
-        dummy <- cache(casted_df)
+        dummy <- SparkR::cache(casted_df)
       }
       
       casted_df

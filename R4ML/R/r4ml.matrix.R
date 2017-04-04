@@ -49,7 +49,7 @@ setClass("r4ml.matrix",
 #' @param cache (logical) should the object be cached
 #' @return A r4ml.matrix
 #' @examples \dontrun{
-#' r4ml_matrix <- as.r4ml.matrix(datasets::beaver1)
+#' r4ml_matrix <- as.r4ml.matrix(datasets::beaver1, cache = TRUE)
 #' }
 #' @export
 setGeneric("as.r4ml.matrix", function(object, cache = TRUE) {
@@ -74,7 +74,7 @@ setMethod("as.r4ml.matrix",
       r4ml.err(logSource, "Use hydrar.ml.preprocess to convert r4ml.frame to numeric r4ml.matrix")
     }
     if (cache & !result@env$isCached) {
-      result <- cache(result)
+      result <- SparkR::cache(result)
     }
     return(result)
   }
