@@ -596,3 +596,32 @@ isAnyAttrOfType <- function(hm, attrs, type) {
   return(any(allColumnTypes[allColumnNames %in% attrs] == type))
 }
 
+# Method to transform a r4ml.frame to a r4ml.matrix that can be read by DML 
+#'
+#' @name r4ml.systemml.transform
+#' @title Wrapper method for \code{\link{r4ml.ml.preprocess}}
+#' @description Wrapper method for \code{\link{r4ml.ml.preprocess}} and produces a \code{r4ml.matrix}.
+#' @param ... argument(s) passed to the method.
+#' @return A \code{r4ml.matrix} object as the result of the transformations. \code{r4ml.matrix}
+#' @export
+#' #' @examples \dontrun{
+#' 
+#' # Load the Iris dataset to the cluster
+#' irisBF <- as.r4ml.frame(iris)
+#' 
+#' irisBM <- r4ml.systemml.transform(irisBF, transformPath = "/tmp",
+#'             dummycodeAttrs = "Species",
+#'             binningAttrs = c("Sepal_Length", "Sepal_Width"),
+#'             numBins = 4,
+#'             missingAttrs = c("Petal_Length", "Sepal_Width"),
+#'             omit.na = c("Petal_Width"),
+#'             scalingAttrs = c("Petal_Length")
+#'  )
+#' }
+r4ml.systemml.transform <- function(...) {
+  args <- list(...)
+  pp_db <- do.call(r4ml.ml.preprocess, args)
+  r4ml.info("Converting into the as.r4ml.matrix. It assumes that all the columns are numeric")
+  pp_db$data <- as.r4ml.matrix(pp_db$data)
+  pp_db
+}
