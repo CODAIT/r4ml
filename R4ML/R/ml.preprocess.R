@@ -602,6 +602,7 @@ isAnyAttrOfType <- function(hm, attrs, type) {
 #' @title Wrapper method for \code{\link{r4ml.ml.preprocess}}
 #' @description Wrapper method for \code{\link{r4ml.ml.preprocess}} and produces a \code{r4ml.matrix}.
 #' @param ... argument(s) passed to the method.
+#'            Note that the data passed to this method should be numeric. 
 #' @return A \code{r4ml.matrix} object as the result of the transformations. \code{r4ml.matrix}
 #' @export
 #' #' @examples \dontrun{
@@ -621,7 +622,8 @@ isAnyAttrOfType <- function(hm, attrs, type) {
 r4ml.systemml.transform <- function(...) {
   args <- list(...)
   pp_db <- do.call(r4ml.ml.preprocess, args)
-  r4ml.info("Converting into the as.r4ml.matrix. It assumes that all the columns are numeric")
+  logSource <- "r4ml.systemml.transform"
+  r4ml.info(logSource, "Converting into the as.r4ml.matrix. It assumes that all the columns are numeric")
   pp_db$data <- as.r4ml.matrix(pp_db$data)
   pp_db
 }
