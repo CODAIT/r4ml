@@ -9,6 +9,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+
+R4ML, is a open-source R package from IBM. R4ML provides a bridge between R and Apache SystemML, allowing R scripts to invoke custom algorithms developed in SystemML's R-like domain specific language. This capability also provides a bridge to the algorithm scripts that ship with Apache SystemML, effectively adding a new library of prebuilt scalable algorithms for R on Apache Spark. R4ML integrates seamlessly SparkR, so data scientists can use the best features of SparkR and SystemML together in the same script. In addition, the R4ML package provides a number of useful new R functions that simplify common data cleaning and statistical analysis tasks
+
 R4ML is the scalable R with the following goals and mission
 
 - Work on the `big data`
@@ -17,24 +20,16 @@ R4ML is the scalable R with the following goals and mission
 - Support for the ability to run CRAN R packages over the distributed `dataframe`
 
 
-The R4ML is build on the top of the [Apache SparkR]() ( [Spark]()) and [Apache SystemML]() . This allows R4ML user to use
+The R4ML is build on the top of the [Apache SparkR](http://spark.apache.org/docs/latest/sparkr.html) ( [Spark](http://spark.apache.org/)), [Apache SystemML](https://systemml.apache.org/) and [R](https://www.r-project.org/). 
+
+This allows R4ML user to use
 
 - Run in the local or distributed manner
 - All the SparkR capabilities
 - All the SystemML custom Machine learning algorithms
-- Extra features supported by [R4ML]()
+- use all CRAN packages in R
+
+
 
 ------
-
-## R4ML Table of Contents
-
-* [Introduction](Introduction.html)
-* [Installing and Loading](Install.html)
-* [R4ML Basic DataTypes](Datatypes.html)
-* [Consuming and exporting data](IO.html)
-* [Core Operations](CoreOps.html)
-* [R4ML Machine Learning Algorithms](Machinelearning.html)
-* [Simple examples](SimpleExamples.html)
-* [Real life examples](RealisticExamples.html)   
-
 
