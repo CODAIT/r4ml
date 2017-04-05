@@ -42,9 +42,10 @@ echo "Creating man pages"
 Rscript -e ' libDir <- "../../lib"; library(R4ML, lib.loc=libDir); library(knitr); knit_rd("R4ML", links = tools::findHTMLlinks(paste(libDir, "R4ML", sep="/"))) '
 popd
 
-pushd R4ML/vignettes
-echo "Creating Vignettes"
-Rscript -e ' libDir <- "../../lib"; library(R4ML, lib.loc=libDir); library(devtools); devtools::build_vignettes()'
-popd
+# create vignettes (currently none to make)
+# pushd R4ML/vignettes
+# echo "Creating Vignettes"
+# Rscript -e ' libDir <- "../../lib"; library(R4ML, lib.loc=libDir); library(devtools); devtools::build_vignettes()'
+# popd
 
 popd
