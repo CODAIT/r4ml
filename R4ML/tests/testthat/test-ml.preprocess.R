@@ -80,12 +80,12 @@ test_that("r4ml.ml.preprocess excludetransformPath", {
   showDF(iris_transform$data, n = 154) 
 })
 
-test_that("r4ml.systemml.transform", {
+test_that("r4ml.sysml.transform", {
   data("iris")
   iris_hf <- as.r4ml.frame(as.data.frame(iris))
   
-  iris_transform <- r4ml.systemml.transform(
-    iris_hf, transformPath = tempdir(),
+  iris_transform <- r4ml.sysml.transform(
+    iris_hf,
     dummycodeAttrs = "Species",
     binningAttrs = c("Sepal_Length", "Sepal_Width"),
     numBins=4,
