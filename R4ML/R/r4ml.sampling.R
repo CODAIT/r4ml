@@ -30,12 +30,13 @@ NULL
 #' 
 #' @name r4ml.sample
 #' @title Random sampling
-#' @usage r4ml.sample(data, perc)
 #' @param data (r4ml.frame or r4ml.matrix or SparkDataFrame) Dataset to sample from
 #' @param perc (numeric) For random sampling, an atomic value between (0, 1) 
 #'   that represents the sampling percentage. For partitioned sampling, a 
 #'   vector of numerics in the interval (0, 1), such that their sum is 
 #'   exactly 1.
+#' @param experimental (logical)
+#' @param cache (logical) if TRUE the output is cached
 #' @return For random sampling, a single r4ml.frame/r4ml.matrix/SparkDataFrame is returned. For
 #'   partitioned sampling, a list of r4ml.frames or r4ml.matrices or Spark SparkDataFrame is returned, and each
 #'   element in the list represents a partition.

@@ -55,7 +55,7 @@ setClass(
 #' @return An S4 object of class r4ml.glm which contains the arguments above as well as the following additional fields:
 ##' \tabular{rlll}{
 ##'\tab\code{coefficients}          \tab (numeric) \tab Coefficients of the regression \cr
-##'\tab\code{transformPath} \tab (character)   \tab HDFS location where the \code{r4ml.transform()} metadata are stored \cr
+##'\tab\code{transformPath} \tab (character)   \tab location where the \code{r4ml.transform()} metadata is stored \cr
 ##'\tab\code{yColId}          \tab (numeric) \tab Column id of the response variable\cr
 ##'\tab\code{yColname}      \tab (character) \tab Column name of the response variable \cr
 ##'\tab\code{featureNames}      \tab (character) \tab The features used to build the model \cr

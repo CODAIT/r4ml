@@ -441,21 +441,21 @@ r4ml.parseSurvivalArgsFromFormulaTree <- function(formula, dataset, directory){
 #' 
 #' A function to find columns in a r4ml.frame which have NA values. This
 #' function can be very costly for large datasets.
-#' @param hf a r4ml.frame
+#' @param object a r4ml.frame
 #' @export
-r4ml.which.na.cols <- function(hf) {
+r4ml.which.na.cols <- function(object) {
  logSource <- "r4ml.which.na.cols"
   
- if (!inherits(hf, "SparkDataFrame")) {
+ if (!inherits(object, "SparkDataFrame")) {
    r4ml.err(logSource, "data type not supported")
  }
- cols <- SparkR::columns(hf)
- rows <- SparkR::nrow(hf)
+ cols <- SparkR::columns(object)
+ rows <- SparkR::nrow(object)
  
  na_cols <- c()
  
  for (col in cols) {
-   hf2 <- SparkR::dropna(x = hf, cols = col)
+   hf2 <- SparkR::dropna(x = object, cols = col)
    if (SparkR::nrow(hf2) < rows) {
      na_cols <- c(na_cols, col)
    }

@@ -100,13 +100,12 @@ setMethod("$", signature(x = "r4ml.frame"),
           })
 
 
-#' Convert the various  data.frame into the r4ml frame.
+#' as.sparkr.column
 #'
 #' This is the convenient method of converting the r4ml.vector into the SparkR::Column
 #'
 #' @name as.sparkr.column
 #' @param object r4ml.vector
-#' @param hv a r4ml.vector
 #' @param ... future optional additional arguments to be passed to or from methods
 #' @return SparkR::Column
 #' @export
@@ -117,14 +116,14 @@ setMethod("$", signature(x = "r4ml.frame"),
 #'    mval
 #' }
 #'    
-setGeneric("as.sparkr.column", function(hv, ...) {
+setGeneric("as.sparkr.column", function(object, ...) {
   standardGeneric("as.sparkr.column")
 })
 
 setMethod("as.sparkr.column",
-          signature(hv = "r4ml.vector"),
-          function(hv, ...) {
-            SparkR::column(hv@jc)
+          signature(object = "r4ml.vector"),
+          function(object, ...) {
+            SparkR::column(object@jc)
           }
 )
 

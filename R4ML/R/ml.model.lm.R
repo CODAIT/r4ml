@@ -27,8 +27,7 @@ setClass("r4ml.lm",
 #' @name r4ml.lm
 #' @title Linear Regression
 #' @export
-#' @description Fits a linear regression model from a r4ml.matrix or
-#'    loads an existing model from HDFS.
+#' @description Fits a linear regression model from a r4ml.matrix.
 #' @details There are two different implementations to estimate the coefficients
 #'  of the Linear Regression. Depending on the size and sparsity of the training
 #'  set, one or the other method may be more efficient.
@@ -41,28 +40,26 @@ setClass("r4ml.lm",
 #'    \tab \tab ---- fairly dense (i.e., the proportion of zero/missing values is very small). \cr
 #'  }
 #'  Otherwise,
-#'  the \emph{conjugate gradient} method would be preferred. If the number of columns
-#'  is above 50,000, \emph{conjugate gradient} should be used.
+#'  the \emph{iterative} method would be preferred. If the number of columns
+#'  is above 50,000, \emph{iterative} should be used.
 #' @param formula (formula) A formula in the form Y ~ ., where Y is the response variable.
 #'                The response variable must be of type "scale".
 #' @param data (r4ml.matrix) A r4ml.matrix to be fitted.
-#' @param method (character) Either "direct-solve" or "iterative". Default is "direct-solve".
+#' @param method (character) "direct-solve" or "iterative" (conjugate gradient). Default is "direct-solve".
 #' @param intercept (logical) Boolean value indicating if the intercept term should be used for the regression.
 #' @param shiftAndRescale (logical) Boolean value indicating if shifting and rescaling X columns to mean = 0, variance = 1 should be performed.
 #' @param tolerance (numeric) Epsilon degree of tolerance, used when method is "iterative".
 #' @param iter.max (numeric) Number of iterations, used when method is "iterative".
 #' @param lambda (numeric) Regularization parameter.
 # @TODO remove it
-#' @param directory (character) The HDFS path to save the Linear Regression model
-#'  if \code{formula} and \code{data} are specified. Otherwise, an HDFS location
-#'  with a previously trained model to be loaded.
+#' @param directory (character) The path to save the Linear Regression model
 #' @return An S4 object of class \code{r4ml.lm} which contains the arguments above as well
 #' as the following additional fields:
 #'  \tabular{rlll}{
 ##'\tab\code{coefficients}  \tab (numeric)   \tab Coefficients of the regression\cr
-##'\tab\code{modelPath}     \tab (character) \tab HDFS location where the model files are stored\cr
-##'\tab\code{transformPath} \tab (character) \tab HDFS location where the \code{r4ml.transform()}
-##'                                               metadata are stored \cr
+##'\tab\code{modelPath}     \tab (character) \tab location where the model files are stored\cr
+##'\tab\code{transformPath} \tab (character) \tab location where the \code{r4ml.transform()}
+##'                                               metadata is stored \cr
 ##'\tab\code{yIdx}          \tab (numeric)   \tab Column id of the response variable\cr
 ##'\tab\code{numFeatures}   \tab (numeric)   \tab The number of attributes\cr
 ##'\tab\code{labelColname}  \tab (character) \tab Column name of the response variable \cr
@@ -227,7 +224,7 @@ setMethod("r4ml.model.postTraining", signature="r4ml.lm", definition =
 )
 
 #' @title print linear model fitted coefficients
-#' @description Pritn the coefficients of the fitted model
+#' @description Print the coefficients of the fitted model
 #' @name show
 #' @param object (r4ml.lm) The linear regression model
 #' @return None

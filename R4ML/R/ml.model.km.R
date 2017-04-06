@@ -367,7 +367,6 @@ setMethod(f = "show", signature = "r4ml.kaplan.meier", definition =
 #' standard error of survival, as well as 100*(1-alpha)\% upper and lower 
 #' confidence interval bounds of the median.
 #' 
-#' @usage summary(object)
 #' @examples \dontrun{
 #' 
 #' # Load a sample data set

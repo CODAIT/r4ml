@@ -23,7 +23,17 @@ NULL
 #'
 #' r4ml.model acts as the base class of all the other model and it
 #' follows the factory method design pattern
-#' @slot modelPath A length-one numeric vector
+#' @slot modelPath (character) location where the model files are stored
+#' @slot transformPath (character) location to store the transform metadata
+#' @slot yColname (character) column name of the response variable
+#' @slot featureNames (character) the features used to build the model
+#' @slot call (character) string representation of this method's call, including
+#' the parameters and values passed to it
+#' @slot modelType (character) classification, regression, clustering,
+#' feature-extraction, factorization, or other
+#' @slot yColId (interger) column id of the response variable
+#' @slot dmlArgs (list) arguments passed to the DML script
+#' @slot dmlOuts (list) arguments returned from the DML script
 #' @export
 setClass("r4ml.model",
   representation(

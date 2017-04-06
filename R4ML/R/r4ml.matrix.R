@@ -19,7 +19,6 @@
 #' @title is.r4ml.matrix
 #' @description check if the given object is r4ml.matrix
 #' @param object the object to test
-#' @param ... other arguments to be passed to as.r4ml.frame
 #' @export
 #' @seealso \link{is.r4ml.numeric}
 is.r4ml.matrix <- function(object) {
@@ -45,7 +44,7 @@ setClass("r4ml.matrix",
 #' Coerce to a R4ML Matrix
 #'
 #' Convert an object to a r4ml.matrix
-#' @param object A r4ml.frame, data.frame, or Spark DataFrame
+#' @param object A r4ml.frame, data.frame, or SparkDataFrame
 #' @param cache (logical) should the object be cached
 #' @return A r4ml.matrix
 #' @examples \dontrun{
@@ -153,10 +152,7 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 #' - If transform metadata are available, \code{ml.coltypes} is set to "nominal" for such attributes that
 #' have been binned or recoded. All other attributes are considered as "scale".
 
-#' @usage \code{
-#' ml.coltypes(bm)
-#' ml.coltypes(bm) <- value
-#' }
+#' @usage ml.coltypes(x)
 #'
 #'
 #' @param x (r4ml.matrix)
@@ -167,7 +163,7 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 #' @rdname ml.coltypes
 #' @examples \dontrun{
 #'
-#' # Load the Iris dataset to HDFS
+#' # Load the Iris dataset
 #' irisbf <- as.r4ml.frame(iris)
 #'
 #' # Create a r4ml.matrix after dummycoding, binning, and scaling some attributes
@@ -189,10 +185,10 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 #' str(irisBM)
 #'
 #' }
-ml.coltypes <- function(bm) {
+ml.coltypes <- function(x) {
   logSource <- "ml.coltypes"
-  .r4ml.checkParameter(logSource, bm, inheritsFrom="r4ml.matrix")
-  return(r4ml.env$DML_DATA_TYPES[bm@ml.coltypes])
+  .r4ml.checkParameter(logSource, x, inheritsFrom="r4ml.matrix")
+  return(r4ml.env$DML_DATA_TYPES[x@ml.coltypes])
 }
 
 #' r4ml.onehot.column
