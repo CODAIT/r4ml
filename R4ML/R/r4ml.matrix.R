@@ -19,7 +19,6 @@
 #' @title is.r4ml.matrix
 #' @description check if the given object is r4ml.matrix
 #' @param object the object to test
-#' @param ... other arguments to be passed to as.r4ml.frame
 #' @export
 #' @seealso \link{is.r4ml.numeric}
 is.r4ml.matrix <- function(object) {
