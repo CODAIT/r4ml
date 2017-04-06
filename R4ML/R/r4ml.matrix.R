@@ -150,10 +150,7 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 #' - If transform metadata are available, \code{ml.coltypes} is set to "nominal" for such attributes that
 #' have been binned or recoded. All other attributes are considered as "scale".
 
-#' @usage \code{
-#' ml.coltypes(bm)
-#' ml.coltypes(bm) <- value
-#' }
+#' @usage ml.coltypes(x)
 #'
 #'
 #' @param x (r4ml.matrix)
@@ -186,10 +183,10 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 #' str(irisBM)
 #'
 #' }
-ml.coltypes <- function(bm) {
+ml.coltypes <- function(x) {
   logSource <- "ml.coltypes"
-  .r4ml.checkParameter(logSource, bm, inheritsFrom="r4ml.matrix")
-  return(r4ml.env$DML_DATA_TYPES[bm@ml.coltypes])
+  .r4ml.checkParameter(logSource, x, inheritsFrom="r4ml.matrix")
+  return(r4ml.env$DML_DATA_TYPES[x@ml.coltypes])
 }
 
 #' r4ml.onehot.column
