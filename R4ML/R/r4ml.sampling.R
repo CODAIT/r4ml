@@ -97,8 +97,8 @@ r4ml.sample <- function(data, perc, experimental=FALSE,
         r4ml.err(logSource, "Unsupported type " %++% data_type %++% " passed in")
       }
      
-      if (cache) {
-        dummy <- cache(casted_df)
+      if (cache & !casted_df@env$isCached) {
+        dummy <- SparkR::cache(casted_df)
       }
       
       casted_df

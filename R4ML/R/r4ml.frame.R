@@ -115,6 +115,14 @@ r4ml.calc.num.partitions <- function(object_size) {
 #' }
 setGeneric("as.r4ml.frame", function(object, repartition = TRUE,
                                        numPartitions = NA, ...) {
+  logSource <- "as.r4ml.frame"
+  .r4ml.checkParameter(logSource, parm = repartition, isOptional = TRUE,
+                       expectedClasses = "logical",
+                       expectedValues = c(TRUE, FALSE))
+
+  .r4ml.checkParameter(logSource, parm = numPartitions, isOptional = TRUE,
+                       isNAOK = TRUE, expectedClasses = "numeric")
+
   standardGeneric("as.r4ml.frame")
 })
 
@@ -192,7 +200,7 @@ setMethod(f = "show", signature = "r4ml.frame", definition =
     if (ncol(object) == 0) {
       cat("r4ml.frame with 0 columns\n")
     } else if (nrow(df) == 0) {
-      cat(paste(colnames(object), collapse="    "))
+      cat(paste(SparkR::colnames(object), collapse="    "))
       cat("\n<0 rows>\n")
     } else {
       # Show the contents of the r4ml.frame as a data.frame

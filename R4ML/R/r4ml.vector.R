@@ -30,25 +30,6 @@ setClassUnion("r4ml.frame.OrNull", c("r4ml.frame", "NULL"))
 #' @title r4ml.vector operations
 #' @rdname r4ml.vector_ops
 #' 
-#' @examples
-##'\dontrun{
-## TODO this test case is not working
-##' # Load the iris dataset as a r4ml.frame
-##' hf <- as.r4ml.frame(iris)
-##' 
-##' # Advanced nested arithmetic operations
-##' avgLength <- (hf$Sepal_Length + hf$Sepal_Width) / 2
-##' ones <- sin(avgLength) ^ 2 + cos(avgLength ^ 2)
-##' show(ones)
-##' 
-##' # Character operations
-##' lower(substr(hf$Species, 1, 3))
-##' 
-##' # Recoding columns
-##' hf$size <- ifelse(avgLength > 4, "large", "small")
-##' str(hf)
-##' }
-NULL
 #' @export
 setClass("r4ml.vector", 
          slots = list(hf = "r4ml.frame.OrNull"),

@@ -44,9 +44,11 @@ test_that("is.r4ml.numeric", {
 
 # test as.r4ml.frame for R dataframe
 test_that("as.r4ml.frame", {
-  
   hf <- as.r4ml.frame(iris)
   
+  # make sure we error out with invalid params
+  expect_error(as.r4ml.frame(iris, 8998, dedfe, efefef))
+  expect_error(as.r4ml.frame(SparkR::as.DataFrame(iris), 8998, dedfe, efefef))
 })
 
 test_that("show", {

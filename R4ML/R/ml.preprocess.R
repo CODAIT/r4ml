@@ -159,7 +159,7 @@ r4ml.ml.preprocess <- function(
   dummycodeAttrs = NULL,
   scalingAttrs = NULL, 
   scalingMethod = "mean-subtraction",
-  omit.na = colnames(data))
+  omit.na = SparkR::colnames(data))
 {
   logSource <- "r4ml.ml.preprocess"
  .r4ml.transform.argumentsPreconditions(
@@ -266,7 +266,9 @@ r4ml.ml.preprocess <- function(
     rhf = data
     if (is.omit.na) {
       rhf <- as.r4ml.frame(SparkR::dropna(data, cols = omit.na), repartition = FALSE)
-      ignore <- cache(rhf)
+      if (!rhf@env$isCached) {
+        ignore <- SparkR::cache(rhf)
+        }
     }
     metadata <- list()
     list(data=rhf, metadata=metadata)
@@ -596,3 +598,33 @@ isAnyAttrOfType <- function(hm, attrs, type) {
   return(any(allColumnTypes[allColumnNames %in% attrs] == type))
 }
 
+# Method to transform a r4ml.frame to a r4ml.matrix that can be read by DML 
+#'
+#' @name r4ml.sysml.transform
+#' @title Wrapper method for \code{\link{r4ml.ml.preprocess}}
+#' @description Wrapper method for \code{\link{r4ml.ml.preprocess}} and produces a \code{r4ml.matrix}.
+#' @param ... argument(s) passed to the method.
+#'            Note that the data passed to this method should be numeric. 
+#' @return A \code{r4ml.matrix} object as the result of the transformations. \code{r4ml.matrix}
+#' @export
+#' #' @examples \dontrun{
+#' 
+#' irisBF <- as.r4ml.frame(iris)
+#' 
+#' irisBM <- r4ml.sysml.transform(irisBF, transformPath = "/tmp",
+#'             dummycodeAttrs = "Species",
+#'             binningAttrs = c("Sepal_Length", "Sepal_Width"),
+#'             numBins = 4,
+#'             missingAttrs = c("Petal_Length", "Sepal_Width"),
+#'             omit.na = c("Petal_Width"),
+#'             scalingAttrs = c("Petal_Length")
+#'  )
+#' }
+r4ml.sysml.transform <- function(...) {
+  args <- list(...)
+  pp_db <- do.call(r4ml.ml.preprocess, args)
+  logSource <- "r4ml.sysml.transform"
+  r4ml.info(logSource, "Converting into the as.r4ml.matrix. It assumes that all the columns are numeric")
+  pp_db$data <- as.r4ml.matrix(pp_db$data)
+  pp_db
+}
