@@ -41,12 +41,12 @@ setClass("r4ml.lm",
 #'    \tab \tab ---- fairly dense (i.e., the proportion of zero/missing values is very small). \cr
 #'  }
 #'  Otherwise,
-#'  the \emph{conjugate gradient} method would be preferred. If the number of columns
-#'  is above 50,000, \emph{conjugate gradient} should be used.
+#'  the \emph{iterative} method would be preferred. If the number of columns
+#'  is above 50,000, \emph{iterative} should be used.
 #' @param formula (formula) A formula in the form Y ~ ., where Y is the response variable.
 #'                The response variable must be of type "scale".
 #' @param data (r4ml.matrix) A r4ml.matrix to be fitted.
-#' @param method (character) Either "direct-solve" or "iterative". Default is "direct-solve".
+#' @param method (character) "direct-solve" or "iterative" (conjugate gradient). Default is "direct-solve".
 #' @param intercept (logical) Boolean value indicating if the intercept term should be used for the regression.
 #' @param shiftAndRescale (logical) Boolean value indicating if shifting and rescaling X columns to mean = 0, variance = 1 should be performed.
 #' @param tolerance (numeric) Epsilon degree of tolerance, used when method is "iterative".
