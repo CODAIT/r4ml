@@ -44,7 +44,7 @@ setClass("r4ml.matrix",
 #' Coerce to a R4ML Matrix
 #'
 #' Convert an object to a r4ml.matrix
-#' @param object A r4ml.frame, data.frame, or Spark DataFrame
+#' @param object A r4ml.frame, data.frame, or SparkDataFrame
 #' @return A r4ml.matrix
 #' @examples \dontrun{
 #' r4ml_frame <-  as.r4ml.frame(beaver1)
