@@ -19,7 +19,7 @@ context("Testing zzz\n")
 
 # TODO add remaining zzz test
 
-test_that("r4ml.session", {
+test_that("r4ml.session.param.driver.memory", {
   # test if parameters passed to r4ml.session are propagated to sparkR session.
   r4ml.session.stop()
 
@@ -27,6 +27,18 @@ test_that("r4ml.session", {
   config <- sparkR.conf()
   expect_match(config$spark.driver.memory, "1G")
 
+  r4ml.session.stop()
+  r4ml.session()
+})
+
+test_that("r4ml.session.param.enableHiveSupport", {
+  # test if parameters passed to r4ml.session are propagated to sparkR session.
+  r4ml.session.stop()
+  
+  r4ml.session(enableHiveSuppor = FALSE)
+  config <- sparkR.conf()
+  expect_null(config$spark.sql.catalogImplementation)
+  
   r4ml.session.stop()
   r4ml.session()
 })
