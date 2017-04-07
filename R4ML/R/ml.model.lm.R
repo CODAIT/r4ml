@@ -224,7 +224,7 @@ setMethod("r4ml.model.postTraining", signature="r4ml.lm", definition =
 )
 
 #' @title print linear model fitted coefficients
-#' @description Pritn the coefficients of the fitted model
+#' @description Print the coefficients of the fitted model
 #' @name show
 #' @param object (r4ml.lm) The linear regression model
 #' @return None
