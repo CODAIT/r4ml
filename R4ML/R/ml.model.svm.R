@@ -140,8 +140,8 @@ setMethod("initialize", "r4ml.svm",
 #' 
 ##' \tabular{rlll}{
 ##'\tab\code{coefficients}          \tab (data.frame) \tab Support vectors\cr
-##'\tab\code{modelPath}     \tab (character) \tab HDFS location where the model files are stored\cr
-##'\tab\code{transformPath} \tab (character)   \tab HDFS location where the \code{r4ml.transform()} metadata are stored \cr
+##'\tab\code{modelPath}     \tab (character) \tab location where the model files are stored\cr
+##'\tab\code{transformPath} \tab (character)   \tab location where the \code{r4ml.transform()} metadata is stored \cr
 ##'\tab\code{yIdx}          \tab (numeric) \tab Column id of the response variable\cr
 ##'\tab\code{labelColname}      \tab (character) \tab Column name of the response variable \cr
 ##'\tab\code{call}          \tab (character) \tab String representation of this method's call, including the parameters and values passed to it.\cr
@@ -149,7 +149,7 @@ setMethod("initialize", "r4ml.svm",
 #' 
 #' @examples \dontrun{
 #' 
-#' # Load the Iris dataset to HDFS 
+#' # Load the Iris dataset 
 #' iris_hf <- as.r4ml.frame(iris)
 #' 
 #' # Do the preprocessing to recode the Species column
@@ -365,7 +365,7 @@ setMethod(f = "show", signature = "r4ml.svm", definition =
 #'
 #' @examples \dontrun{
 #' 
-#' # Load the Iris dataset to HDFS 
+#' # Load the Iris dataset 
 #' iris_hf <- as.r4ml.frame(iris)
 #' 
 #' # Do the preprocessing to recode the Species column

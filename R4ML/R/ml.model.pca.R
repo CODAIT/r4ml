@@ -62,7 +62,7 @@ setClass(
 #'
 #' @examples \dontrun{
 #'
-#' # Load the Iris dataset to HDFS
+#' # Load the Iris dataset
 #' train <- as.r4ml.matrix(iris[, -5])
 #'
 #' # Create a r4ml.pca model on Iris and projected data. Then display the new feature set(ie the principal components),

@@ -47,7 +47,7 @@
 #'             \code{transformPath}). The transform metadata can be  
 #'              used to perform the same set of transformations on another \code{r4ml.frame}, through parameter \code{applyTransformPath}.
 #' @param data (r4ml.frame) The data to be transformed.
-#' @param transformPath (character) Path on HDFS where the transform metadata (e.g., recode maps, dummy-code maps, etc.) will be stored.
+#' @param transformPath (character) Path where the transform metadata (e.g., recode maps, dummy-code maps, etc.) will be stored.
 #' @param applyTransformPath (character) Path of an existing transform metadata folder. 
 #'                                       If specified, \code{r4ml.ml.preprocess()} will apply the same transformations to \code{bf}.
 #'                                       Transform metadata for the resulting r4ml.matrix will be copied to the location specified in \code{transformPath}.
@@ -123,7 +123,7 @@
 #' iris2[10, 3] <- NA
 #' iris2[100, 4] <- NA
 #' 
-#' # Upload the modified version of Iris to HDFS
+#' # load the modified version of Iris
 #' irisBF <- as.r4ml.frame(iris2)
 #' 
 #' # Find out which columns have NA values

@@ -30,7 +30,7 @@ setClass("r4ml.coxph",
 #' Cox proportional hazards regression model
 #' 
 #' Fit a Cox proportional hazards regression model with time dependent
-#' coefficients or loads an existing model from HDFS.
+#' coefficients.
 #' @details The Cox proportional hazard analysis is a semi-parametric
 #' statistical estimator. It is used to handle censored time-to-event data. It
 #' is semi-parametric because it does not make any assumptions on the
@@ -59,8 +59,7 @@ setClass("r4ml.coxph",
 #' @param tolerance (numeric) tolerance value
 #' @param iter.max.inner (numeric) Max. number of inner (conjugate gradient) iterations (0 = unlimited)
 #' @param iter.max.outer (numeric) Max. number of outer (Newton) iterations
-#' @param directory (character) The HDFS path to save the Cox model if input data is specified.
-#'        Otherwise, an HDFS location with a previously trained model to be loaded.
+#' @param directory (character) The path to save the Cox model.
 #' @return An S4 object of class \code{r4ml.coxph} which contains the arguments above as well as the following additional fields:
 #' 
 #'  \tabular{rlll}{

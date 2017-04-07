@@ -163,7 +163,7 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 #' @rdname ml.coltypes
 #' @examples \dontrun{
 #'
-#' # Load the Iris dataset to HDFS
+#' # Load the Iris dataset
 #' irisbf <- as.r4ml.frame(iris)
 #'
 #' # Create a r4ml.matrix after dummycoding, binning, and scaling some attributes

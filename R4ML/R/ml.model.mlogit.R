@@ -56,8 +56,8 @@ setClass("r4ml.mlogit",
 #' as the following additional fields:
 #'  \tabular{rlll}{
 ##'\tab\code{beta}          \tab (numeric) \tab Coefficients of the regression\cr
-##'\tab\code{modelPath}     \tab (character) \tab HDFS location where the model files are stored\cr
-##'\tab\code{transformPath} \tab (character)   \tab HDFS location where the \code{r4ml.transform()} metadata are stored \cr
+##'\tab\code{modelPath}     \tab (character) \tab location where the model files are stored\cr
+##'\tab\code{transformPath} \tab (character)   \tab location where the \code{r4ml.transform()} metadata is stored \cr
 ##'\tab\code{yIdx}          \tab (numeric) \tab Column id of the response variable\cr
 ##'\tab\code{labelColname}      \tab (character) \tab Column name of the response variable \cr
 ##'\tab\code{call}          \tab (character) \tab String representation of this method's call, including the parameters and values passed to it.\cr
