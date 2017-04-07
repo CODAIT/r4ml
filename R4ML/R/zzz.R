@@ -16,16 +16,16 @@
 
 r4ml_ascii <- function() {
   
-  #' Big by Glenn Chappell 4/93 -- based on Standard
-  #' Includes ISO Latin-1
-  #' Greek characters by Bruce Jakeway <pbjakeway@neumann.uwaterloo.ca>
-  #' figlet release 2.2 -- November 1996
-  #' Permission is hereby given to modify this font, as long as the
-  #' modifier's name is placed on a comment line.
-  #'
-  #' Modified by Paul Burton  12/96 to include new parameter
-  #' supported by FIGlet and FIGWin.  May also be slightly modified for better use
-  #' of new full-width/kern/smush alternatives, but default output is NOT changed.
+  # Big by Glenn Chappell 4/93 -- based on Standard
+  # Includes ISO Latin-1
+  # Greek characters by Bruce Jakeway <pbjakeway@neumann.uwaterloo.ca>
+  # figlet release 2.2 -- November 1996
+  # Permission is hereby given to modify this font, as long as the
+  # modifier's name is placed on a comment line.
+  #
+  # Modified by Paul Burton  12/96 to include new parameter
+  # supported by FIGlet and FIGWin.  May also be slightly modified for better use
+  # of new full-width/kern/smush alternatives, but default output is NOT changed.
   
   ascii <- "\n"
   ascii <- paste0(ascii, "  _______   _    _    ____    ____  _____\n")
@@ -40,16 +40,16 @@ r4ml_ascii <- function() {
 
 systemml_ascii <- function() {
   
-  #' Big by Glenn Chappell 4/93 -- based on Standard
-  #' Includes ISO Latin-1
-  #' Greek characters by Bruce Jakeway <pbjakeway@neumann.uwaterloo.ca>
-  #' figlet release 2.2 -- November 1996
-  #' Permission is hereby given to modify this font, as long as the
-  #' modifier's name is placed on a comment line.
-  #'
-  #' Modified by Paul Burton  12/96 to include new parameter
-  #' supported by FIGlet and FIGWin.  May also be slightly modified for better use
-  #' of new full-width/kern/smush alternatives, but default output is NOT changed.
+  # Big by Glenn Chappell 4/93 -- based on Standard
+  # Includes ISO Latin-1
+  # Greek characters by Bruce Jakeway <pbjakeway@neumann.uwaterloo.ca>
+  # figlet release 2.2 -- November 1996
+  # Permission is hereby given to modify this font, as long as the
+  # modifier's name is placed on a comment line.
+  #
+  # Modified by Paul Burton  12/96 to include new parameter
+  # supported by FIGlet and FIGWin.  May also be slightly modified for better use
+  # of new full-width/kern/smush alternatives, but default output is NOT changed.
 
   ascii <- "\n"
   ascii <- paste0(ascii, "   _____           _                 __  __ _\n")
