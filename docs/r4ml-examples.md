@@ -5,15 +5,18 @@
    Congratulations, you just installed R4ML, now you are ready to do scalable
    data analysis and machine learning.
 
-   1) We have the comprehensive examples at [examples folder](../R4ML/inst/examples)
+   - We have comprehensive examples at [examples folder](../R4ML/inst/examples)
 
-   2) Also we have many vignettes for user to use at [vignettes](../R4ML/vignettes)
- 
-   3) Our unit-test also provide great examples at [unittests](../R4ML/tests/testthat)
+   - Our unit-test also provides great examples at [unittests](../R4ML/tests/testthat)
 
-   4) Here is very simple example of running the linear model by R script
+  <!--
+  - We have some vignettes for at [vignettes](../R4ML/vignettes) 
+  -->
 
-   ```
+   - Here is very simple example of running the linear model with an R script
+
+
+  ```
     # In this example, we're going to use iris data set, and we'll use linear regression
     # model to predict Sepal Length using the rest of the fearures as predictors.
 
