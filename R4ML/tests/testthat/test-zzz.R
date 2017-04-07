@@ -31,7 +31,7 @@ test_that("r4ml.session.param.driver.memory", {
   r4ml.session()
 })
 
-test_that("r4ml.session.param.enableHiveSupport", {
+test_that("r4ml.session.param.enableHiveSupport.false", {
   # test if parameters passed to r4ml.session are propagated to sparkR session.
   r4ml.session.stop()
   
@@ -42,3 +42,16 @@ test_that("r4ml.session.param.enableHiveSupport", {
   r4ml.session.stop()
   r4ml.session()
 })
+
+test_that("r4ml.session.param.enableHiveSupport.true", {
+  # test if parameters passed to r4ml.session are propagated to sparkR session.
+  r4ml.session.stop()
+
+  r4ml.session(enableHiveSuppor = TRUE)
+  config <- sparkR.conf()
+  expect_match(config$spark.sql.catalogImplementation, "hive")
+
+  r4ml.session.stop()
+  r4ml.session()
+})
+
