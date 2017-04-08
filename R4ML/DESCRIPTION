@@ -21,17 +21,17 @@ Suggests:
     devtools,
     roxygen2
 License: Apache License (== 2.0)
-Collate:
+Collate: 
     'zzz.R'
     'R4ML.R'
     'airline.R'
     'java.bridge.R'
-    'r4ml.env.R'
-    'util.commons.R'
     'r4ml.vector.R'
     'r4ml.frame.R'
     'r4ml.matrix.R'
     'r4ml.generic.R'
+    'r4ml.env.R'
+    'util.commons.R'
     'ml.model.base.R'
     'ml.model.als.R'
     'ml.model.cox.R'
