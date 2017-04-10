@@ -530,7 +530,7 @@ predict.r4ml.glm <- function(object, data, family, dispersion) {
   # Check if scoring or testing should be done:
   # if the data has the label column, then it is a testing request, otherwise, it is a scoring request
   # get the featureNames from the coefficients, column #1 is always "(Intercept)" so exclude it.
-  coefcn <- SparkR::colnames(glm@coefficients)
+  coefcn <- base::colnames(glm@coefficients)
   
   # compare the column name vector with the data's
   cn <- SparkR::colnames(data)
