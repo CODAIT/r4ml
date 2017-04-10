@@ -103,7 +103,6 @@ auto_start_session <- function() {
     r4ml.info(logsrc, "Auto starting session")
     r4ml.session()
   }
-  
 }
 
 r4ml.startup.message <- function(libname, pkgname, ...) {
@@ -117,8 +116,11 @@ r4ml.startup.message <- function(libname, pkgname, ...) {
     vstr <- sprintf("[%s]: version %s", logsrc, desc$Version)
     packageStartupMessage(vstr)
   }
+}
 
-  # print the other important info
+r4ml.post.startup.message <- function(...) {
+  logsrc <- r4ml.env$PACKAGE_NAME
+    # print the other important info
   loglevel <- r4ml.env$DEFAULT_LOG_LEVEL
   packageStartupMessage(
     sprintf("[%s]: Default log level will be set to '%s'", logsrc, loglevel))
@@ -269,6 +271,12 @@ r4ml.init <- function() {
   fs <- create.r4ml.fs()
   assign("r4ml.fs", fs, .GlobalEnv)
   
+  # assign the current sparkr.env to the r4ml.env
+  assign("sparkr.env", SparkR:::.sparkREnv, r4ml.env)
+
+  # post startup message
+  r4ml.post.startup.message()
+
   # mark the session exists flag
   r4ml.env$R4ML_SESSION_EXISTS <- TRUE
   
@@ -340,11 +348,6 @@ r4ml.session <- function(
 r4ml.session.stop <- function() {
   logsrc <- r4ml.env$PACKAGE_NAME
   
-  if(r4ml.env$R4ML_SESSION_EXISTS == FALSE) {
-    r4ml.warn(logsrc, " No R4ML session exists")
-    return()
-  }
-  
   # this should be in the reverse order as the init to avoid any potential variable 
   # dependency issues in future addition of variables and func
   
@@ -355,7 +358,12 @@ r4ml.session.stop <- function() {
   # clean sparkR
   sparkr.stop <- function() {
      if("sc" %in% ls(.GlobalEnv)) { rm(sc, envir = .GlobalEnv) }
-     SparkR::sparkR.session.stop()
+     # only remove if r4ml started the sparkr session
+     if (identical(SparkR:::.sparkREnv, r4ml.env$sparkr.env)) { 
+       if (exists(".sparkRjsc", envir = SparkR:::.sparkREnv)) {
+         SparkR::sparkR.session.stop()
+       }
+     }
   }
   sparkr.stop()
  
