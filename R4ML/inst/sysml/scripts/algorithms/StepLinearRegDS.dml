@@ -232,8 +232,12 @@ if (dir == "forward") {
   [AIC, beta_out] = linear_regression (X_global, y, m_orig, columns_fixed_ordered, fileB, 1.0);
   
   Selected = columns_fixed_ordered;
+  if (intercept_status != 0) {
+    maxS = max(Selected)
+    Selected = cbind(Selected, matrix(maxS + 1, rows=1, cols=1))
+  }
 
-  beta_out = reorder_matrix(X_orig, beta_out, Selected);
+  beta_out = reorder_matrix(boa_ncol, beta_out, Selected);
 
   write(Selected, fileS, format=fmt);
   write(beta_out, fileB, format=fmt);
@@ -435,13 +439,13 @@ linear_regression = function (Matrix[Double] X, Matrix[Double] y, Double m_orig,
 
 
 reorder_matrix = function(
-  matrix[double] X, # the input matrix, we have to account for extra beta0 for the intercept
+  double ncolX, # number of column in X, inlcuding the intercept column
   matrix[double] B, # beta
   matrix[double] S  # Selected
 ) return (matrix[double] Y) {
   
   S = t(S);
-  num_empty_B = ncol(X) - nrow(B);
+  num_empty_B = ncolX - nrow(B);
   if (num_empty_B < 0) {
     stop("Error: unable to re-order the matrix. Reason: B more than matrix X");
   }
@@ -461,9 +465,13 @@ reorder_matrix = function(
   # since the table won't accept zeros as index we hack it.
 
   S_xo = replace(target = S_x, pattern = 0, replacement = nrow(S_x));
-
-  P = table(seq(1, nrow(S_xo)), S_xo, ncol(X), ncol(X));
-  Y = P;
+  # TODO this is a hack to avoid a bug in the optimizer where it removes
+  # the last few rows of matrix P, See jira SYSTEMML-1467. This bug is fixed
+  # in SystemML. We need to remove this if statement when we move to newer
+  # version of SystemML.
+  seqS_xo = seq(1, nrow(S_xo));
+  if(1==1) {}
+  P = table(seqS_xo, S_xo, ncolX, ncolX);
 
   Y = t(P) %*% B_x;
 }
