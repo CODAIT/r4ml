@@ -25,6 +25,15 @@ test_that("r4ml.step.lm direct", {
   stats(step_lm)
 })
 
+test_that("r4ml.step.lm with intercept", {
+  data("iris")
+
+  r4ml_iris <- as.r4ml.matrix(iris[, -5])
+  step_lm <- r4ml.step.lm(Sepal_Length ~ ., data = r4ml_iris, intercept = TRUE)
+  coef(step_lm)
+  stats(step_lm)
+})
+
 test_that("r4ml.step.lm predict", {
   df <- iris
   df$Species <- (as.numeric(df$Species))
