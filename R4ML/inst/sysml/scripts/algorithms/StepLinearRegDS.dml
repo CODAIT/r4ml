@@ -233,8 +233,7 @@ if (dir == "forward") {
   
   Selected = columns_fixed_ordered;
   if (intercept_status != 0) {
-    maxS = max(Selected)
-    Selected = cbind(Selected, matrix(maxS + 1, rows=1, cols=1))
+    Selected = cbind(Selected, matrix(boa_ncol, rows=1, cols=1))
   }
 
   beta_out = reorder_matrix(boa_ncol, beta_out, Selected);
