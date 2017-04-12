@@ -307,8 +307,8 @@ r4ml.session <- function(
   #@TODO in the future make the signature of this function match sparkr.session()
   
   if (r4ml.env$R4ML_SESSION_EXISTS) {
-    r4ml.warn(logsrc, " R4ML session already initialized")
-    return()
+    r4ml.warn(logsrc, "R4ML session already initialized")
+    return(invisible(NULL))
   }
   
   if (nchar(sparkHome) == 0) {
