@@ -476,7 +476,7 @@ Logging <- R6::R6Class(
 #' 
 #' @examples \dontrun{
 #'   my.r4ml.fs <- NA
-#'   if (r4ml.fs.local()) {
+#'   if (is.r4ml.fs.local()) {
 #'     my.r4ml.fs <- R4ML:::LinuxFS$new()
 #'   } else if (R4ML:::r4ml.fs.cluster) {
 #'     my.r4ml.fs <- R4ML:::HadoopFS$new()

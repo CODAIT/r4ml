@@ -167,13 +167,14 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 #' irisbf <- as.r4ml.frame(iris)
 #'
 #' # Create a r4ml.matrix after dummycoding, binning, and scaling some attributes
-#' # this features is not implemented
-#' irisBM <- r4ml.ml.preprocess(hf = irisbf,
-#'                                transformPath = "/tmp",
-#'                                dummycodeAttrs = "Species",
-#'                                binningAttrs = c("Sepal_Length", "Sepal_Width"),
-#'                                numBins = 4,
-#'                                scalingAttrs = c("Petal_Length"))
+#' irisBM <- r4ml.ml.preprocess(data = irisbf,
+#'                              transformPath = "/tmp",
+#'                              dummycodeAttrs = "Species",
+#'                              binningAttrs = c("Sepal_Length", "Sepal_Width"),
+#'                              numBins = 4,
+#'                              scalingAttrs = c("Petal_Length"))
+#'
+#' irisBM$data <- as.r4ml.matrix(irisBM$data)
 #'
 #' # Get ml.coltypes
 #' print(ml.coltypes(irisBM$data))

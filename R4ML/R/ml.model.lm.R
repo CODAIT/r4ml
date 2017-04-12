@@ -80,7 +80,7 @@ setClass("r4ml.lm",
 #'
 #' # Apply required transformations for Machine Learning
 #' airlineFiltered <- r4ml.ml.preprocess(
-#'  hf = airlineFiltered,
+#'  data = airlineFiltered,
 #'  transformPath = "/tmp",
 #'  recodeAttrs = c("DayOfWeek"),
 #'  omit.na = c("Distance", "ArrDelay"),

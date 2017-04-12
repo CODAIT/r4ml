@@ -91,8 +91,8 @@ setClass("r4ml.kaplan.meier",
 #' # Show summary
 #' summary(km)
 #' 
-#' # Show test results
-#' r4ml.kaplan.meier.test(km)
+##' # Show test results
+##' r4ml.kaplan.meier.test(km)
 #'}
 #'
 #' @seealso \link{summary.r4ml.kaplan.meier}
@@ -386,8 +386,8 @@ setMethod(f = "show", signature = "r4ml.kaplan.meier", definition =
 #' # Show summary
 #' summary(km)
 #' 
-#' # Show test results
-#' r4ml.kaplan.meier.test(km)
+##' # Show test results
+##' r4ml.kaplan.meier.test(km)
 #'}
 #'
 #' @export summary.r4ml.kaplan.meier
@@ -437,8 +437,8 @@ summary.r4ml.kaplan.meier <- function(object) {
 #' # Show summary
 #' summary(km)
 #' 
-#' # Show test results
-#' r4ml.kaplan.meier.test(km)
+##' # Show test results
+##' r4ml.kaplan.meier.test(km)
 #'}
 #'
 #' @export
