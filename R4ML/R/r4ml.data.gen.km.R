@@ -44,8 +44,9 @@
 #' # Produce Summary                          
 #' summary <- summary(km)
 #' 
-#' # Compute Test Statistics
-#' test <- r4ml.kaplan.meier.test(km)
+## TODO: add this in the future
+##' # Compute Test Statistics
+##' test <- r4ml.kaplan.meier.test(km)
 #' 
 #' }
 r4ml.data.gen.km <- function(N, P=3, weibA=1.5, weibB=100,

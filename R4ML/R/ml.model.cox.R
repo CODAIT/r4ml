@@ -91,6 +91,8 @@ setClass("r4ml.coxph",
 #'                                   dummycodeAttrs = c("Origin", "Gender"),
 #'                                   recodeAttrs = c("Origin", "Gender"))
 #' 
+#' coxsurvdc$data <- as.r4ml.matrix(coxsurvdc$data)
+#'
 #' cox_formula <-Surv(Timestamp, Censor) ~ Gender_1 + Gender_2 + Origin_1 + Origin_2 + Origin_3 + Age
 #' 
 #' cox_obj <- r4ml.coxph(formula = cox_formula,
@@ -329,6 +331,8 @@ setMethod(f = "show",
 #'                                   dummycodeAttrs = c("Origin", "Gender"),
 #'                                   recodeAttrs = c("Origin", "Gender"))
 #' 
+#' coxsurvdc$data <- as.r4ml.matrix(coxsurvdc$data)
+#'
 #' cox_formula <- Surv(Timestamp, Censor) ~ Gender_1 + Gender_2 + Origin_1 + Origin_2 + Origin_3 + Age
 #'
 #' cox_obj <- r4ml.coxph(formula = cox_formula,
@@ -393,6 +397,8 @@ r4ml.parseBaselineIds <- function(baseline, data, directory) {
 #'                                   dummycodeAttrs = c("Origin", "Gender"),
 #'                                   recodeAttrs = c("Origin", "Gender"))
 #' 
+#' coxsurvdc$data <- as.r4ml.matrix(coxsurvdc$data)
+#'
 #' cox_formula <- Surv(Timestamp, Censor) ~ Gender_1 + Gender_2 + Origin_1 + Origin_2 + Origin_3 + Age
 #'
 #' cox_obj <- r4ml.coxph(formula = cox_formula,
@@ -412,6 +418,8 @@ r4ml.parseBaselineIds <- function(baseline, data, directory) {
 #'                                   transformPath = "/tmp",
 #'                                   dummycodeAttrs = c("Origin", "Gender"),
 #'                                   recodeAttrs = c("Origin", "Gender"))
+#' 
+#' coxsurvpredc$data <- as.r4ml.matrix(coxsurvpredc$data)
 #' 
 #' pred <- predict.r4ml.coxph(cox_obj, data = coxsurvpredc$data)
 #'}

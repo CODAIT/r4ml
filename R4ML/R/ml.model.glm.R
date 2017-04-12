@@ -73,7 +73,7 @@ setClass(
 #'
 #'# Apply required transformations for Machine Learning
 #' airlineFiltered <- r4ml.ml.preprocess(
-#'   hf = airlineFiltered,
+#'   data = airlineFiltered,
 #'   transformPath = "/tmp",
 #'   recodeAttrs = c("DayOfWeek"),
 #'   omit.na = c("Distance", "ArrDelay"),
@@ -465,7 +465,7 @@ r4ml.ml.parseFamilyAndLink <- function(family) {
 #'
 #'# Apply required transformations for Machine Learning
 #' airlineFiltered <- r4ml.ml.preprocess(
-#'   hf = airlineFiltered,
+#'   data = airlineFiltered,
 #'   transformPath = "/tmp",
 #'   recodeAttrs = c("DayOfWeek"),
 #'   omit.na = c("Distance", "ArrDelay"),
