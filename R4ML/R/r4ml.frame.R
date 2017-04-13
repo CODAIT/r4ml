@@ -564,7 +564,7 @@ setMethod("r4ml.normalize",
         # divide by zero. instead have the default 1.0
         sd <- 1
       }
-      mstr <- mstr %++% sprintf(", %s = (as.sparkr.column(data$%s)-%s)/(2*%s)", new_col, iname, mean, sd)
+      mstr <- mstr %++% sprintf(", %s = (as.sparkr.column(data$%s)-%s)/%s", new_col, iname, mean, sd * 2)
     }
     mstr <- mstr %++% ")"
     
