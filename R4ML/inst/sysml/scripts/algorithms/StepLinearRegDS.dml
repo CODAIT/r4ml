@@ -249,7 +249,7 @@ if (dir == "forward") {
 # It also outputs the AIC of the computed model.
 
 linear_regression = function (Matrix[Double] X, Matrix[Double] y, Double m_orig, Matrix[Double] Selected, String fileB, Double writeStats)
-  return (Double AIC, Matrix[Double] beta_out) {
+  return (Double AIC, Matrix[Double] beta) {
 
     intercept_status = ifdef ($icpt, 0);
     fmt = ifdef ($fmt, "text");
@@ -368,71 +368,6 @@ linear_regression = function (Matrix[Double] X, Matrix[Double] y, Double m_orig,
         print (str);
         print ("");
       }
-
-      # Prepare the output matrix
-      print ("Writing the output matrix...");
-      if (intercept_status == 2) {
-        beta_out = append (beta, beta_unscaled);
-      } else {
-        beta_out = beta;
-      }
-      
-      no_selected = ncol (Selected);
-      
-      max_selected = max (Selected);
-      last = max_selected + 1;
-
-      if (intercept_status != 0) {
-
-        Selected_ext = append (Selected, as.matrix (last));
-        
-        P1 = table (seq (1, ncol (Selected_ext)), t(Selected_ext)); 
-        
-        if (intercept_status == 2) {
-          P1_beta = P1 * beta;
-          P2_beta = colSums (P1_beta);
-          P1_beta_unscaled = P1 * beta_unscaled;
-          P2_beta_unscaled = colSums(P1_beta_unscaled);
-          
-          if (max_selected < m_orig) {
-            P2_beta = append (P2_beta, matrix (0, rows=1, cols=(m_orig - max_selected)));
-            P2_beta_unscaled = append (P2_beta_unscaled, matrix (0, rows=1, cols=(m_orig - max_selected)));
-            
-            P2_beta[1, m_orig+1] = P2_beta[1, max_selected + 1];
-            P2_beta[1, max_selected + 1] = 0;
-            
-            P2_beta_unscaled[1, m_orig+1] = P2_beta_unscaled[1, max_selected + 1];
-            P2_beta_unscaled[1, max_selected + 1] = 0;
-          }
-          
-          beta_out = append (t(P2_beta), t(P2_beta_unscaled));
-          
-        } else {
-          P1_beta = P1 * beta;
-          P2_beta = colSums (P1_beta);
-          
-          if (max_selected < m_orig) {
-            P2_beta = append (P2_beta, matrix (0, rows=1, cols=(m_orig - max_selected)));
-            P2_beta[1, m_orig+1] = P2_beta[1, max_selected + 1];
-            P2_beta[1, max_selected + 1] = 0;
-          }
-          beta_out = t(P2_beta);
-        }
-      } else {
-
-        P1 = table (seq (1, no_selected), t(Selected));
-
-        P1_beta = P1 * beta;
-
-        P2_beta = colSums (P1_beta);
-
-        if (max_selected < m_orig) {
-          P2_beta = append (P2_beta, matrix (0, rows=1, cols=(m_orig - max_selected)));
-        }
-
-        beta_out = t(P2_beta);
-
-      }
     }
   }
 
@@ -442,35 +377,31 @@ reorder_matrix = function(
   matrix[double] B, # beta
   matrix[double] S  # Selected
 ) return (matrix[double] Y) {
+  # This function assumes that B and S have same number of elements.
+  # if the intercept is included in the model, all inputs should be adjusted
+  # appropriately before calling this function.
   
   S = t(S);
   num_empty_B = ncolX - nrow(B);
   if (num_empty_B < 0) {
     stop("Error: unable to re-order the matrix. Reason: B more than matrix X");
   }
-  # +1 since extra column is for dummy r,c  
-  B_x = B;
-  S_x = S;
+
   if (num_empty_B > 0) {
-
-    zero_B_n = matrix(0, rows = num_empty_B, cols=1);
-    zero_m_n = matrix(0, rows = num_empty_B + 1, cols=1);
-
-    B_x = rbind(B, zero_B_n);
-
-    S_x = rbind(S, zero_m_n); # S is now full rank as X
+    pad_zeros = matrix(0, rows = num_empty_B, cols=1);
+    B = rbind(B, pad_zeros);
+    S = rbind(S, pad_zeros);
   }
 
   # since the table won't accept zeros as index we hack it.
-
-  S_xo = replace(target = S_x, pattern = 0, replacement = nrow(S_x));
+  S0 = replace(target = S, pattern = 0, replacement = ncolX+1);
   # TODO this is a hack to avoid a bug in the optimizer where it removes
   # the last few rows of matrix P, See jira SYSTEMML-1467. This bug is fixed
   # in SystemML. We need to remove this if statement when we move to newer
   # version of SystemML.
-  seqS_xo = seq(1, nrow(S_xo));
+  seqS = seq(1, nrow(S0));
   if(1==1) {}
-  P = table(seqS_xo, S_xo, ncolX, ncolX);
+  P = table(seqS, S0, ncolX, ncolX);
 
-  Y = t(P) %*% B_x;
+  Y = t(P) %*% B;
 }
