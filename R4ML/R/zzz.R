@@ -367,5 +367,4 @@ r4ml.session.stop <- function() {
   }
   sparkr.stop()
  
-  return(invisible(NULL))
 }
