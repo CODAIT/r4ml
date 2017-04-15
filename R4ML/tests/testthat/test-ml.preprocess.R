@@ -99,3 +99,34 @@ test_that("r4ml.sysml.transform", {
   
   expect_true(class(iris_transform$data) == "r4ml.matrix")
 })
+
+test_that("r4ml.sysml.transform run all na dataframe", {
+  result <- tryCatch({
+    na_df <- data.frame(c(NA,NA,NA), c(10,20,30))
+    names(na_df) <- c("c1", "c2")
+    na_hf <- as.r4ml.frame(na_df)
+    na_transform <- r4ml.sysml.transform(
+      na_hf,
+      dummycodeAttrs = "c2",
+      omit.na=c("c1"),
+      recodeAttrs=c("c2")
+    )
+    return(FALSE) # this should fail
+  }, warning = function(war) {
+    print(paste("Got Warning as expected :  ",war))
+    ok=grep("After na omission, there are no records left", war)
+    if (length(ok) > 0) {
+      return(TRUE) # we should get warning first before anything
+    }else {
+      return(FALSE) # we didn't get the warning
+    }
+  }, error = function(err) {
+    print(paste("Got Error as expected ",err))
+    return(TRUE) # if we got err without warn, that's not right
+  }, finally = {
+    print("done running all na dataframe")
+  }) # END tryCatch
+
+  expect_true(result)
+
+})
