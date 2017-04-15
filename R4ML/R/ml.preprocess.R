@@ -262,13 +262,22 @@ r4ml.ml.preprocess <- function(
   
   is.omit.na <- !missing(omit.na)
   
+  # variable to control the next stop of ml.preprocessors
+  stop_now <- FALSE
   proxy.omit.na <- function(data) {
     rhf = data
     if (is.omit.na) {
       rhf <- as.r4ml.frame(SparkR::dropna(data, cols = omit.na), repartition = FALSE)
       if (!rhf@env$isCached) {
         ignore <- SparkR::cache(rhf)
-        }
+      }
+      cnt <- count(rhf)
+      if (cnt == 0) {
+        r4ml.warn(logSource, "After na omission, there are no records left")
+        r4ml.warn(logSource, "Make sure that you dataset contains atleast one valid records")
+        stop_now <<- TRUE
+      }
+      
     }
     metadata <- list()
     list(data=rhf, metadata=metadata)
@@ -365,6 +374,10 @@ r4ml.ml.preprocess <- function(
   next_frame <- curr_frame
   metadata = list(order=pp_order)
   for (pp in pp_order) {
+    if (stop_now) { 
+      # if due to some reason, if we want to stop the computation
+      break
+    }
     r4ml.info(logSource, paste("running", pp))
     curr_frame <- next_frame
     pp_res_info <- do.call(pp, list(curr_frame))
