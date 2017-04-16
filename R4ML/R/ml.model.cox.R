@@ -126,111 +126,110 @@ r4ml.coxph <- function(data,
 }
 
 setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.coxph", definition = 
-            function(model, args) {
-              logSource <- "r4ml.model.validateTrainingParameters"
-              with(args, {
-                .r4ml.checkParameter(logSource, formula, expectedClasses = "formula")
-                .r4ml.checkParameter(logSource, baseline, inheritsFrom = "list", isOptional = TRUE)
-                .r4ml.checkParameter(logSource, tolerance, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
-                .r4ml.checkParameter(logSource, conf.int, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
-                .r4ml.checkParameter(logSource, iter.max.inner, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
-                .r4ml.checkParameter(logSource, iter.max.outer, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
+  function(model, args) {
+    logSource <- "r4ml.model.validateTrainingParameters"
+    with(args, {
+      .r4ml.checkParameter(logSource, formula, expectedClasses = "formula")
+      .r4ml.checkParameter(logSource, baseline, inheritsFrom = "list", isOptional = TRUE)
+      .r4ml.checkParameter(logSource, tolerance, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
+      .r4ml.checkParameter(logSource, conf.int, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
+      .r4ml.checkParameter(logSource, iter.max.inner, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
+      .r4ml.checkParameter(logSource, iter.max.outer, inheritsFrom = c("integer","numeric"), isOptional = TRUE)
                 
-                if(!missing(tolerance) && tolerance < 0) {
-                  r4ml.err(logSource, "Parameter tolerance must be a positive real number")
-                  }
+      if (!missing(tolerance) && tolerance < 0) {
+        r4ml.err(logSource, "Parameter tolerance must be a positive real number")
+      }
                 
-                if (!missing(conf.int) && (conf.int < 0 || conf.int > 1)) {
-                  r4ml.err(logSource, "Parameter conf.int must be a value between 0 and 1")
-                }
+      if (!missing(conf.int) && (conf.int < 0 || conf.int > 1)) {
+        r4ml.err(logSource, "Parameter conf.int must be a value between 0 and 1")
+      }
                 
-                if (!missing(iter.max.inner) && iter.max.inner < 0) {
-                  r4ml.err(logSource, "Parameter iter.max.inner must be a positive interger")
-                }
+      if (!missing(iter.max.inner) && iter.max.inner < 0) {
+        r4ml.err(logSource, "Parameter iter.max.inner must be a positive interger")
+      }
                 
-                if (!missing(iter.max.outer) && iter.max.outer < 0) {
-                  r4ml.err(logSource, "Parameter iter.max.outer must be a positive interger")
-                  }
-                })
+      if (!missing(iter.max.outer) && iter.max.outer < 0) {
+        r4ml.err(logSource, "Parameter iter.max.outer must be a positive interger")
+      }
+    })
               
-              return (model)
-              })
+    return (model)
+})
       
 setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.coxph", definition = 
-            function(model, args) {
-              logSource <- "r4ml.model.buildTrainingArgs.coxph"
-              with(args, {
-              dmlArgs <- list(
-                  X_orig = data,
-                  dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_COX_SCRIPT),
-                  fmt = "csv",
-                  "M",
-                  "RT",
-                  "COV",
-                  "XO",
-                  "S",
-                  "T",
-                  "MF",
-                  "TE_F")
+  function(model, args) {
+    logSource <- "r4ml.model.buildTrainingArgs.coxph"
+    with(args, {
+      dmlArgs <- list(
+      X_orig = data,
+      dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_COX_SCRIPT),
+      fmt = "csv",
+      "M",
+      "RT",
+      "COV",
+      "XO",
+      "S",
+      "T",
+      "MF",
+      "TE_F")
                 
-                # time_status and feature-id paths
-                survTSFList <- r4ml.parseSurvivalArgsFromFormulaTree(formula, data, directory)
-                timeAndStatusIds <- survTSFList[[1]]
-                timeAndStatusIdsFrame <- as.r4ml.frame(data.frame(timeAndStatusIds), 
+      # time_status and feature-id paths
+      survTSFList <- r4ml.parseSurvivalArgsFromFormulaTree(formula, data, directory)
+      timeAndStatusIds <- survTSFList[[1]]
+      timeAndStatusIdsFrame <- as.r4ml.frame(data.frame(timeAndStatusIds), 
                                                          repartition = FALSE)
-                survTSMatrix <- as.r4ml.matrix(timeAndStatusIdsFrame)
-                dmlArgs <- c(dmlArgs, TE = survTSMatrix)
+      survTSMatrix <- as.r4ml.matrix(timeAndStatusIdsFrame)
+      dmlArgs <- c(dmlArgs, TE = survTSMatrix)
                 
-                if (length(survTSFList) > 1) {
-                  featureIds <- survTSFList[[2]]
+      if (length(survTSFList) > 1) {
+        featureIds <- survTSFList[[2]]
                   
-                  survFrame <- as.r4ml.frame(as.data.frame(featureIds),
-                                               repartition = FALSE)
-                  survFMatrix <- as.r4ml.matrix(survFrame)
+        survFrame <- as.r4ml.frame(as.data.frame(featureIds), repartition = FALSE)
+        survFMatrix <- as.r4ml.matrix(survFrame)
                   
-                  dmlArgs <- c(dmlArgs, F = survFMatrix)
-                  } else {
-                    r4ml.err(logSource, "specify at least one feature")
-                  }
+        dmlArgs <- c(dmlArgs, F = survFMatrix)
+      } else {
+        r4ml.err(logSource, "specify at least one feature")
+      }
                 
-                # adding baseline to the model
-                if(!missing(baseline)) {
-                  #adding feature-id path to the model
-                  model@featureNames <- SparkR::colnames(data)
-                  model@baseline <- as.character(baseline)
-                  baselineFrame <- r4ml.parseBaselineIds(baseline, data, directory)
-                  baselineMatrix <- as.r4ml.matrix(baselineFrame)
-                  #@TODO check that only dummy coded columns can be baseline
-                  dmlArgs <- c(dmlArgs, R = baselineMatrix)
-                  } else {
-                    model@featureNames <- SparkR::colnames(data)[featureIds]
-                  }
+      # adding baseline to the model
+      if (!missing(baseline)) {
+        #adding feature-id path to the model
+        model@featureNames <- SparkR::colnames(data)
+        model@baseline <- as.character(baseline)
+        baselineFrame <- r4ml.parseBaselineIds(baseline, data, directory)
+        baselineMatrix <- as.r4ml.matrix(baselineFrame)
+        #@TODO check that only dummy coded columns can be baseline
+        dmlArgs <- c(dmlArgs, R = baselineMatrix)
+      } else {
+        model@featureNames <- SparkR::colnames(data)[featureIds]
+      }
                 
-                if (!missing(tolerance)) {
-                  dmlArgs <- c(dmlArgs, tol = tolerance)
-                  model@tolerance <- tolerance
-                }
+      if (!missing(tolerance)) {
+        dmlArgs <- c(dmlArgs, tol = tolerance)
+        model@tolerance <- tolerance
+      }
                   
-                if (!missing(conf.int)) {
-                  dmlArgs <- c(dmlArgs, alpha = 1 - conf.int)
-                  model@conf.int <- conf.int
-                }
+      if (!missing(conf.int)) {
+        dmlArgs <- c(dmlArgs, alpha = 1 - conf.int)
+        model@conf.int <- conf.int
+      }
                 
-                if (!missing(iter.max.outer)) {
-                  dmlArgs <- c(dmlArgs, moi = iter.max.outer)
-                  model@iter.max.outer <- iter.max.outer
-                }
+      if (!missing(iter.max.outer)) {
+        dmlArgs <- c(dmlArgs, moi = iter.max.outer)
+        model@iter.max.outer <- iter.max.outer
+      }
                   
-                if (!missing(iter.max.inner)) {
-                  dmlArgs <- c(dmlArgs, mii = iter.max.inner)
-                  model@iter.max.inner <- iter.max.inner
-                }
+      if (!missing(iter.max.inner)) {
+        dmlArgs <- c(dmlArgs, mii = iter.max.inner)
+        model@iter.max.inner <- iter.max.inner
+      }
                 
-                model@dmlArgs <- dmlArgs
-                return (model)
-              })
-              }
-          )
+      model@dmlArgs <- dmlArgs
+      return (model)
+    })
+  }
+)
 
 # overwrite the base model's post training function so that one can
 # post process the final outputs from the dml scripts
@@ -295,20 +294,19 @@ setMethod("r4ml.model.postTraining", signature="r4ml.coxph", definition =
   }
 )
 
-setMethod(f = "show",
-          signature = "r4ml.coxph",
-          definition = 
-            function(object) {
-              logSource <- "r4ml.coxph"
-              callNextMethod()
-              cat("\n\nCox Model\n\n")
-              print(object@coxModel)
-              cat("\n\n")
-              print(object@testStatistics)
-              cat("\n\n")
-              print(object@parameterStatistics)
-              }
+setMethod(f = "show", signature = "r4ml.coxph", definition = 
+  function(object) {
+    logSource <- "r4ml.coxph"
+    callNextMethod()
+    cat("\n\nCox Model\n\n")
+    print(object@coxModel)
+    cat("\n\n")
+    print(object@testStatistics)
+    cat("\n\n")
+    print(object@parameterStatistics)
+  }
 )
+
 #' @name summary.r4ml.coxph
 #' @title Cox Summary
 #' @description Summarizes cox proportional hazard analysis
@@ -422,6 +420,7 @@ r4ml.parseBaselineIds <- function(baseline, data, directory) {
 #' coxsurvpredc$data <- as.r4ml.matrix(coxsurvpredc$data)
 #' 
 #' pred <- predict.r4ml.coxph(cox_obj, data = coxsurvpredc$data)
+#' # prediction output contains lp, risk, and hazard
 #'}
 #' 
 #' @seealso \link{summary.r4ml.coxph}
@@ -435,9 +434,9 @@ predict.r4ml.coxph <- function(object, data) {
   
   if (is.null(object@dmlOuts$M) || is.null(object@dmlOuts$COV) || is.null(object@dmlOuts$RT) || is.null(object@dmlOuts$XO)) {
     r4ml.err(logSource, "The model is incomplete. Some of the expected files are missing")
-    }
-  
-  args <- list(Y_orig = data,
+  }
+  args <- list(
+               Y_orig = data,
                dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_COX_PREDICT_SCRIPT),
                M = object@dmlOuts$M,
                RT_X = object@dmlOuts$RT,
@@ -456,5 +455,6 @@ predict.r4ml.coxph <- function(object, data) {
   SparkR::colnames(prediction) <- c("lp", "se(lp)", "risk", "se(risk)", "cum.hazard", "se(cum.hazard)")
 
   prediction <- as.r4ml.matrix(prediction)
+  r4ml.info(logSource, "NOTE that cox's predict output is always sorted wrt to the time-stamp (ts) irrespective of the ts order of data")
   return (prediction)
 }
