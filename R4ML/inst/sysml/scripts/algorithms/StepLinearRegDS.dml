@@ -368,6 +368,11 @@ linear_regression = function (Matrix[Double] X, Matrix[Double] y, Double m_orig,
         print (str);
         print ("");
       }
+
+      # TODO IMP NOTE: with the fix in PR-22, we have not accounted for 
+      # intercept=2 and # the code before # was not matching so we have removed it
+      # for now. Pl see the git revision history and diff to see the changes.
+      # in future we will have this feature. For now it is disabled
     }
   }
 

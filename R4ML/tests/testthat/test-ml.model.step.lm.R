@@ -67,3 +67,5 @@ test_that("r4ml.step.lm predict_scoring", {
   output <- predict(iris_step_lm, test)
   expect_true( mean(sapply(SparkR::as.data.frame(output[[1]])-y_test, abs)) < 5)
 })
+
+# TODO add the shiftAndScale test in future when intercept=2 is added

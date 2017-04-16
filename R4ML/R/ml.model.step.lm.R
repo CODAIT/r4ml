@@ -82,14 +82,17 @@ r4ml.step.lm <- function(formula, data, intercept=FALSE, shiftAndRescale=FALSE, 
 setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.step.lm", definition = 
   function(model, args) {
     logSource <- "r4ml.model.validateTrainingParameters"
-      callNextMethod()
-        with(args, {
-          .r4ml.checkParameter(logSource, threshold, c("numeric", "integer"), isOptional=TRUE)
-        })
+    callNextMethod()
+    with(args, {
+      .r4ml.checkParameter(logSource, threshold, c("numeric", "integer"), isOptional=TRUE)
+      if (shiftAndRescale == TRUE) {
+        r4ml.error(logSource, "step.lm shiftAndRescale options has been disabled now due to the bug and will be available in next release")
+      }
+    })
 
-        return(model)
-    }
-  )
+    return(model)
+  }
+)
 
 setMethod(f = "show", signature = "r4ml.step.lm", definition = 
   function(object) {
