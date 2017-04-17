@@ -29,7 +29,6 @@ setClass("r4ml.kaplan.meier",
 )
 #' @name r4ml.kaplan.meier
 #' @title Kaplan-Meier Analysis
-#' @export
 #' @description Fits a Kaplan-Meier model from a r4ml.matrix
 #' @details Kaplan-Meier analysis is a non-parametric statistical estimator which can be applied to survival data.
 #' It is often used to estimate the proportion of living/survived objects/patients during certain time period of time.
@@ -95,6 +94,7 @@ setClass("r4ml.kaplan.meier",
 ##' r4ml.kaplan.meier.test(km)
 #'}
 #'
+#' @export
 #' @seealso \link{summary.r4ml.kaplan.meier}
 #' @seealso \link{r4ml.kaplan.meier.test}
 #'
@@ -411,7 +411,6 @@ summary.r4ml.kaplan.meier <- function(object) {
 
 #' @title Kaplan-Meier Test
 #' @description Runs Kaplan-Meier statistical tests for the given group values.
-#' @export
 #' Supported statistical test types are 'log-rank' and 'wilcoxon'. Test type has to be specified as an
 #' input parameter of the fitting function: \code{\link{r4ml.kaplan.meier}}.
 #' @param object  An S4 object of class \code{r4ml.kaplan.meier}
