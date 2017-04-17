@@ -93,7 +93,7 @@
 #'                      were performed as well as to apply the same set of transformations to a different dataset.
 #'           
 #'                      
-#'                      The structure of the transform metadata folder stored on \code{transformPath} is as follows:
+#'                      Only for the case of r4ml.sysml.transform, the structure of the transform metadata folder stored on \code{transformPath} is as follows:
 #'  \tabular{rlll}{
 #'                      \tab\emph{/transform.spec.json}\tab global metadata of the transformations \cr
 #'                      \tab\emph{/Recode}\tab recoding metadata \cr
@@ -145,6 +145,7 @@
 #' irisBM2 <- r4ml.ml.preprocess(irisbf2, applyTransformPath = "/tmp", 
 #'                           transformPath = "/tmp")
 #' }
+#' @seealso \link{r4ml.sysml.transform}
 r4ml.ml.preprocess <- function(
   data,
   transformPath = NULL,
@@ -271,7 +272,7 @@ r4ml.ml.preprocess <- function(
       if (!rhf@env$isCached) {
         ignore <- SparkR::cache(rhf)
       }
-      cnt <- count(rhf)
+      cnt <- SparkR::count(rhf)
       if (cnt == 0) {
         r4ml.warn(logSource, "After na omission, there are no records left")
         r4ml.warn(logSource, "Make sure that you dataset contains atleast one valid records")
@@ -509,7 +510,7 @@ r4ml.ml.preprocess <- function(
   
   if (!is.null(binningAttrs)) {
     if (!is.null(numBins)) {
-      rows <- nrow(data)
+      rows <- SparkR::nrow(data)
       if (rows < max(numBins)) {
         r4ml.err(logSource, "Number of bins is larger than the number of rows in the dataset [" %++% rows %++% "].")
       }
@@ -633,6 +634,7 @@ isAnyAttrOfType <- function(hm, attrs, type) {
 #'             scalingAttrs = c("Petal_Length")
 #'  )
 #' }
+#' @seealso \link{r4ml.ml.preprocess}
 r4ml.sysml.transform <- function(...) {
   args <- list(...)
   pp_db <- do.call(r4ml.ml.preprocess, args)

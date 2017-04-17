@@ -411,7 +411,7 @@ summary.r4ml.kaplan.meier <- function(object) {
 
 #' @title Kaplan-Meier Test
 #' @description Runs Kaplan-Meier statistical tests for the given group values.
-#ALOK ' @export
+#' @export
 #' Supported statistical test types are 'log-rank' and 'wilcoxon'. Test type has to be specified as an
 #' input parameter of the fitting function: \code{\link{r4ml.kaplan.meier}}.
 #' @param object  An S4 object of class \code{r4ml.kaplan.meier}

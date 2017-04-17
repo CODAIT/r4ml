@@ -200,6 +200,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.coxph", definition =
         baselineFrame <- r4ml.parseBaselineIds(baseline, data, directory)
         baselineMatrix <- as.r4ml.matrix(baselineFrame)
         #@TODO check that only dummy coded columns can be baseline
+        # May be create a flag check.input (default=false) and when true check this.
         dmlArgs <- c(dmlArgs, R = baselineMatrix)
       } else {
         model@featureNames <- SparkR::colnames(data)[featureIds]
