@@ -197,9 +197,9 @@ setMethod(f = "show", signature = "r4ml.frame", definition =
     if (.r4ml.isNullOrEmpty(df)) {
       df <- data.frame()
     }            
-    if (ncol(object) == 0) {
+    if (SparkR::ncol(object) == 0) {
       cat("r4ml.frame with 0 columns\n")
-    } else if (nrow(df) == 0) {
+    } else if (SparkR::nrow(df) == 0) {
       cat(paste(SparkR::colnames(object), collapse="    "))
       cat("\n<0 rows>\n")
     } else {

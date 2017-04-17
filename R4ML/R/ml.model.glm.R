@@ -151,7 +151,7 @@ setMethod(
         if (!missing(dispersion) && (dispersion < 0)) {
           r4ml.err(logSource, "Parameter dispersion must be a positive number.")
         }
-        if(ncol(data) < 2) {
+        if(SparkR::ncol(data) < 2) {
           r4ml.err(logSource, "Given training dataset must have at least two columns.")
         }
         

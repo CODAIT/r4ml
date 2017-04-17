@@ -102,7 +102,7 @@ setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.als", definit
       }
                 
       #check if rank is smaller than the dimensions of the data matrix
-      if(!missing(data) && (nrow(data) < rank || ncol(data) < rank)){
+      if(!missing(data) && (SparkR::nrow(data) < rank || SparkR::ncol(data) < rank)){
         r4ml.err(logSource, "Parameter rank must be smaller than the number of rows and columns of the input matrix")
       }
                 
@@ -220,9 +220,9 @@ predict.r4ml.als <- function(object, data, type, k){
   k <- ifelse(missing(k), 5, k);
   
   #check that data has 2 columns
-  if (type == r4ml.env$ALS_PAIR & ncol(data) != 2){
+  if (type == r4ml.env$ALS_PAIR & SparkR::ncol(data) != 2){
     r4ml.err(logSource, "Test data has to have 2 columns: (user-id, item-id) pairs");
-  }else if(type == r4ml.env$ALS_TOPK & ncol(data) != 1){
+  }else if(type == r4ml.env$ALS_TOPK & SparkR::ncol(data) != 1){
     r4ml.err(logSource, "Test data for top predictions has to have 1 column: the list of user ids");
   }
 
