@@ -29,7 +29,7 @@ setClass("r4ml.kaplan.meier",
 )
 #' @name r4ml.kaplan.meier
 #' @title Kaplan-Meier Analysis
-#' @description Fits a Kaplan-Meier model from a r4ml.matrix
+#' @description Fits a Kaplan-Meier model from an r4ml.matrix
 #' @details Kaplan-Meier analysis is a non-parametric statistical estimator which can be applied to survival data.
 #' It is often used to estimate the proportion of living/survived objects/patients during certain time period of time.
 #' This implementation allows a user to calculate the survival function and the median of survival timestamps, as well as 
@@ -42,19 +42,19 @@ setClass("r4ml.kaplan.meier",
 #' - \emph{Strata column(s)}: (optional)\cr
 #' - \emph{Grouping column(s)}: (optional)\cr
 #'
-#' @param data (r4ml.matrix) Input dataset
-#' @param formula (character) describes data columns used for survival analysis, e.g., Surv(Timestamp, Censor) ~ Age.
+#' @param data (r4ml.matrix):  Input dataset
+#' @param formula (character):  Describes data columns used for survival analysis, e.g., Surv(Timestamp, Censor) ~ Age.
 #'              The left side of the formula indicates the timestamp and censor columns, 
 #'              while the right side indicates the grouping column(s) if any.
-#' @param strata (list) A list of stratum columns
-#' @param conf.int (numeric) Regularization parameter
-#' @param conf.type (character) Confidence type: accepted values are 'plain', 'log' (the default), or 'log-log' 
-#' @param error.type (character) Parameter to specify the error type according to "greenwood" (the default) or "peto"
-#' @param test.type (character) If survival data for multiple groups is available
+#' @param strata (list):  A list of stratum columns
+#' @param conf.int (numeric):  Regularization parameter
+#' @param conf.type (character):  Confidence type: accepted values are 'plain', 'log' (the default), or 'log-log' 
+#' @param error.type (character):  Parameter to specify the error type according to "greenwood" (the default) or "peto"
+#' @param test.type (character):  If survival data for multiple groups is available
 #'            specifies which test to perform for comparing survival data across
 #'            multiple groups: "none" (the default), "log-rank", or "wilcoxon"
-#' @param directory (character) The path to save the Kaplan-Meier model if input data is specified. 
-#' @param input.check (logical) if FALSE parameter validation is skipped
+#' @param directory (character):  The path to save the Kaplan-Meier model if input data is specified. 
+#' @param input.check (logical):  If FALSE parameter validation is skipped
 #' @return An S4 object of class \code{r4ml.kaplan.meier} which contains the arguments above as well as the following additional fields:
 #' 
 #'  \tabular{rlll}{
@@ -360,7 +360,7 @@ setMethod(f = "show", signature = "r4ml.kaplan.meier", definition =
 
 #' @title Kaplan-Meier Summary
 #' @description Computes different survival estimates for a given r4ml.kaplan.meier model. 
-#' @param object An S4 object of class \code{r4ml.kaplan.meier}
+#' @param object (r4ml.kaplan.meier):  Survival model from Kaplan Meier analysis.  
 #' @return A list of r4ml.matrix objects with seven columns and as many rows as the input dataset. There
 #' will be one r4ml.matrix per group/strata combination. Each matrix will have the following structure:
 #' timestamp, number at risk, number of events, Kaplan-Meier estimate of survival function, 
@@ -413,7 +413,7 @@ summary.r4ml.kaplan.meier <- function(object) {
 #' @description Runs Kaplan-Meier statistical tests for the given group values.
 #' Supported statistical test types are 'log-rank' and 'wilcoxon'. Test type has to be specified as an
 #' input parameter of the fitting function: \code{\link{r4ml.kaplan.meier}}.
-#' @param object  An S4 object of class \code{r4ml.kaplan.meier}
+#' @param object (r4ml.kaplan.meier):  Survival model from Kaplan Meier analysis.  
 #' @return Two r4ml.matrix objects: the first one contains contains the p-values of the Chi-square test and
 #' the second one has the expected observed values (O-E)^2/E and (O-E)^2/V.
 #' 

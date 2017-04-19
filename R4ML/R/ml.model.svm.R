@@ -41,7 +41,7 @@ setClass("r4ml.svm",
 #' 
 #' @name coef
 #' @title Extract model coefficients
-#' @param object (r4ml.svm, r4ml.lm, r4ml.glm, r4ml.mlogit) A model built 
+#' @param object (r4ml.svm, r4ml.lm, r4ml.glm, r4ml.mlogit):  A model built 
 #'        by R4ML
 #' @export        
 #' @return A data.frame with the model coefficients
@@ -116,7 +116,7 @@ setMethod("initialize", "r4ml.svm",
   }
 )
 
-#' @description Builds a Support Vector Machine model from a r4ml.matrix or
+#' @description Builds a Support Vector Machine model from an r4ml.matrix or
 #' Both the binary and multinomial cases are supported in this implementation. 
 #' @details This implementation optimizes the primal directly (Chapelle, 2007). It uses
 #' nonlinear conjugate gradient descent to minimize the objective function coupled
@@ -126,14 +126,15 @@ setMethod("initialize", "r4ml.svm",
 #' @name r4ml.svm
 #' @title Support Vector Machine Classifier
 #'
-#' @param formula (formula) A formula in the form Y ~ ., where Y is the response variable.
-#' @param data (r4ml.matrix) A dataset to be fitted.
+#' @param formula (formula):  A formula in the form Y ~ ., where Y is the response variable.
+#' @param data (r4ml.matrix):  A dataset to be fitted.
 #' @param is.binary.class (logical)
-#' @param intercept (logical) Boolean value specifying whether the intercept term should be part of the model.
-#' @param tolerance (numeric) Tolerance value to control the termination of the algorithm.
-#' @param iter.max (numeric) Number of iterations.
-#' @param lambda (numeric) L2 regularization parameter. lambda must be greater than or equal to 0. A value of 0 is not recommended as it may
-#' take a long time to learn the model.
+#' @param intercept (logical):  If TRUE, intercept will be included in model.
+#' @param tolerance (numeric):  Tolerance value to control the termination of the algorithm.
+#' @param iter.max (numeric):  Number of iterations.
+#' @param lambda (numeric):  L2 regularization parameter.  Lambda must be greater than or equal
+#' to 0. A value of 0 is not recommended as it may take a long time to learn the model.
+#' 
 #' @references Olivier Chapelle. Training a Support Vector Machine in the Primal. Neural Computation, 2007.
 #' @export
 #' @return An S4 object of class \code{r4ml.svm} which contains the arguments above as well as the following additional fields:
@@ -150,24 +151,24 @@ setMethod("initialize", "r4ml.svm",
 #' @examples \dontrun{
 #' 
 #' # Load the Iris dataset 
-#' iris_hf <- as.r4ml.frame(iris)
+#' iris_r4ml_df <- as.r4ml.frame(iris)
 #' 
 #' # Do the preprocessing to recode the Species column
-#' iris_phf_info <- r4ml.ml.preprocess(iris_hf, transformPath = "/tmp", 
+#' iris_r4ml_df_info <- r4ml.ml.preprocess(iris_r4ml_df, transformPath = "/tmp", 
 #'                                   recodeAttrs = c("Species"))
 #' # extract the transformed r4ml.frame and corresponding metadata
-#' iris_phf <- iris_phf_info$data
+#' iris_r4ml_df <- iris_r4ml_df_info$data
 #' 
 #' # corresponding metadata
-#' iris_pmd <- iris_phf_info$metadata
+#' iris_pmd <- iris_r4ml_df_info$metadata
 #' # take a peek at the recoded Species value
 #' as.list(iris_pmd$proxy.recode$Species)
 #' 
 #' # convert to r4ml.matrix
-#' iris_hm <- as.r4ml.matrix(iris_phf)
+#' iris_r4mlMat <- as.r4ml.matrix(iris_r4ml_df)
 #' 
 #' # Split the data into 70% for training and 30% for testing
-#' samples <- r4ml.sample(iris_hm, perc=c(0.7, 0.3))
+#' samples <- r4ml.sample(iris_r4mlMat, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
 #' test <- samples[[2]]
 #' 
@@ -350,40 +351,38 @@ setMethod(f = "show", signature = "r4ml.svm", definition =
 
 #' @name predict.r4ml.svm
 #' @title Predict method for Support Vector Machine classifiers
-#' @description This method allows to score/test a Support Vector Machine model for a given r4ml.matrix If the testing set is labeled,
+#' @description This method allows one to score/test a Support Vector Machine model for a given r4ml.matrix If the testing set is labeled,
 #' testing will be done and some statistics will be computed to measure the quality of the model. Otherwise, scoring will be performed
 #' and only the scores will be computed.
-#' @param object (r4ml.svm) :
-#'  A Support Vector Machine model build by R4ML R
-#' @param data (r4ml.matrix) :
-#'  Testing dataset
-#' @param returnScores (logical) :
-#'  A logical value indicating to return the scores or not
-#' @return If the testing dataset is not labeled, the result will be a r4ml.matrix with per-class probabilities for each row. 
-#' Otherwise, the result will be a list with (1) a r4ml.matrix with per-class probabilities for each row (\code{$probabilities}),
+#' @param object (r4ml.svm):  A Support Vector Machine model build by R4ML R
+#' @param data (r4ml.matrix):  Testing dataset
+#' @param returnScores (logical):  A logical value indicating to return the scores or not
+
+#' @return If the testing dataset is not labeled, the result will be an r4ml.matrix with per-class probabilities for each row. 
+#' Otherwise, the result will be a list with (1) an r4ml.matrix with per-class probabilities for each row (\code{$probabilities}),
 #' (2) the overall accuracy (\code{$accuracy}), and (3) the confusion matrix (\code{$ctable})
 #'
 #' @examples \dontrun{
 #' 
 #' # Load the Iris dataset 
-#' iris_hf <- as.r4ml.frame(iris)
+#' iris_r4ml_df <- as.r4ml.frame(iris)
 #' 
 #' # Do the preprocessing to recode the Species column
-#' iris_phf_info <- r4ml.ml.preprocess(iris_hf, transformPath = "/tmp", 
+#' iris_r4ml_df_info <- r4ml.ml.preprocess(iris_r4ml_df, transformPath = "/tmp", 
 #'                                   recodeAttrs = c("Species"))
 #' # extract the transformed r4ml.frame and corresponding metadata
-#' iris_phf <- iris_phf_info$data
+#' iris_r4ml_df <- iris_r4ml_df_info$data
 #' 
 #' #corresponding metadata
-#' iris_pmd <- iris_phf_info$metadata
+#' iris_pmd <- iris_r4ml_df_info$metadata
 #' # take a peek at the recoded Species value
 #' as.list(iris_pmd$proxy.recode$Species)
 #' 
 #' # convert to r4ml.matrix
-#' iris_hm <- as.r4ml.matrix(iris_phf)
+#' iris_r4mlMat <- as.r4ml.matrix(iris_r4ml_df)
 #' 
 #' # Split the data into 70% for training and 30% for testing
-#' samples <- r4ml.sample(iris_hm, perc=c(0.7, 0.3))
+#' samples <- r4ml.sample(iris_r4mlMat, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
 #' test <- samples[[2]]
 #' 
@@ -434,7 +433,7 @@ predict.r4ml.svm <- function(object, data, returnScores=T) {
   # create the partial args 
   augmentArgs <- function(args) {
     args <- c(args, icpt = if(object@intercept) 1 else 0)
-    coef_hf <- as.r4ml.matrix(object@dmlOuts[['w']])
+    coef_r4ml_df <- as.r4ml.matrix(object@dmlOuts[['w']])
     #ALOK BEGIN bugfix
     dmlOutNames <- names(object@dmlOuts)
     if (!any(is.na(match(c("extra_model_params", "weights"), dmlOutNames)))) {
@@ -442,11 +441,11 @@ predict.r4ml.svm <- function(object, data, returnScores=T) {
       e <- SparkR::as.data.frame(object@dmlOuts[['extra_model_params']])
       e <- setNames(e, names(w))
       d <- rbind(w, e)
-      coef_hf <- as.r4ml.matrix(SparkR::as.DataFrame(d))
+      coef_r4ml_df <- as.r4ml.matrix(SparkR::as.DataFrame(d))
     }
     #ALOK BEGIN bugfix
     
-    args <- c(args, W = coef_hf)
+    args <- c(args, W = coef_r4ml_df)
   
     if (returnScores) {
       args <- c(args, "scores") #output

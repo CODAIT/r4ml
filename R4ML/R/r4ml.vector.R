@@ -34,17 +34,17 @@ setClassUnion("r4ml.frame.OrNull", c("r4ml.frame", "NULL"))
 #' 
 #' @export
 setClass("r4ml.vector", 
-         slots = list(hf = "r4ml.frame.OrNull"),
+         slots = list(r4ml_df = "r4ml.frame.OrNull"),
          contains="Column")
 
-setMethod("initialize", "r4ml.vector", function(.Object, jc, hf) {
+setMethod("initialize", "r4ml.vector", function(.Object, jc, r4ml_df) {
   .Object@jc <- jc
   
-  # Some Column objects don't have any referencing SparkDataFrame. In such case, hf will be NULL.
-  if (missing(hf)) {
-    hf <- NULL
+  # Some Column objects don't have any referencing SparkDataFrame. In such case, r4ml_df will be NULL.
+  if (missing(r4ml_df)) {
+    r4ml_df <- NULL
   }
-  .Object@hf <- hf
+  .Object@r4ml_df <- r4ml_df
   .Object
 })
 
@@ -64,33 +64,33 @@ setMethod("show", signature = "r4ml.vector", definition = function(object) {
   }
 })
 
-#' Collects all the elements of a r4ml.vector and coerces them into an R vector.
+#' Collects all the elements of an r4ml.vector and coerces them into an R vector.
 #'
-#' @param x A r4ml.vector
+#' @param x (r4ml.vector)
 #'
 #' @rdname collect
 #' @name collect
 #' @export
 #' @examples
 #'\dontrun{
-#' hf <- as.r4ml.frame(iris)
-#' collect(hf$Sepal_Length)
-#' hf$Species 
+#' r4ml_df <- as.r4ml.frame(iris)
+#' collect(r4ml_df$Sepal_Length)
+#' r4ml_df$Species 
 #' }
 setMethod("collect", signature = "r4ml.vector", definition = function(x) {
-  if (is.null(x@hf)) {
+  if (is.null(x@r4ml_df)) {
     character(0)
   } else {
-    collect(select(x@hf, x))[, 1]
+    collect(select(x@r4ml_df, x))[, 1]
   }
 })
 
 #' @export
 setMethod("head", signature = "r4ml.vector", definition = function(x, n=6) {
-  if (is.null(x@hf)) {
+  if (is.null(x@r4ml_df)) {
     collect(x)
   } else {
-    head(select(x@hf, x), n)[, 1]
+    head(select(x@r4ml_df, x), n)[, 1]
   }
 })
 
@@ -98,7 +98,7 @@ setMethod("head", signature = "r4ml.vector", definition = function(x, n=6) {
 setMethod("$", signature(x = "r4ml.frame"),
           function(x, name) {
             col <- SparkR:::getColumn(x, name)
-            new("r4ml.vector", jc=col@jc, hf=x)
+            new("r4ml.vector", jc=col@jc, r4ml_df=x)
           })
 
 
@@ -107,14 +107,14 @@ setMethod("$", signature(x = "r4ml.frame"),
 #' This is the convenient method of converting the r4ml.vector into the SparkR::Column
 #'
 #' @name as.sparkr.column
-#' @param object r4ml.vector
+#' @param object (r4ml.vector)
 #' @param ... future optional additional arguments to be passed to or from methods
 #' @return SparkR::Column
 #' @export
 #' @examples \dontrun{
-#'    iris_hf <- as.r4ml.frame(iris)
-#'    pl_mean <- SparkR::mean(as.sparkr.column(iris_hf$Petal_Length))
-#'    mval <- SparkR::agg(iris_hf, pl_mean)
+#'    iris_r4ml_df <- as.r4ml.frame(iris)
+#'    pl_mean <- SparkR::mean(as.sparkr.column(iris_r4ml_df$Petal_Length))
+#'    mval <- SparkR::agg(iris_r4ml_df, pl_mean)
 #'    mval
 #' }
 #'    
@@ -239,13 +239,12 @@ setMethod("mean",
 
               # Get the list of arguments that were passed to the function
               '  passedArgNames <- names(as.list(match.call(call=match.call())))',
-              # 'browser()',
               # Get which ones are of class r4ml.vector
               '  colArgNames <- passedArgNames[which(unlist(lapply(passedArgNames, function(X123jsd8Abcs81) { class(eval(parse(text=X123jsd8Abcs81))) } )) == "r4ml.vector")]',
-              #'  colArgNames <- names(signature[which(signature == "r4ml.vector")])',
+              #  colArgNames <- names(signature[which(signature == "r4ml.vector")])',
 
-              # Get hf from r4ml.vector arguments
-              '  eval(parse(text="hf <- " %++% colArgNames[1] %++% "@hf"))',
+              # Get r4ml_df from r4ml.vector arguments
+              '  eval(parse(text="r4ml_df <- " %++% colArgNames[1] %++% "@r4ml_df"))',
 
               # Cast all r4ml.vector parameters to Column so that parent methods can handle them
               '  for (i in 1:length(colArgNames)) {',
@@ -255,19 +254,19 @@ setMethod("mean",
               # Invoke parent method. Since there's a bug in R 3.1 (fixed in 3.2), instead of calling
               # callNextMethod(), we'll directly call the method with the cast parameters. Note quotes
               # are added to the function name to handle functions such as "["
-              #'  value <- callNextMethod()',
-              #'  
-              #'  browser()', 
+              #  value <- callNextMethod()',
+              #  
+              #  browser()', 
               'argsString <- "(" %++% paste(passedArgNames[-1], collapse=", ") %++% ")"',
               paste0('  callString <- "\'', funName, '\'" %++% argsString'),
-              #' print(callString)',
+              # print(callString)',
               '  value <-  eval(parse(text=callString))',
 
               # If the result is a Column object, cast it back to r4ml.vector
               '  if (class(value) == "Column") {',
-              #'    args <- as.list(match.call())',
-              #'    colArg <- eval(args[[colArgNames]])',
-              '    return(new("r4ml.vector", jc=value@jc, hf=hf))',
+              #    args <- as.list(match.call())',
+              #    colArg <- eval(args[[colArgNames]])',
+              '    return(new("r4ml.vector", jc=value@jc, r4ml_df=r4ml_df))',
               '  }',
               '  return(value)',
               "}",
@@ -302,7 +301,7 @@ setMethod("mean",
 setGeneric("ifelse")
 setMethod("ifelse", signature(test = "r4ml.vector", yes = "ANY", no = "ANY"),
   function(test, yes, no) {
-    hf <- test@hf
+    r4ml_df <- test@r4ml_df
     test <- test@jc
     yes <- if (inherits(yes, "Column")) { yes@jc } else { yes }
     no <- if (inherits(no, "Column")) { no@jc } else { no }
@@ -310,7 +309,7 @@ setMethod("ifelse", signature(test = "r4ml.vector", yes = "ANY", no = "ANY"),
             SparkR:::callJStatic("org.apache.spark.sql.functions", "when", test, yes),
             "otherwise", no
           )
-    result <- new("r4ml.vector", jc, hf)
+    result <- new("r4ml.vector", jc, r4ml_df)
     result
 })
 
@@ -318,6 +317,6 @@ setMethod("str",
   signature(object = "r4ml.vector"),
   function(object) {
     cat("'r4ml.vector'\n")
-    out <- capture.output(str(select(object@hf, object)))
+    out <- capture.output(str(select(object@r4ml_df, object)))
     cat(out[2] %++% "\n")
 })

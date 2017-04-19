@@ -25,6 +25,6 @@
 #' @keywords datasets
 #' @name airline
 #' @source \href{http://stat-computing.org/dataexpo/2009/the-data.html}{American Statistical Association}
-#' @source \href{http://www.rita.dot.gov}{RITA}
+#' @source \href{http://www.rita.dot.gov}{RITA: Research and Innovative Technology Administration}
 #' @format A data frame with 128790 rows and 29 columns
 "airline"

@@ -18,7 +18,7 @@ NULL
 
 ## note: implement all the sample algo later
 
-#' Generate random samples from a r4ml.frame or r4ml.matrix or spark SparkDataFrame
+#' Generate random samples from an r4ml.frame or r4ml.matrix or spark SparkDataFrame
 #' 
 #' Two sampling methods are supported:
 #'
@@ -30,13 +30,13 @@ NULL
 #' 
 #' @name r4ml.sample
 #' @title Random sampling
-#' @param data (r4ml.frame or r4ml.matrix or SparkDataFrame) Dataset to sample from
-#' @param perc (numeric) For random sampling, an atomic value between (0, 1) 
+#' @param data (r4ml.frame, r4ml.matrix, or SparkDataFrame):  Dataset to sample from
+#' @param perc (numeric):  For random sampling, an atomic value between (0, 1) 
 #'   that represents the sampling percentage. For partitioned sampling, a 
 #'   vector of numerics in the interval (0, 1), such that their sum is 
 #'   exactly 1.
 #' @param experimental (logical)
-#' @param cache (logical) if TRUE the output is cached
+#' @param cache (logical):  If TRUE, output is cached
 #' @return For random sampling, a single r4ml.frame/r4ml.matrix/SparkDataFrame is returned. For
 #'   partitioned sampling, a list of r4ml.frames or r4ml.matrices or Spark SparkDataFrame is returned, and each
 #'   element in the list represents a partition.
@@ -44,19 +44,19 @@ NULL
 #' @examples \dontrun{
 #'
 #' # Generate a 10% random sample of data
-#' iris_hf <- as.r4ml.frame(iris)
-#' sample_iris_hf <- r4ml.sample(iris_hf, 0.1)
+#' iris_r4ml_df <- as.r4ml.frame(iris)
+#' sample_iris_r4ml_df <- r4ml.sample(iris_r4ml_df, 0.1)
 #' 
 #' # Generate the 50 samples 
-#' sample_50_iris_hf <- r4ml.sample(iris_hf, 50/nrow(iris_hf))
+#' sample_50_iris_r4ml_df <- r4ml.sample(iris_r4ml_df, 50/nrow(iris_r4ml_df))
 #' 
 #' # Randomly split the data into training (70%) and test (30%) sets
-#' iris_hf_split <- r4ml.sample(iris_hf, c(0.7, 0.3))
-#' nrow(iris_hf_split[[1]]) / nrow(iris_hf)
-#' nrow(iris_hf_split[[2]]) / nrow(iris_hf)
+#' iris_r4ml_df_split <- r4ml.sample(iris_r4ml_df, c(0.7, 0.3))
+#' nrow(iris_r4ml_df_split[[1]]) / nrow(iris_r4ml_df)
+#' nrow(iris_r4ml_df_split[[2]]) / nrow(iris_r4ml_df)
 #' 
 #' # Randomly split the data for 10-fold cross-validation
-#' iris_cv <- r4ml.sample(iris_hf, rep(0.1, 10))
+#' iris_cv <- r4ml.sample(iris_r4ml_df, rep(0.1, 10))
 #' }
 
 r4ml.sample <- function(data, perc, experimental=FALSE,
@@ -79,7 +79,7 @@ r4ml.sample <- function(data, perc, experimental=FALSE,
   }
   
   if (!inherits(data, "r4ml.frame") & !inherits(data, "r4ml.matrix") & !inherits(data, "SparkDataFrame")) {
-    r4ml.err(logSource, "The specified dataset must either be a r4ml.frame, r4ml.matrix, or SparkDataFrame.")
+    r4ml.err(logSource, "The specified dataset must either be an r4ml.frame, r4ml.matrix, or SparkDataFrame.")
   }
 
   # function to convert the output type to the relevant input type

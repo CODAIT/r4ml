@@ -37,12 +37,12 @@ setClass("r4ml.mlogit",
 #' @name r4ml.mlogit
 #' @title Multinomial Logistic Regression
 #' @export
-#' @description Fits a logistic regression model from a r4ml.matrix
+#' @description Fits a logistic regression model from an r4ml.matrix
 #' @details The largest label represents the baseline category; if label -1 or 0 is present, then it is the baseline label.
 #' @details The classes need to be specified as 1,2...K where K is equal to the overall number of classes.
 #'
 #' @param formula (formula) A formula in the form Y ~ ., where Y is the response variable.
-#' @param data (r4ml.matrix) A r4ml.matrix to be fitted.
+#' @param data (r4ml.matrix) an r4ml.matrix to be fitted.
 #' @param intercept (logical) Logical value for whether the intercept should be used.
 #' @param shiftAndRescale (logical) Logical value indicating if the data should be normalized to zero mean, variance/standard deviation = 1.
 #' @param lambda (numeric) Regularization parameter.
@@ -229,7 +229,7 @@ setMethod("coef", signature="r4ml.mlogit", definition =
 
 #' @title Predict method for Multinomial Logistic Regression models
 #' @name predict.r4ml.mlogit
-#' @description This method allows to score/test a Multinomial Logistic Regression model for a given r4ml.matrix. If the testing set is labeled,
+#' @description This method allows one to score/test a Multinomial Logistic Regression model for a given r4ml.matrix. If the testing set is labeled,
 #' testing will be done and some statistics will be computed to measure the quality of the model. Otherwise, scoring will be performed
 #' and only the probabilities will be computed.
 #' @param object (r4ml.mlogit) :

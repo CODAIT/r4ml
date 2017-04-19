@@ -24,19 +24,19 @@ setClass("r4ml.step.lm",
 #' @name r4ml.step.lm
 #' @title Step-wise Linear Regression
 #' @export
-#' @description Fits a linear regression model from a r4ml.matrix in a
+#' @description Fits a linear regression model from an r4ml.matrix in a
 #' step-wise fashion.
-#' @param formula (formula) A formula in the form Y ~ ., where Y is the response
+#' @param formula (formula):  A formula in the form Y ~ ., where Y is the response
 #' variable. The response variable must be of type "scale".
-#' @param data (r4ml.matrix) A r4ml.matrix to be fitted.
-#' @param intercept (logical) Boolean value indicating if the intercept term
+#' @param data (r4ml.matrix):  An r4ml.matrix to be fitted.
+#' @param intercept (logical):  Boolean value indicating if the intercept term
 #' should be used for the regression.
-#' @param shiftAndRescale (logical) Boolean value indicating if shifting and
+#' @param shiftAndRescale (logical):  Boolean value indicating if shifting and
 #' rescaling X columns to mean = 0, variance = 1 should be performed.
-#' @param threshold Threshold to stop the algorithm: if the decrease in the
+#' @param threshold (double):  Threshold to stop the algorithm: if the decrease in the
 #' value of AIC falls below this no further features are being checked and the
 #' algorithm stops 
-#' @param directory (character) The path to save the Linear Regression model
+#' @param directory (character):  The path to save the Linear Regression model
 #'  if \code{formula} and \code{data} are specified.
 #' @return An S4 object of class \code{r4ml.step.lm} which contains the arguments above as well
 #' as the following additional fields:
@@ -55,11 +55,11 @@ setClass("r4ml.step.lm",
 #'
 #' @examples \dontrun{
 #'
-#' # Convert the iris data set into a R4ML frame.
+#' # Convert the iris data set into an r4ml frame.
 #' # Column #5 is a factor so we will ignore it for now
 #' r4ml_iris <- as.r4ml.frame(iris[, -5])
 #' 
-#' # Convert the R4ML frame into a R4ML matrix
+#' # Convert the R4ML frame into an r4ml matrix
 #' r4ml_iris <- as.r4ml.matrix(r4ml_iris)
 #'
 #'

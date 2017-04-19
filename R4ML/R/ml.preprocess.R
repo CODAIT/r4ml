@@ -16,7 +16,7 @@
 #
 
 
-# Method to transform a r4ml.frame to a r4ml.matrix that can be read by DML 
+# Method to transform an r4ml.frame to an r4ml.matrix that can be read by DML 
 #'
 #' @name r4ml.ml.preprocess
 #' @title Data preparation for statistical analysis and machine learning algorithms
@@ -46,45 +46,43 @@
 #'              The resulting matrix and the transform metadata will be returned and it's user's responsibility to store the data
 #'             \code{transformPath}). The transform metadata can be  
 #'              used to perform the same set of transformations on another \code{r4ml.frame}, through parameter \code{applyTransformPath}.
-#' @param data (r4ml.frame) The data to be transformed.
-#' @param transformPath (character) Path where the transform metadata (e.g., recode maps, dummy-code maps, etc.) will be stored.
-#' @param applyTransformPath (character) Path of an existing transform metadata folder. 
+#' @param data (r4ml.frame):  The data to be transformed.
+#' @param transformPath (character):  Path where the transform metadata (e.g., recode maps, dummy-code maps, etc.) will be stored.
+#' @param applyTransformPath (character):  Path of an existing transform metadata folder. 
 #'                                       If specified, \code{r4ml.ml.preprocess()} will apply the same transformations to \code{bf}.
 #'                                       Transform metadata for the resulting r4ml.matrix will be copied to the location specified in \code{transformPath}.
 #'                                       Parameter \code{applyTransformPath} is optional.
-#' @param recodeAttrs (character) Names of attributes to be recoded. All columns of type 'character' will be recoded, even if they do not
+#' @param recodeAttrs (character):  Names of attributes to be recoded. All columns of type 'character' will be recoded, even if they do not
 #'                                appear in \code{recodeAttrs}.
-#' @param missingAttrs (character) Names of of attributes containing missing values to be filled in using an imputation method.
+#' @param missingAttrs (character):  Names of of attributes containing missing values to be filled in using an imputation method.
 #'                                 \strong{Note}: 1) Function \code{r4ml.which.na.cols()} can be run to find out which columns contain missing values.
 #'                                       2) If no imputation is done on a column with missing values, and such column is not part of \code{omit.na}, r4ml.ml.preprocess 
 #'                                       will throw an error, as all NA values must be handled. Parameter \code{omit.na} can be used to remove all rows which have missing values
 #'                                       in specific columns.
-#' @param imputationMethod (character) String value or vector containing the imputation method(s) to be used to fill in missing values.
+#' @param imputationMethod (character):  String value or vector containing the imputation method(s) to be used to fill in missing values.
 #'                         Note: the order of imputation methods should coincide with the order of the attributes specified in \code{missingAttrs}. 
 #'                         If a single string is provided as \code{imputationMethod}, such method will be used for all columns in \code{missingAttrs}.
 #'                         Supported methods: (1) "global_mean", (2) "constant".
 #'                         (a). If the "constant" imputation method is used then the corresponding replacement values
 #'                         must be provided in \code{imputationValues} parameter (see below).
-#'                         (b) If the "global_mode" imputation method is used and the dataset has multiple modes for the corresponding column,
-#'                         then one of the modes is chosen to impute for the missing values arbitrarily.
-#' @param imputationValues (list) A List of values to be used as replacement values for the columns to be imputed using the "constant" imputation method.                        
-#' @param binningAttrs (character) Name(s) of numeric attribute(s) to be binned.
-#' @param numBins (integer) Integer or vector denoting the number of bins to use on each column.
+#' @param imputationValues (list):  A List of values to be used as replacement values for the columns to be imputed using the "constant" imputation method.                        
+#' @param binningAttrs (character):  Name(s) of numeric attribute(s) to be binned.
+#' @param numBins (integer):  Integer or vector denoting the number of bins to use on each column.
 #'                      Note: the order of the values specified in \code{numbins} should coincide with the order of the 
 #'                      attributes specified in \code{binningAttrs}.  If a single integer is provided, such number of bins
 #'                      will be used for all attributes specified in \code{binningAttrs}.
-#' @param binningMethod (character) String or vector specifying binning method(s) to be used. 
+#' @param binningMethod (character):  String or vector specifying binning method(s) to be used. 
 #'                      Note: the order of the elements of \code{binningMethod} should coincide with the order of the 
 #'                      attributes specified in \code{binningAttrs}.
 #'                      If a single string is provided, such method will be used for all attributes specified in \code{binningAttrs}.
 #'                      Currently, "equi-width" is supported as binning method.
-#' @param dummycodeAttrs (character) Names of attributes to by dummy-coded.
-#' @param scalingAttrs (character) Names of attributes to be scaled.
-#' @param scalingMethod (character) String or vector specifying the scaling method(s) to be used.
+#' @param dummycodeAttrs (character):  Names of attributes to by dummy-coded.
+#' @param scalingAttrs (character):  Names of attributes to be scaled.
+#' @param scalingMethod (character):  String or vector specifying the scaling method(s) to be used.
 #'                      Note: the order of scaling methods must coincide with the order of the attributes specified in \code{scalingAttrs}.
 #'                      If a single string is provided, such method will be used for all attributes specified in \code{scalingAttrs}.
 #'                      Current options for scaling methods include "mean-subtraction" and "z-score".
-#' @param omit.na (character) Names of columns for which, if there are any missing values not handled in \code{missingAttrs},
+#' @param omit.na (character):  Names of columns for which, if there are any missing values not handled in \code{missingAttrs},
 #'                          the corresponding rows are excluded from the dataset.
 #' @return A \code{r4ml.matrix} object as the result of the transformations. \code{r4ml.matrix}
 #' @details The transformed dataset will be returned as a \code{r4ml.matrix} object.
@@ -111,7 +109,7 @@
 #' # Find out which columns have NA values
 #' r4ml.which.na.cols(irisBF)
 #' 
-#' # Create a r4ml.matrix object from the dataset. Column Species will be automatically recoded.
+#' # Create an r4ml.matrix object from the dataset. Column Species will be automatically recoded.
 #' # as it is of type character. Since the dataset doesn't have missing values, no further
 #' # action is required.
 #' irisBM <- r4ml.ml.preprocess(irisBF, transformPath = "/tmp")
@@ -129,7 +127,7 @@
 #' # Find out which columns have NA values
 #' r4ml.which.na.cols(irisBF)
 #' 
-#' # Create a r4ml.matrix after dummycoding, binning, and scaling some attributes. Missing values
+#' # Create an r4ml.matrix after dummycoding, binning, and scaling some attributes. Missing values
 #' # must be handled accordingly.
 #' irisBM <- r4ml.ml.preprocess(irisBF, transformPath = "/tmp",
 #'             dummycodeAttrs = "Species",
@@ -250,7 +248,7 @@ r4ml.ml.preprocess <- function(
   #         error = function(e) )
   # END dml_transform
  
-  #create a r4ml matrix 
+  #create an r4ml matrix 
   # here is the order of application of the code
   # 1. we apply the na omit
   # 2. we apply the na imputation
@@ -266,31 +264,30 @@ r4ml.ml.preprocess <- function(
   # variable to control the next stop of ml.preprocessors
   stop_now <- FALSE
   proxy.omit.na <- function(data) {
-    rhf = data
+    r4ml_df = data
     if (is.omit.na) {
-      rhf <- as.r4ml.frame(SparkR::dropna(data, cols = omit.na), repartition = FALSE)
-      if (!rhf@env$isCached) {
-        ignore <- SparkR::cache(rhf)
+      r4ml_df <- as.r4ml.frame(SparkR::dropna(data, cols = omit.na), repartition = FALSE)
+      if (!r4ml_df@env$isCached) {
+        ignore <- SparkR::cache(r4ml_df)
       }
-      cnt <- SparkR::count(rhf)
+      cnt <- SparkR::count(r4ml_df)
       if (cnt == 0) {
         r4ml.warn(logSource, "After na omission, there are no records left")
         r4ml.warn(logSource, "Make sure that you dataset contains atleast one valid records")
         stop_now <<- TRUE
       }
-      
     }
     metadata <- list()
-    list(data=rhf, metadata=metadata)
+    list(data=r4ml_df, metadata=metadata)
   }
   #2.
   proxy.impute <- function(data) {
     logSource <- "proxy.impute"
-    rhf <- data
+    r4ml_df <- data
     rmd <- NULL
     if (length(missingAttrs) > 0) {
       iargs <- list()
-      #iargs <- hf1
+      #iargs <- r4ml_df1
       for (idx in 1:length(missingAttrs)) {
         missingAttr <- missingAttrs[[idx]]
         method <- imputationMethod[[idx]]
@@ -302,68 +299,68 @@ r4ml.ml.preprocess <- function(
           r4ml.err(logSource, "unknown method")
         }
       }
-      hf_info <- do.call("r4ml.impute", list(data, iargs))
-      #hf_info <- r4ml.impute(unlist(iargs))
-      rhf <- hf_info$data
-      rmd <- hf_info$metadata
+      r4ml_df_info <- do.call("r4ml.impute", list(data, iargs))
+      #r4ml_df_info <- r4ml.impute(unlist(iargs))
+      r4ml_df <- r4ml_df_info$data
+      rmd <- r4ml_df_info$metadata
     } else {
-      rhf <- data
+      r4ml_df <- data
       rmd <- NULL
     }
-    list(data=rhf, metadata=rmd)
+    list(data=r4ml_df, metadata=rmd)
   }
   #3.
-  #hf3 = r4ml.scale(hf2$data)
+  #r4ml_df3 = r4ml.scale(r4ml_df2$data)
   proxy.normalize <- function(data) {
     if (length(scalingAttrs) > 0) {
-      hf_info <- r4ml.normalize(data, scalingAttrs)
-      rhf <- hf_info$data
-      rmd <- hf_info$metadata
+      r4ml_df_info <- r4ml.normalize(data, scalingAttrs)
+      r4ml_df <- r4ml_df_info$data
+      rmd <- r4ml_df_info$metadata
     } else {
-      rhf <- data
+      r4ml_df <- data
       rmd <- NULL
     }
-    list(data=rhf, metadata=rmd)
+    list(data=r4ml_df, metadata=rmd)
   }
   #4.
   proxy.binning <- function(data) {
     if (length(binningAttrs) > 0) {
-      hf_info <- r4ml.binning(data, binningAttrs, numBins)
-      rhf <- hf_info$data
-      rmd <- hf_info$metadata
+      r4ml_df_info <- r4ml.binning(data, binningAttrs, numBins)
+      r4ml_df <- r4ml_df_info$data
+      rmd <- r4ml_df_info$metadata
     } else {
-      rhf <- data
+      r4ml_df <- data
       rmd <- NULL
     }
-    list(data=rhf, metadata=rmd)
+    list(data=r4ml_df, metadata=rmd)
   }
   #5.
   proxy.recode <- function(data) {
     if (length(recodeAttrs) > 0) {
       rargs <- list(data, recodeAttrs)
-      hf_info <- r4ml.recode(data, recodeAttrs)
-      rhf <- hf_info$data
-      rmd <- hf_info$metadata
+      r4ml_df_info <- r4ml.recode(data, recodeAttrs)
+      r4ml_df <- r4ml_df_info$data
+      rmd <- r4ml_df_info$metadata
     } else {
-      rhf <- data
+      r4ml_df <- data
       rmd <- NULL
     }
-    list(data=rhf, metadata=rmd)
+    list(data=r4ml_df, metadata=rmd)
   }
   #6.
   proxy.onehot <- function(data) {
     if (length(dummycodeAttrs) > 0) {
       # now by this time everything should be convertable to 
       # matrix
-      hf_m <- as.r4ml.matrix(data)
-      hf_info <- r4ml.onehot(hf_m, dummycodeAttrs)
-      rhf <- hf_info$data
-      rmd <- hf_info$metadata
+      r4ml_df_m <- as.r4ml.matrix(data)
+      r4ml_df_info <- r4ml.onehot(r4ml_df_m, dummycodeAttrs)
+      r4ml_df <- r4ml_df_info$data
+      rmd <- r4ml_df_info$metadata
     } else {
-      rhf <- data
+      r4ml_df <- data
       rmd <- NULL
     }  
-    list(data=rhf, metadata=rmd)
+    list(data=r4ml_df, metadata=rmd)
   }
   
   #this order can be changed in future depending on the user input
@@ -385,9 +382,9 @@ r4ml.ml.preprocess <- function(
     next_frame <- pp_res_info$data
     metadata[[pp]] <- pp_res_info$metadata
   }
-  res_hm <- as.r4ml.frame(next_frame)
+  res_r4mlMat <- as.r4ml.frame(next_frame)
   res_md <- metadata
-  res <- list(data=res_hm, metadata=res_md)
+  res <- list(data=res_r4mlMat, metadata=res_md)
   return(res)
 }
 
@@ -524,7 +521,7 @@ r4ml.ml.preprocess <- function(
       r4ml.err(logSource, "One or more columns specified in dummycodeAttrs do not exist in the dataset.")
     }
     
-    #         if(isAnyAttrOfType(hm = data, attrs = dummycodeAttrs, type = "numeric")) {
+    #         if(isAnyAttrOfType(r4mlMat = data, attrs = dummycodeAttrs, type = "numeric")) {
     #             r4ml.err(logSource, "Numeric attributes are not allowed to be dummy coded.")
     #         }
   }
@@ -605,14 +602,14 @@ r4ml.ml.preprocess <- function(
   list("rcdList" = rcdList)
 }
 
-isAnyAttrOfType <- function(hm, attrs, type) {
+isAnyAttrOfType <- function(r4mlMat, attrs, type) {
   logSource <- "columnTypes"
-  allColumnNames <- SparkR::colnames(hm)
-  allColumnTypes <- SparkR::coltypes(hm)
+  allColumnNames <- SparkR::colnames(r4mlMat)
+  allColumnTypes <- SparkR::coltypes(r4mlMat)
   return(any(allColumnTypes[allColumnNames %in% attrs] == type))
 }
 
-# Method to transform a r4ml.frame to a r4ml.matrix that can be read by DML 
+# Method to transform an r4ml.frame to an r4ml.matrix that can be read by DML 
 #'
 #' @name r4ml.sysml.transform
 #' @title Wrapper method for \code{\link{r4ml.ml.preprocess}}
@@ -621,7 +618,7 @@ isAnyAttrOfType <- function(hm, attrs, type) {
 #'            Note that the data passed to this method should be numeric. 
 #' @return A \code{r4ml.matrix} object as the result of the transformations. \code{r4ml.matrix}
 #' @export
-#' #' @examples \dontrun{
+#' @examples \dontrun{
 #' 
 #' irisBF <- as.r4ml.frame(iris)
 #' 

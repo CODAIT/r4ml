@@ -48,18 +48,18 @@ setClass("r4ml.coxph",
 #' \strong{Note}: All categorical column must be dummycoded, both timestamp and
 #' censor must be scale, and censor column must be binary.
 #' 
-#' @param data (r4ml.matrix) Input dataset
-#' @param formula (character) describes data columns used for survival analysis, e.g., Surv(Timestamp, Censor) ~ Age.
+#' @param data (r4ml.matrix):  Input dataset
+#' @param formula (character):  Describes data columns used for survival analysis, e.g., Surv(Timestamp, Censor) ~ Age.
 #'              The left side of the formula indicates the timestamp and censor columns, 
 #'              while the right side indicates the grouping column(s) if any.
 #'              
-#' @param baseline (list) A list of baseline column names. The column names should be the names of the columns we are planning to dummy code. 
+#' @param baseline (list):  A list of baseline column names. The column names should be the names of the columns we are planning to dummy code. 
 #'                       For instance
-#' @param conf.int (numeric) Regularization parameter
-#' @param tolerance (numeric) tolerance value
-#' @param iter.max.inner (numeric) Max. number of inner (conjugate gradient) iterations (0 = unlimited)
-#' @param iter.max.outer (numeric) Max. number of outer (Newton) iterations
-#' @param directory (character) The path to save the Cox model.
+#' @param conf.int (numeric):  Regularization parameter
+#' @param tolerance (numeric):  Tolerance value
+#' @param iter.max.inner (numeric):  Maximum number of inner (conjugate gradient) iterations (0 = unlimited)
+#' @param iter.max.outer (numeric):  Maximum number of outer (Newton) iterations
+#' @param directory (character):  The path to save the Cox model.
 #' @return An S4 object of class \code{r4ml.coxph} which contains the arguments above as well as the following additional fields:
 #' 
 #'  \tabular{rlll}{
@@ -311,7 +311,7 @@ setMethod(f = "show", signature = "r4ml.coxph", definition =
 #' @name summary.r4ml.coxph
 #' @title Cox Summary
 #' @description Summarizes cox proportional hazard analysis
-#' @param object A cox model \code{r4ml.matrix}
+#' @param object (r4ml.coxph):  A Cox model 
 #' @return Three matrices: Statistical parameters, tests and model
 #' @export
 #' @examples \dontrun{
@@ -353,7 +353,7 @@ summary.r4ml.coxph <- function(object) {
   return (coxSummary)
 }
 
-# Parse a list of baseline and store it in a r4ml.frame
+# Parse a list of baseline and store it in an r4ml.frame
 r4ml.parseBaselineIds <- function(baseline, data, directory) {
   baselineIds <- r4ml.extractColsFromFormulaTree(baseline, data, delimiter = ",")
   from <- c()
@@ -375,10 +375,10 @@ r4ml.parseBaselineIds <- function(baseline, data, directory) {
 #' @name predict.r4ml.coxph
 #' @export
 #' @title Predict method for Cox proportional hazards models
-#' @description This method allows to make linear, risk, and cumulative hazard predictions for each entry in the test data set.
-#' @param object (r4ml.coxph) The cox regression model
-#' @param data   (r4ml.matrix) The test data. Must be in the same format as the training data
-#' @return A r4ml.matrix with predictions for each row.
+#' @description This method makes linear, risk, and cumulative hazard predictions for each entry in the test data set.
+#' @param object (r4ml.coxph):  The cox regression model.
+#' @param data   (r4ml.matrix):  The test data. Must be in the same format as the training data.
+#' @return an r4ml.matrix with predictions for each row.
 #' 
 #' @examples \dontrun{
 #' surv <- data.frame("Other"    = c(1, 2, 3, 4, 5, 6),

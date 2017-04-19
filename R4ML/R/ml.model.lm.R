@@ -27,7 +27,7 @@ setClass("r4ml.lm",
 #' @name r4ml.lm
 #' @title Linear Regression
 #' @export
-#' @description Fits a linear regression model from a r4ml.matrix.
+#' @description Fits a linear regression model from an r4ml.matrix.
 #' @details There are two different implementations to estimate the coefficients
 #'  of the Linear Regression. Depending on the size and sparsity of the training
 #'  set, one or the other method may be more efficient.
@@ -44,7 +44,7 @@ setClass("r4ml.lm",
 #'  is above 50,000, \emph{iterative} should be used.
 #' @param formula (formula) A formula in the form Y ~ ., where Y is the response variable.
 #'                The response variable must be of type "scale".
-#' @param data (r4ml.matrix) A r4ml.matrix to be fitted.
+#' @param data (r4ml.matrix) An r4ml.matrix to be fitted.
 #' @param method (character) "direct-solve" or "iterative" (conjugate gradient). Default is "direct-solve".
 #' @param intercept (logical) Boolean value indicating if the intercept term should be used for the regression.
 #' @param shiftAndRescale (logical) Boolean value indicating if shifting and rescaling X columns to mean = 0, variance = 1 should be performed.
@@ -267,13 +267,13 @@ setMethod("stats", signature="r4ml.lm", definition =
 
 #' @name predict.r4ml.lm
 #' @title Predict method for Linear Regression models
-#' @description This method allows to score/test a linear regression model for a given r4ml.matrix. If the testing set
+#' @description This method allows one to score/test a linear regression model for a given r4ml.matrix. If the testing set
 #' is labeled, testing will be done and some statistics will be computed to measure the quality of the model. 
 #' Otherwise, scoring will be performed and only the predictions will be computed.
 #' @param object (r4ml.lm) The linear regression model
 #' @param data (r4ml.matrix) The data to be tested or scored.
-#' @return If the testing dataset is not labeled, the result will be a r4ml.matrix with the predictions for each row.
-#' Otherwise, the result will be a list with a r4ml.matrix with the predictions for each row (\code{$probabilities}), and
+#' @return If the testing dataset is not labeled, the result will be an r4ml.matrix with the predictions for each row.
+#' Otherwise, the result will be a list with an r4ml.matrix with the predictions for each row (\code{$probabilities}), and
 #' (2) a data.frame with goodness-of-fit statistics ($statistics) for each column. Please refer to \link{predict.r4ml.glm} for the
 #' definitions of these statistics.
 #' @examples \dontrun{
