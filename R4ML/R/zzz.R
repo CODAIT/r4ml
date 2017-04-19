@@ -290,11 +290,11 @@ r4ml.end <- function() {
   r4ml.env$R4ML_SESSION_EXISTS <- FALSE
 }
 
-#' Initialize a R4ML Session
+#' Initialize an R4ML Session
 #' 
 #' r4ml.session is a wrapper function for sparkR.session
-#' @param master typically either local[*] or yarn
-#' @param sparkHome path to spark
+#' @param master (character):  Spark cluster mode (typically either local[*] or yarn).
+#' @param sparkHome (character):  Path to SPARK_HOME 
 #' @param sparkConfig configuration options to be passed to sparkR.session()
 #' @param ... other arguments to be passed to sparkR.session()
 #' @export

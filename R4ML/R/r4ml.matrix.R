@@ -41,12 +41,12 @@ setClass("r4ml.matrix",
          contains = "r4ml.frame",
          validity = is.r4ml.matrix
 )
-#' Coerce to a R4ML Matrix
+#' Coerce to an R4ML Matrix
 #'
-#' Convert an object to a r4ml.matrix
-#' @param object A r4ml.frame, data.frame, or SparkDataFrame
-#' @param cache (logical) should the object be cached
-#' @return A r4ml.matrix
+#' Convert an object to an r4ml.matrix
+#' @param object (r4ml.frame, data.frame, or SparkDataFrame)
+#' @param cache (logical):  If TRUE, object will be cached.
+#' @return An r4ml.matrix
 #' @examples \dontrun{
 #' r4ml_matrix <- as.r4ml.matrix(datasets::beaver1, cache = TRUE)
 #' }
@@ -82,18 +82,18 @@ setMethod("as.r4ml.matrix",
 setMethod("as.r4ml.matrix",
   signature(object = "data.frame"),
   function(object, cache) {
-  hf <- as.r4ml.frame(object)
-  hm <- as.r4ml.matrix(hf, cache)
-  return(hm)
+  r4ml_df <- as.r4ml.frame(object)
+  r4mlMat <- as.r4ml.matrix(r4ml_df, cache)
+  return(r4mlMat)
   }
 )
 
 setMethod("as.r4ml.matrix",
   signature(object = "SparkDataFrame"),
   function(object, cache) {
-  hf <- as.r4ml.frame(object)
-  hm <- as.r4ml.matrix(hf, cache)
-  return(hm)
+  r4ml_df <- as.r4ml.frame(object)
+  r4mlMat <- as.r4ml.matrix(r4ml_df, cache)
+  return(r4mlMat)
   }
 )
 
@@ -130,12 +130,12 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 
 #' @name ml.coltypes
 ##' @name ml.coltypes, ml.coltypes<-
-#' @title Set and get column types of a r4ml.matrix
+#' @title Set and get column types of an r4ml.matrix
 #' @export
 #' @description
 #'
 #' With this pair of methods, one can get and set column types of
-#' a r4ml.matrix. The column types of a r4ml.matrix could be any of "scale" (i.e., continuous) or "nominal" (i.e., categorical).
+#' an r4ml.matrix. The column types of an r4ml.matrix could be any of "scale" (i.e., continuous) or "nominal" (i.e., categorical).
 #' Scale columns can take any real value while nominal columns can only take positive integer numbers, corresponding
 #' to each category.
 #'
@@ -156,7 +156,7 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 #'
 #'
 #' @param x (r4ml.matrix)
-#' @param value (character) Vector of names with the same length as the number
+#' @param value (character):  Vector of names with the same length as the number.
 #' of columns of the r4ml.matrix
 #' @return For \code{ml.coltypes()}, return a character vector holding the column
 #'  names. For \code{ml.coltypes()<-}, return an updated r4ml.matrix with the updated column types.
@@ -166,7 +166,7 @@ setMethod("ml.coltypes<-", signature(x = "r4ml.matrix"),
 #' # Load the Iris dataset
 #' irisbf <- as.r4ml.frame(iris)
 #'
-#' # Create a r4ml.matrix after dummycoding, binning, and scaling some attributes
+#' # Create an r4ml.matrix after dummycoding, binning, and scaling some attributes
 #' irisBM <- r4ml.ml.preprocess(data = irisbf,
 #'                              transformPath = "/tmp",
 #'                              dummycodeAttrs = "Species",
@@ -196,10 +196,10 @@ ml.coltypes <- function(x) {
 #' 
 #' see  the \link{r4ml.onehot} for usages and details
 #' 
-#' @param hm a r4ml.matrix
+#' @param r4mlMat (r4ml.matrix)
 #' @param colname name of column to be one hot encoded
 #' @export  
-r4ml.onehot.column <- function(hm, colname) {
+r4ml.onehot.column <- function(r4mlMat, colname) {
   logSource <- "r4ml.onehot.column"
   dml= '
   #  # encode dml function for one hot encoding
@@ -235,43 +235,43 @@ r4ml.onehot.column <- function(hm, colname) {
   
   '
   
-  hm_names <- SparkR::colnames(hm)
+  r4mlMat_names <- SparkR::colnames(r4mlMat)
   oh_colname <- colname
-  col_idx <- match(oh_colname, hm_names)
+  col_idx <- match(oh_colname, r4mlMat_names)
   if (length(col_idx) > 1) {
     r4ml.err(logSource, "multiple one hot matches")
   }
-  if (col_idx < 1 || col_idx > length(hm_names)) {
+  if (col_idx < 1 || col_idx > length(r4mlMat_names)) {
     r4ml.err(logSource, "col_idx out of range")
   }
   # call the sysml connector to execute the code in the cluster after
   # matrix optimization
   outputs <- sysml.execute(
     dml = dml, # dml code
-    X = hm, # attach the input r4ml matrix to X var in dml
+    X = r4mlMat, # attach the input r4ml matrix to X var in dml
     onehot_index  = col_idx,
     "Y" # attach the output Y from dml
   )
   Y = outputs[['Y']] # get the output dataframes
   
   # assign the proper column names
-  hm_names <- SparkR::colnames(hm)
-  hm_colsize <- length(hm_names)
-  oh_name <- hm_names[col_idx]
+  r4mlMat_names <- SparkR::colnames(r4mlMat)
+  r4mlMat_colsize <- length(r4mlMat_names)
+  oh_name <- r4mlMat_names[col_idx]
   y_ncol <- SparkR::ncol(Y)
-  oh_colsize <- y_ncol - (length(hm_names) - 1)
+  oh_colsize <- y_ncol - (length(r4mlMat_names) - 1)
   oh_new_names <- paste(oh_name, 1:oh_colsize, sep="_")
   y_names <- character(0)
   if (col_idx == 1) {
-    if (col_idx < hm_colsize) {
-      y_names <- c(oh_new_names, hm_names[2:hm_colsize])
+    if (col_idx < r4mlMat_colsize) {
+      y_names <- c(oh_new_names, r4mlMat_names[2:r4mlMat_colsize])
     } else {
       y_names <- oh_new_names
     }
-  } else if (1 < col_idx && col_idx < hm_colsize) {
-    y_names <- c(hm_names[1:col_idx-1], oh_new_names, hm_names[(col_idx+1):hm_colsize])
+  } else if (1 < col_idx && col_idx < r4mlMat_colsize) {
+    y_names <- c(r4mlMat_names[1:col_idx-1], oh_new_names, r4mlMat_names[(col_idx+1):r4mlMat_colsize])
   } else{
-    y_names <- c(hm_names[1:col_idx-1], oh_new_names)
+    y_names <- c(r4mlMat_names[1:col_idx-1], oh_new_names)
   }
   SparkR::colnames(Y) <- y_names
   data <- as.r4ml.matrix(Y)
@@ -287,7 +287,7 @@ r4ml.onehot.column <- function(hm, colname) {
 #'  mapped into onehot encoding. For example, if a column (c1) has values 
 #'  then one hot columns will be c1_1 == c(0,0,1); c1_2 == c(0, 1, 0) and 
 #'  c1_3== c(0,0,1), 
-#' @param hm a r4ml matrix
+#' @param r4mlMat (r4ml.matrix
 #' @param ... list of columns to be onehot encoded. If no columns are given
 #'  all are the columns are onehot encoded
 #' @details The transformed dataset will be returned as a \code{r4ml.matrix}
@@ -299,18 +299,18 @@ r4ml.onehot.column <- function(hm, colname) {
 #' @export
 #'      
 #' @examples \dontrun{
-#' hf <- as.r4ml.frame(iris)
-#' hf <- r4ml.recode(hf, c("Species"))
-#' hm <- as.r4ml.matrix(hf$data)
-#' hm <- r4ml.onehot(hm, "Species")
+#' r4ml_df <- as.r4ml.frame(iris)
+#' r4ml_df <- r4ml.recode(r4ml_df, c("Species"))
+#' r4mlMat <- as.r4ml.matrix(r4ml_df$data)
+#' r4mlMat <- r4ml.onehot(r4mlMat, "Species")
 #' }
 #'
-r4ml.onehot <- function(hm, ... ) {
+r4ml.onehot <- function(r4mlMat, ... ) {
   logSource <- "r4ml.onehot"
   args <- list(...)
   if (length(args) <= 0) {
     r4ml.warn(logSource, "no columns specified")
-    return(list(data = hm, metadata = NA))
+    return(list(data = r4mlMat, metadata = NA))
   }
   # check if it is list
   colnames <- args
@@ -318,17 +318,17 @@ r4ml.onehot <- function(hm, ... ) {
     colnames <- args[[1]]
   }
   
-  hm_list <- list(hm)
+  r4mlMat_list <- list(r4mlMat)
   md_list <- list()
-  out_hm <- hm
+  out_r4mlMat <- r4mlMat
   for (i in 1:length(colnames)) {
     colname <- colnames[[i]]
-    inp_hm <- hm_list[[length(hm_list)]] # last element
-    oh_db <- r4ml.onehot.column(inp_hm, colname)
-    hm_list[[length(hm_list)+1]] <- oh_db$data
+    inp_r4mlMat <- r4mlMat_list[[length(r4mlMat_list)]] # last element
+    oh_db <- r4ml.onehot.column(inp_r4mlMat, colname)
+    r4mlMat_list[[length(r4mlMat_list)+1]] <- oh_db$data
     md_list[[length(md_list)+1]] <- oh_db$metadata
   }
-  data <- hm_list[[length(hm_list)]]
+  data <- r4mlMat_list[[length(r4mlMat_list)]]
   metadata <- as.environment(sapply(md_list, as.list)) # combine the environ
   list(data=data, metadata=metadata)
 }

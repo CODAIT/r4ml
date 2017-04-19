@@ -30,24 +30,24 @@ setClass(
 
 #' @name r4ml.pca
 #' @title Principal Component Analysis (PCA)
-#' @description Builds a Principal Component Analysis (PCA) model on a given r4ml.matrix, allows to project
+#' @description Builds a Principal Component Analysis (PCA) model on a given r4ml.matrix, allows one to project
 #' a given dataset into the new feature space.
 #' @details r4ml.pca() computes the eigen vectors, eigen values, and square roots of
 #' the eigen values on the given dataset.
-#' @param data (r4ml.matrix) the dataset which PCA will be applied to
-#' @param k (integer) the number of dimensions in the new feature space
-#' @param center (logical) a boolean value indicating whether all columns in the data should be centered to have zero mean.
+#' @param data (r4ml.matrix):  The dataset which PCA will be applied to
+#' @param k (integer):  The number of dimensions in the new feature space
+#' @param center (logical):  A boolean value indicating whether all columns in the data should be centered to have zero mean.
 #' Default is set to FALSE.
-#' @param scale (logical) a boolean value indicating whether all columns in the data should be scaled to have variance one.
+#' @param scale (logical):  A boolean value indicating whether all columns in the data should be scaled to have variance one.
 #' Default is set to FALSE.
-#' @param projData (logical) a boolean value indicating whether the data should be projected in the new feature space. If
+#' @param projData (logical):  A boolean value indicating whether the data should be projected in the new feature space. If
 #' set to TRUE, a list (r4ml.pca model, r4ml.matrix projData) is returned. If set to FALSE, only the r4ml.pca model is returned.
 #' Default value for \code{projData} is TRUE.
-#' @param applyPCA (r4ml.pca) (optional) Currently is not supported. In future this option will import an existing r4ml.pca model. If provided, \code{data} will be projected to the
+#' @param applyPCA (r4ml.pca):  (optional) Currently is not supported. In future this option will import an existing r4ml.pca model. If provided, \code{data} will be projected to the
 #' new feature space given the existing eigen vectors. In this case, a new r4ml.matrix will be returned.
 #' @export
 #' @return r4ml.pca S4 object is returned if projData is set to FALSE:\cr
-#' A r4ml.pca S4 object contains the following additional fields:
+#' An r4ml.pca S4 object contains the following additional fields:
 #'
 ##' \tabular{rlll}{
 ##'\tab\code{eigen.vectors}       \tab (data.frame) \tab The eigen vectors. \cr
@@ -57,7 +57,7 @@ setClass(
 ##'including the parameters and values passed to it.\cr
 ##'}
 #'
-#' If projData is set to TRUE a list is returned containing (1) a r4ml.pca model and (2) a r4ml.matrix with the new data
+#' If projData is set to TRUE a list is returned containing (1) an r4ml.pca model and (2) an r4ml.matrix with the new data
 ## @TODO add  @seealso link{r4ml.transform}
 #'
 #' @examples \dontrun{
@@ -65,7 +65,7 @@ setClass(
 #' # Load the Iris dataset
 #' train <- as.r4ml.matrix(iris[, -5])
 #'
-#' # Create a r4ml.pca model on Iris and projected data. Then display the new feature set(ie the principal components),
+#' # Create an r4ml.pca model on Iris and projected data. Then display the new feature set(ie the principal components),
 #' # eigen values, eigen vectors, standard deviations (i.e., the square roots of the eigen values)
 #' iris_pca <- r4ml.pca(train, center = TRUE, scale = TRUE, k = 2)
 #' show(iris_pca$model)
@@ -104,7 +104,7 @@ r4ml.pca <- function(data, k, center, scale, projData, applyPCA) {
   # @TODO Support applyPCA for future. applyPCA allows import of an existing PCA model
   # @NOTE cannot use read.csv since it is not scalable
   # If an existing model is provided, one should only project in the new feature space
-  # and return a r4ml.matrix with the new dataset
+  # and return an r4ml.matrix with the new dataset
   
   
 }

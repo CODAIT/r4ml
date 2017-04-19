@@ -35,22 +35,22 @@ setClass(
 
 #' @title Generalized Linear Models
 #' @description Fits a Generalized Linear Model for a \code{r4ml.matrix}.
-#' @param formula (formula) A formula in the form Y ~ ., where Y is the response variable.
-#' @param data (r4ml.matrix) Dataset to fit the model.
-#' @param family (family) Distribution family and link function. 
+#' @param formula (formula):  A formula in the form Y ~ ., where Y is the response variable.
+#' @param data (r4ml.matrix):  Dataset to fit the model.
+#' @param family (character):  Distribution family and link function. 
 #'                Supported families are "binomial", "gaussian", "poisson", "gamma", and "inverse.gaussian".
 #'                Supported link functions are "identity", "inverse", "log", "sqrt", "1/mu^2", "logit", "probit", "cloglog", and "cauchit".
 #'                gaussian(identity) is used by default.
-#' @param neg.binomial.class (numeric) Only required if \code{family} is set to binomial. It is the response value for the "No" label. 
+#' @param neg.binomial.class (numeric):  Only required if \code{family} is set to binomial. It is the response value for the "No" label. 
 #' If the response variable was recoded, method link{r4ml.recodeMaps}
 #' can be used to set \code{neg.binomial.class} accordingly. Values in the response variable that are different than \code{neg.binomial.class} will be considered as the "Yes" class.
-#' @param intercept (logical) Boolean value specifying whether the intercept term should be part of the model.
-#' @param shiftAndRescale (logical) Boolean value indicating if shifting and rescaling X columns to mean = 0, variance = 1 should be performed.
-#' @param lambda (numeric) Regularization parameter for L2 regularization.
-#' @param tolerance (numeric) Epsilon degree of tolerance.
-#' @param dispersion (numeric) (Over-)dispersion value, or 0.0 to estimate it from data.
-#' @param outer.iter.max (integer) Maximum number of outer (Newton / Fisher Scoring) iterations.
-#' @param inner.iter.max (integer) Maximum number of inner (Conjugate Gradient) iterations. A value of 0 indicates no maximum.
+#' @param intercept (logical):  Boolean value specifying whether the intercept term should be part of the model.
+#' @param shiftAndRescale (logical):  Boolean value indicating if shifting and rescaling X columns to mean = 0, variance = 1 should be performed.
+#' @param lambda (numeric):  Regularization parameter for L2 regularization.
+#' @param tolerance (numeric):  Epsilon degree of tolerance.
+#' @param dispersion (numeric):  (Over-)dispersion value, or 0.0 to estimate it from data.
+#' @param outer.iter.max (integer):  Maximum number of outer (Newton / Fisher Scoring) iterations.
+#' @param inner.iter.max (integer):  Maximum number of inner (Conjugate Gradient) iterations. A value of 0 indicates no maximum.
 #' are specified.
 #' @return An S4 object of class r4ml.glm which contains the arguments above as well as the following additional fields:
 ##' \tabular{rlll}{
@@ -317,7 +317,7 @@ setMethod(
 #' @title GLM model fitted coefficients
 #' @description Get the coefficients of the fitted model
 #' @name coef
-#' @param object (r4ml.glm) The linear regression model
+#' @param object (r4ml.glm):  The linear regression model
 #' @return A data.frame with the coefficient for the learned model
 #' @seealso \link{show}
 #' @export
@@ -348,7 +348,7 @@ setMethod(
 #' @description With this method we can get the statistics of a learned model
 #'              represented by the object
 #' @name stats
-#' @param object (r4ml.glm) The GLM model
+#' @param object (r4ml.glm):  The GLM model
 #' @return A data.frame with the statistics data for the learned model
 #' @export
 setMethod(
@@ -423,17 +423,17 @@ r4ml.ml.parseFamilyAndLink <- function(family) {
 
 #' @title Predict method for Generalized Linear Models
 #' @name predict.r4ml.glm
-#' @description This method allows to score/test a GLM model for a given r4ml.matrix. If the testing set is labeled,
+#' @description This method allows one to score/test a GLM model for a given r4ml.matrix. If the testing set is labeled,
 #' testing will be done and some statistics will be computed to measure the quality of the model. Otherwise, scoring will be performed
 #' and only the predictions will be computed.
-#' @param object (r4ml.glm) a GLM model built by Big R
-#' @param data (r4ml.matrix) the testing set
-#' @param family (family) the distribution family and link function. Supported families are "gaussian", "poisson", "gamma", and "inverse.gaussian".
+#' @param object (r4ml.glm):  A GLM model built by Big R
+#' @param data (r4ml.matrix):  The test dataset
+#' @param family (character):  The distribution family and link function. Supported families are "gaussian", "poisson", "gamma", and "inverse.gaussian".
 #' Supported link functions are "identity", "inverse", "log", "sqrt", "1/mu^2", "logit" "probit", "cloglog", and "cauchit"
-#' @param dispersion (numeric) (Over-) dispersion value. If not provided, the dispersion provided/estimated in the training phase will be used.
-#' @return If scoring (i.e., testing dataset is unlabeled), the result will be a r4ml.matrix with the predictions.
+#' @param dispersion (numeric):  (Over-) dispersion value. If not provided, the dispersion provided/estimated in the training phase will be used.
+#' @return If scoring (i.e., testing dataset is unlabeled), the result will be an r4ml.matrix with the predictions.
 #' In the case of testing (i.e., testing dataset is labeled), the result will be a list with two elements: (1) the
-#' predictions as a r4ml.matrix, and (2) a data.frame with some goodness-of-fit statistics. These statistics are as follows:
+#' predictions as an r4ml.matrix, and (2) a data.frame with some goodness-of-fit statistics. The statistics computed are:
 #' 
 #' \tabular{rlll}{
 #' \tab LOGLHOOD Z \tab Log-likelihood Z-score (in st. dev.'s from the mean)\cr
@@ -450,7 +450,7 @@ r4ml.ml.parseFamilyAndLink <- function(family) {
 #' \tab STDEV_RES_Y\tab Y-column residual st. dev. of Y - pred:mean(Y|X)\cr
 #' \tab PRED_STDEV_RES\tab Model-predicted Y-column residual st. deviation\cr
 #' \tab PLAIN_R2\tab Plain R2 of Y-column residual with bias included\cr
-#' \tab ADJUSTED_R2\tab Adjusted R2 of Y-column residual w. bias included\cr
+#' \tab ADJUSTED_R2\tab Adjusted R2 of Y-column residual with bias included\cr
 #' \tab PLAIN_R2_NOBIAS\tab Plain R2 of Y-column residual, bias subtracted\cr
 #' \tab ADJUSTED_R2_NOBIAS\tab Adjusted R2 of Y-column residual, bias subtracted\cr
 #' }

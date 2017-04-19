@@ -371,14 +371,14 @@ r4ml.extractColsFromFormulaTree  <- function(root, dataset = NULL, delimiter = N
     
     # If current symbol is not +, there is something to do
     if (!is.null(col)) {
-      # If a r4ml.frame was specified in the formula
+      # If an r4ml.frame was specified in the formula
       if (!is.null(bfmName)) {
         # Check that datasets are consistent
         if (is.null(dataset)) {
           dataset <- get(bfmName)
         } 
       } else if (is.null(dataset)) {
-        r4ml.err(logSource, "A r4ml.frame or r4ml.matrix must be specified in the formula.")
+        r4ml.err(logSource, "An r4ml.frame or r4ml.matrix must be specified in the formula.")
       }
       colid <- match(col, SparkR::colnames(dataset))
       if (.r4ml.isNullOrEmpty(colid)) {
@@ -439,9 +439,9 @@ r4ml.parseSurvivalArgsFromFormulaTree <- function(formula, dataset, directory){
 
 #' Find NA columns
 #' 
-#' A function to find columns in a r4ml.frame which have NA values. This
+#' A function to find columns in an r4ml.frame which have NA values. This
 #' function can be very costly for large datasets.
-#' @param object a r4ml.frame
+#' @param object (r4ml.frame)
 #' @export
 r4ml.which.na.cols <- function(object) {
  logSource <- "r4ml.which.na.cols"
@@ -455,8 +455,8 @@ r4ml.which.na.cols <- function(object) {
  na_cols <- c()
  
  for (col in cols) {
-   hf2 <- SparkR::dropna(x = object, cols = col)
-   if (SparkR::nrow(hf2) < rows) {
+   r4ml_df2 <- SparkR::dropna(x = object, cols = col)
+   if (SparkR::nrow(r4ml_df2) < rows) {
      na_cols <- c(na_cols, col)
    }
    

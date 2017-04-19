@@ -23,17 +23,17 @@ NULL
 #'
 #' r4ml.model acts as the base class of all the other model and it
 #' follows the factory method design pattern
-#' @slot modelPath (character) location where the model files are stored
-#' @slot transformPath (character) location to store the transform metadata
-#' @slot yColname (character) column name of the response variable
-#' @slot featureNames (character) the features used to build the model
-#' @slot call (character) string representation of this method's call, including
+#' @slot modelPath (character):  Location where the model files are stored
+#' @slot transformPath (character):  Location to store the transform metadata
+#' @slot yColname (character):  Column name of the response variable
+#' @slot featureNames (character):  The features used to build the model
+#' @slot call (character):  String representation of this method's call, including
 #' the parameters and values passed to it
-#' @slot modelType (character) classification, regression, clustering,
+#' @slot modelType (character):  Classification, regression, clustering,
 #' feature-extraction, factorization, or other
-#' @slot yColId (interger) column id of the response variable
-#' @slot dmlArgs (list) arguments passed to the DML script
-#' @slot dmlOuts (list) arguments returned from the DML script
+#' @slot yColId (interger):  Column id of the response variable
+#' @slot dmlArgs (list):  Arguments passed to the DML script
+#' @slot dmlOuts (list):  Arguments returned from the DML script
 #' @export
 setClass("r4ml.model",
   representation(
@@ -177,7 +177,7 @@ setMethod("initialize", "r4ml.model",
     r4ml.debug(logSource, "Algorithm-specific parameter validation...")
     .Object <- r4ml.model.validateTrainingParameters(.Object, argValues)
 
-    # Check that method r4ml.model.validateTrainingParameters did return a r4ml.model object
+    # Check that method r4ml.model.validateTrainingParameters did return an r4ml.model object
     if (class(.Object) != objectClass) {
       r4ml.err(logSource, "Method r4ml.model.validateTrainingParameters must return a '" %++%
                  objectClass %++% "' object." )
@@ -221,7 +221,7 @@ setMethod("initialize", "r4ml.model",
     r4ml.debug(logSource, "Building argument list...")
     .Object <- r4ml.model.buildTrainingArgs(.Object, argValues)
     #browser()
-    # Check that method r4ml.model.buildTrainingArgs returned a r4ml.model object
+    # Check that method r4ml.model.buildTrainingArgs returned an r4ml.model object
     if (class(.Object) != objectClass) {
       r4ml.err(logSource, "Method r4ml.model.buildTrainingArgs must return a '" %++%
                  objectClass %++% "' object." )
@@ -435,9 +435,9 @@ r4ml.getFunctionArguments <- function(call, env) {
     #####################################
     if (is.null(data)) {
 
-      # Check that a r4ml.frame is specified for both left and right sides of the formula
+      # Check that an r4ml.frame is specified for both left and right sides of the formula
       if (!.r4ml.contains(leftSideChar, "$") | !.r4ml.contains(rightSideChar, "$")) {
-        r4ml.err(logSource, "A r4ml.frame must be specified (1)")
+        r4ml.err(logSource, "an r4ml.frame must be specified (1)")
       }
       # Parse left side
       if (length(leftSide) == 3) {
@@ -468,7 +468,7 @@ r4ml.getFunctionArguments <- function(call, env) {
     }
     #@TODO change it
     if (class(data) != "r4ml.frame" & !inherits(data, "r4ml.matrix")) {
-      r4ml.err(logSource, "Parameter data must be a r4ml.frame or a subclass of r4ml.matrix in order to compute boxplot or histogram statistics.")
+      r4ml.err(logSource, "Parameter data must be an r4ml.frame or a subclass of r4ml.matrix in order to compute boxplot or histogram statistics.")
     }
     r4ml.debug(logSource, "targetColname: " %++% targetColname)
 
@@ -511,7 +511,7 @@ r4ml.getFunctionArguments <- function(call, env) {
     return(list(data, targetColId, targetColname, groupByColIds,
          groupByColnames))
   } else {
-    # If a r4ml.vector is provided
+    # If an r4ml.vector is provided
     if (formula@dataType != "numeric" & formula@dataType != "integer") {
       r4ml.err(logSource, "Target column for plot must be of type 'numeric' or 'integer'.")
     }

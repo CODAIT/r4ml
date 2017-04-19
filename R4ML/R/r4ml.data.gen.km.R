@@ -18,12 +18,12 @@
 #' @name r4ml.data.gen.km
 #' @title Kaplan-Meier Data Generation
 #' @export
-#' @param N (numeric) number of observations
-#' @param P (numeric) number of groups
-#' @param weibA (numeric) Weibull shape parameter
-#' @param weibB (numeric) Weibull scale parameter
-#' @param IVeff (numeric) effects of factor levels (1 -> reference level)
-#' @param obsLen (numeric) length of observation time
+#' @param N (numeric):  Number of observations
+#' @param P (numeric):  Number of groups
+#' @param weibA (numeric):  Weibull shape parameter
+#' @param weibB (numeric):  Weibull scale parameter
+#' @param IVeff (numeric):  Effects of factor levels (1 -> reference level)
+#' @param obsLen (numeric):  Length of observation time
 #' 
 #' @return Generated Dataset
 #' 

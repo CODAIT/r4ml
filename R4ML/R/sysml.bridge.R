@@ -32,8 +32,8 @@ requireNamespace("SparkR")
 #' @field ncol number of col of the block matrix
 #' @field bnrow number of row in one block
 #' @field bncol number of col of one block
-#' @field env environment which among other things contains the underlying
-#'  java reference
+#' @field env An R environment that stores bookkeeping states of the class,
+#'        along with java reference corresponding to the JVM.
 #' @export
 #' @examples \dontrun{
 #' sysml.MatrixCharacteristics(1000, 1000, 1000, 1000)
@@ -72,8 +72,8 @@ sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
 #'
 #' @family MLContext functions
 #'
-#' @field env An R environment that stores bookkeeping states of the class
-#'        along with java ref corresponding to jvm
+#' @field env An R environment that stores bookkeeping states of the class,
+#'        along with java reference corresponding to the JVM.
 #' @export
 #' @examples \dontrun{
 #'    #sysmlSparkContext # the default spark context
@@ -285,8 +285,8 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
 #'
 #' @family MLContext functions
 #'
-#' @field env An R environment that stores bookkeeping states of the class
-#'        along with java ref corresponding to jvm
+#' @field env An R environment that stores bookkeeping states of the class,
+#'        along with java reference corresponding to the JVM.
 #' @export
 #' @examples \dontrun{
 #'    #TODO fix this example
@@ -352,8 +352,8 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
 #'
 #' @family MLContext functions
 #'
-#' @field env An R environment that stores bookkeeping states of the class
-#'        along with java ref corresponding to jvm
+#' @field env An R environment that stores bookkeeping states of the class,
+#'        along with the java reference corresponding to the JVM.
 #' @export
 #' @examples \dontrun{
 #' airr <- R4ML::airline
@@ -494,16 +494,16 @@ sysml.execute <- function(dml, ...) {
       arg_name <- arg_names[i]
       i <- i + 1
       if (class(arg_val) == "r4ml.matrix") {
-        hm = arg_val
+        r4mlMat = arg_val
         # now v is the numeric dataframe
         #find the characteristics of the dataframe
-        hm_nrows <- SparkR:::count(hm)
-        hm_ncols <- length(SparkR::colnames(hm))
-        bm_nrows <- min(hm_nrows, r4ml.env$SYSML_BLOCK_MATRIX_SIZE$nrows)
-        bm_ncols <- min(hm_ncols,  r4ml.env$SYSML_BLOCK_MATRIX_SIZE$ncols)
-        mc = sysml.MatrixCharacteristics(hm_nrows, hm_ncols, bm_nrows, bm_ncols)
-        hm_jrdd <- rdd_utils$dataFrameToBinaryBlock(hm, mc)
-        ml_ctx$registerInput(arg_name, hm_jrdd, mc)
+        r4mlMat_nrows <- SparkR:::count(r4mlMat)
+        r4mlMat_ncols <- length(SparkR::colnames(r4mlMat))
+        bm_nrows <- min(r4mlMat_nrows, r4ml.env$SYSML_BLOCK_MATRIX_SIZE$nrows)
+        bm_ncols <- min(r4mlMat_ncols,  r4ml.env$SYSML_BLOCK_MATRIX_SIZE$ncols)
+        mc = sysml.MatrixCharacteristics(r4mlMat_nrows, r4mlMat_ncols, bm_nrows, bm_ncols)
+        r4mlMat_jrdd <- rdd_utils$dataFrameToBinaryBlock(r4mlMat, mc)
+        ml_ctx$registerInput(arg_name, r4mlMat_jrdd, mc)
       } else if (is.null(arg_name) || arg_name == "") {
         ml_ctx$registerOutput(arg_val)
         out_args <- c(out_args, arg_val)
@@ -537,8 +537,8 @@ sysml.execute <- function(dml, ...) {
   outputs <- list()
   for (out_arg in out_args) {
     out_df <- sysml_outs$getDF(out_arg)
-    out_hm <- as.r4ml.matrix(as.r4ml.frame(out_df, repartition = FALSE))
-    outputs[out_arg] <- out_hm
+    out_r4mlMat <- as.r4ml.matrix(as.r4ml.frame(out_df, repartition = FALSE))
+    outputs[out_arg] <- out_r4mlMat
   }
   outputs
 }

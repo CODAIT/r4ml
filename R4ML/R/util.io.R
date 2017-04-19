@@ -85,10 +85,10 @@ r4ml.fatal <- r4ml.gen.logger("FATAL")
 
 #' r4ml.setLogLevel
 #' @description Set log level for the current session.
-#' @param level the level to be used. The various log levels that are supported are "ALL", "TRACE",
+#' @param level (string):  The level to be used. The various log levels that are supported are "ALL", "TRACE",
 #' "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF" in the increasing priority.
-#' @param java.log logical variable to set java log level. Default is FALSE.
-#' @details When R4ML session is started, the defalult log level is set to "INFO". This function allows to
+#' @param java.log (logical):  Variable to set java log level. Default is FALSE.
+#' @details When R4ML session is started, the defalult log level is set to "INFO". This function allows one to
 #' set the desired log level after the session is started. The java log level used by SystemML is set to ERROR
 #' by default. That behaviour can also be changed by setting the set.java.log flag to TRUE.
 #' @seealso \link{r4ml.getLogLevel}
@@ -212,11 +212,11 @@ is.r4ml.fs.valid <- function() {
 }
 
 #' r4ml.read.csv
-#' @description Returns a R data.frame in local mode or a SparkR DataFrame in cluster mode.
-#' @param file path to the input file
-#' @param header logical
-#' @param stringsAsFactors logical
-#' @param inferSchema logical
+#' @description Returns an data.frame in local mode or a SparkDataFrame in cluster mode.
+#' @param file (string):  Path to the input file
+#' @param header (logical):  If TRUE, the first line of file is used as the header.
+#' @param stringsAsFactors (logical)
+#' @param inferSchema (logical)
 #' @param na.strings a vector of strings which should be interpreted as NA
 #' @param schema (cluster mode) the SparkR scheme
 #' @param sep field separator character, supported in local mode
@@ -282,16 +282,16 @@ r4ml.read.csv <- function(
 #' 
 #' @docType class
 #' @importFrom R6 R6Class
-#' @format A Unified logging utility which control R4ML, SparkR, SystemML 
-#' log levels.The various log levels that are supported are "ALL", "TRACE",
-#' "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF" in the increasing priority.
-#' Like other log services, setting a log level to say WARN enables all the
+#' @format A unified logging utility that controls R4ML, SparkR, and SystemML 
+#' loggging levels.  The logging levels that are supported are: "ALL", "TRACE",
+#' "DEBUG", "INFO", "WARN", "ERROR", "FATAL", and "OFF".
+#' Like other log services, setting a log level to WARN enables all the
 #' higher level logging (i.e ERROR FATAL) but disables lower level logging
 #' (i.e TRACE, DEBUG, INFO).
 #' NOTE: ALL and OFF are used to enable all the logs or disable all the logs
-#' respectively. Since SystemML and Spark related JVM logging level is for 
-#' higer level debug, user have different ways to control jvm and R logging 
-#' seperately.
+#' respectively. Since SystemML and Spark related JVM logging levels are for 
+#' higher level debugging, the user is able to set JVM and R logging levels
+#' separately.
 #' @section Methods:
 #' \describe{
 #'  \item{\code{isValidLevel(logLevel)}}{check if the log level is valid. Valid 

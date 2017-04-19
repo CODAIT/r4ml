@@ -41,7 +41,7 @@ setClass("r4ml.frame", contains="SparkDataFrame")
 #' input r4ml.frame to be numeric
 #'
 #' @name is.r4ml.numeric
-#' @param object a r4ml.frame
+#' @param object (r4ml.frame)
 #' @param ... future optional additional arguments to be passed to or from methods
 #' @return TRUE if all the cols are numeric else FALSE
 #' @export
@@ -50,8 +50,8 @@ setClass("r4ml.frame", contains="SparkDataFrame")
 #'
 #'    data <- as.r4ml.frame(as.data.frame(iris))
 #'    is.r4ml.numeric(data) #This is FALSE
-#'    hf2=as.r4ml.frame(iris[c("Sepal.Length", "Sepal.Width")])
-#'    is.r4ml.numeric(hf2) # This is TRUE
+#'    r4ml_df2=as.r4ml.frame(iris[c("Sepal.Length", "Sepal.Width")])
+#'    is.r4ml.numeric(r4ml_df2) # This is TRUE
 #'
 #'}
 #'
@@ -97,21 +97,20 @@ r4ml.calc.num.partitions <- function(object_size) {
 }
 
 
-#' Coerce to a R4ML Frame
+#' Coerce to an R4ML Frame
 #'
-#' Convert a data.frame, r4ml.matrix, or Spark DataFrame into a r4ml.frame
+#' Convert a data.frame, r4ml.matrix, or Spark DataFrame into an r4ml.frame
 #'
 #' @name as.r4ml.frame
-#' @param object a R data.frame or SparkDataFrame
-#' @param repartition (data.frame only) (logical) should the data automatically
-#' be repartitioned
-#' @param numPartitions (data.frame only) (numeric) number of partitions
+#' @param object (data.frame or SparkDataFrame)
+#' @param repartition (data.frame only) (logical):   If TRUE, data will be repartitioned automatically.
+#' @param numPartitions (data.frame only) (numeric):  Number of partitions
 #' @param ... future optional additional arguments to be passed to or from methods
-#' @return a r4ml.frame
+#' @return an r4ml.frame
 #' @export
 #' @examples \dontrun{
-#'    hf1 <- as.r4ml.frame(iris)
-#'    hf2 <- as.r4ml.frame(SparkR::createDataFrame(iris))
+#'    r4ml_df1 <- as.r4ml.frame(iris)
+#'    r4ml_df2 <- as.r4ml.frame(SparkR::createDataFrame(iris))
 #' }
 setGeneric("as.r4ml.frame", function(object, repartition = TRUE,
                                        numPartitions = NA, ...) {
@@ -152,7 +151,7 @@ setMethod("as.r4ml.frame",
                  'No R4ML session exists (call "r4ml.session()")')
     }
     
-    # need to get the object size before we make it a Spark DataFrame
+    # need to get the object size before we make it a SparkDataFrame
     object_size <- object.size(object)
     if (object_size < r4ml.env$MIN_REPARTION_SIZE) {
       # don't repartion small objects
@@ -217,8 +216,8 @@ setMethod(f = "show", signature = "r4ml.frame", definition =
 #' @description Imputes a missing value with either the mean of the feature or a user supplied constant.
 #' @details List parameter takes a named list with columns to impute for as the names and either "mean", empty (in which case mean will be assumed), or a constant to impute as the values
 #' 
-#' @param data (r4ml.frame) A r4ml.frame
-#' @param ... (list) A named list with names that represent the columns to be fitted, values are imputed.
+#' @param data (r4ml.frame):  An r4ml.frame
+#' @param ... (list):  A named list with names that represent the columns to be fitted, values are imputed.
 #' 
 #'@examples \dontrun{
 #'  # Load Dataset
@@ -327,7 +326,7 @@ setMethod("r4ml.impute",
 #'  values "Low", "Medium", and "High", these will be mapped to 1, 2, and 3. 
 #'  \strong{Note}: All columns of type character will be automatically recoded.
 #'  The order of the recoded values is non-deterministic.
-#' @param data a r4ml.frame
+#' @param data (r4ml.frame)
 #' @param ... list of columns to be recoded. If no columns are given all 
 #'      the columns are recoded
 #' @details The transformed dataset will be returned as a \code{r4ml.frame}
@@ -340,14 +339,14 @@ setMethod("r4ml.impute",
 #'      
 #' @examples \dontrun{
 #'  data <- as.r4ml.frame(iris)
-#'  hf_rec <- r4ml.recode(data, c("Species"))
+#'  r4ml_df_rec <- r4ml.recode(data, c("Species"))
 #'
 #'  # make sure that recoded value is right
-#'  rhf_rec <- SparkR::as.data.frame(hf_rec$data)
-#'  rhf_data <- rhf_rec # recoded r4ml.frame
-#'  rhf_md <- rhf_rec$metadata # metadata associated with the recode
-#'  show(rhf_data)
-#'  rhf_md$Species$setosa # check one of the recoded value
+#'  rr4ml_df_rec <- SparkR::as.data.frame(r4ml_df_rec$data)
+#'  rr4ml_df_data <- rr4ml_df_rec # recoded r4ml.frame
+#'  rr4ml_df_md <- rr4ml_df_rec$metadata # metadata associated with the recode
+#'  show(rr4ml_df_data)
+#'  rr4ml_df_md$Species$setosa # check one of the recoded value
 #' }
 #'
 setGeneric("r4ml.recode", function(data, ...) {
@@ -362,9 +361,9 @@ setMethod("r4ml.recode",
 
     # get the list of all input columns and set default (if needed)
     icols <- unlist(list(...), recursive = TRUE)
-    hf_colnames <- SparkR::colnames(data)
+    r4ml_df_colnames <- SparkR::colnames(data)
     if (missing(icols) || length(icols) == 0) {
-      icols <- hf_colnames
+      icols <- r4ml_df_colnames
     }
     nurow_max <- 1e6 # maximum number of unique element
 
@@ -404,13 +403,13 @@ setMethod("r4ml.recode",
       assign(icol, icol2recode, envir=icol2rec_env)
     }
 
-    hf_colid2name <- list2env(
-      as.list(setNames(hf_colnames, 1:length(hf_colnames))),
+    r4ml_df_colid2name <- list2env(
+      as.list(setNames(r4ml_df_colnames, 1:length(r4ml_df_colnames))),
       parent=emptyenv()
     )
 
-    hf_colname2id <- list2env(
-      as.list(setNames(1:length(hf_colnames), hf_colnames)),
+    r4ml_df_colname2id <- list2env(
+      as.list(setNames(1:length(r4ml_df_colnames), r4ml_df_colnames)),
       parent=emptyenv()
     )
 
@@ -420,9 +419,9 @@ setMethod("r4ml.recode",
       data,
       function(row) {
         ret = list()
-        for (i in 1:length(hf_colnames)) {
+        for (i in 1:length(r4ml_df_colnames)) {
           row_i <- row[[i]]
-          cname <- get(toString(i), envir=hf_colid2name, inherits = F)
+          cname <- get(toString(i), envir=r4ml_df_colid2name, inherits = F)
           if (exists(cname, envir=icol2rec_env, inherits = F)) {
             icol2recode <- get(cname, envir=icol2rec_env, inherits = F)
             if (exists(cname, envir=icol2rec_env, inherits = F)) {
@@ -448,9 +447,9 @@ setMethod("r4ml.recode",
     old_sch <- SparkR::schema(data)
     old_sch_flds <- old_sch$fields()
     new_sf = list()
-    for (i in 1:length(hf_colnames)) {
+    for (i in 1:length(r4ml_df_colnames)) {
       old_sch_fld <- old_sch_flds[[i]]
-      cname <- get(toString(i), envir=hf_colid2name, inherits = F)
+      cname <- get(toString(i), envir=r4ml_df_colid2name, inherits = F)
       new_sch_fld <- old_sch_fld
       if (exists(cname, envir=icol2rec_env, inherits = F)) {
         old_sch_fld <- old_sch_flds[[i]]
@@ -462,10 +461,10 @@ setMethod("r4ml.recode",
       new_sf[[length(new_sf)+1]] <- new_sch_fld
     }
     new_row_rdd_sch <- do.call(SparkR::structType, as.list(new_sf))
-    res_hf <- as.r4ml.frame(SparkR::as.DataFrame(new_row_rdd,
+    res_r4ml_df <- as.r4ml.frame(SparkR::as.DataFrame(new_row_rdd,
                                                    schema = new_row_rdd_sch))
     meta_db <- icol2rec_env
-    list(data=res_hf, metadata=meta_db)
+    list(data=res_r4ml_df, metadata=meta_db)
   }
 )
 
@@ -474,7 +473,7 @@ setMethod("r4ml.recode",
 #' @description Specified scale columns will be 
 #'  shifting by mean and divided by it's sample standard deviation. In case, 
 #'  we do only the shifting by mean. 
-#' @param data a r4ml frame
+#' @param data (r4ml.frame)
 #' @param ... list of columns to be normalized. If no columns are given all 
 #'      the columns are recoded
 #' @details The transformed dataset will be returned as a \code{r4ml.frame}
@@ -503,12 +502,12 @@ setMethod("r4ml.normalize",
   signature(data = "r4ml.frame"),
   function(data, ...) {
     logSource <- "r4ml.normalize"
-    hfnames <- SparkR::colnames(data)
-    hftypes <- SparkR::coltypes(data)
+    r4ml_dfnames <- SparkR::colnames(data)
+    r4ml_dftypes <- SparkR::coltypes(data)
     
     args <- list(...)
     if (length(args) == 0) {
-      args <- hfnames
+      args <- r4ml_dfnames
     }
     
     inames <- args
@@ -517,12 +516,12 @@ setMethod("r4ml.normalize",
     }
     
     # check that all inputs to be imputed is in the class
-    uinames <- inames[which(is.na(match(inames, hfnames)))]
+    uinames <- inames[which(is.na(match(inames, r4ml_dfnames)))]
     if (length(uinames) != 0) {
       r4ml.err(logSource, paste(uinames, "columns not found in the input data"))
     }
     
-    itypes <- hftypes[match(inames, hfnames)]
+    itypes <- r4ml_dftypes[match(inames, r4ml_dfnames)]
     
     
     # check that the data types of the imputed cols are of numeric
@@ -550,14 +549,14 @@ setMethod("r4ml.normalize",
     
     
     # calc the mean of all the columns
-    rhfstats <- eval(parse(text=rstr))
-    hfstats <- SparkR::as.data.frame(rhfstats)
+    rr4ml_dfstats <- eval(parse(text=rstr))
+    r4ml_dfstats <- SparkR::as.data.frame(rr4ml_dfstats)
     
     mstr <- "SparkR::mutate(data"
     for (iname in inames) {
       new_col <- "new_" %++% iname
-      mean <- hfstats[['mean_' %++% iname]]
-      sd <- hfstats[['stddev_' %++% iname]]
+      mean <- r4ml_dfstats[['mean_' %++% iname]]
+      sd <- r4ml_dfstats[['stddev_' %++% iname]]
       if (sd == 0.0) {
         # meaning that all the values are equal and hence substracting
         # it with zero will give 0 vector and div by 0 will give inf. so we will not
@@ -568,20 +567,20 @@ setMethod("r4ml.normalize",
     }
     mstr <- mstr %++% ")"
     
-    mhf <- eval(parse(text=mstr))
+    mr4ml_df <- eval(parse(text=mstr))
     lu=setNames(sapply(inames, function (e) "new_" %++% e), inames)
-    new_cols <- sapply(hfnames,
+    new_cols <- sapply(r4ml_dfnames,
                        function(e) ifelse(e %in% inames, lu[[e]], e) )
-    new_df <- SparkR::select(mhf, new_cols)
-    new_hf <- as.r4ml.frame(new_df)
-    SparkR::colnames(new_hf) <- hfnames
+    new_df <- SparkR::select(mr4ml_df, new_cols)
+    new_r4ml_df <- as.r4ml.frame(new_df)
+    SparkR::colnames(new_r4ml_df) <- r4ml_dfnames
 
     # now create the metadata
     metadata <- new.env(parent=emptyenv())
     for (iname in inames) {
       
-      mean <- hfstats[['mean_' %++% iname]]
-      sd <- hfstats[['stddev_' %++% iname]]
+      mean <- r4ml_dfstats[['mean_' %++% iname]]
+      sd <- r4ml_dfstats[['stddev_' %++% iname]]
       if (sd == 0.0) {
         # meaning that all the values are equal and hence substracting
         # it with zero will give 0 vector and div by 0 will give inf. so we will not
@@ -591,7 +590,7 @@ setMethod("r4ml.normalize",
       col_info <- list("mean" = mean, "stddev" = sd)
       assign(iname, col_info, metadata)
     }
-    list(data=as.r4ml.frame(new_hf), metadata=metadata)
+    list(data=as.r4ml.frame(new_r4ml_df), metadata=metadata)
   }
 )          
 
@@ -599,9 +598,9 @@ setMethod("r4ml.normalize",
 #' @title Binning
 #' @export
 #' @description Takes a column and a number of bins and returns a new column with the average value of the bin each value has been placed into.
-#' @param data (r4ml.frame) The r4ml.frame to bin columns for.
-#' @param columns (list) List of column names to create bins with.
-#' @param number (numeric) Number of bins to create.
+#' @param data (r4ml.frame):  The r4ml.frame to bin columns for.
+#' @param columns (list):  List of column names to create bins with.
+#' @param number (numeric):  Number of bins to create.
 #' 
 #' @examples \dontrun{
 #' # Setup Data
@@ -649,11 +648,11 @@ setMethod("r4ml.binning",
       # Re-add the minimum to get the floor of binned values, add range/2 to get average
       avg_bins = ((int_bins*range+minimum) + range/2)
       # Grab initial colnames for eventual rearrange
-      hf_colnames <- SparkR::colnames(data)
+      r4ml_df_colnames <- SparkR::colnames(data)
 
       # Create original column name
       new_name <- paste0(name, "_new")
-      while(new_name %in% hf_colnames){
+      while(new_name %in% r4ml_df_colnames){
         new_name <- paste0(new_name, "_new")
       }
       
@@ -665,7 +664,7 @@ setMethod("r4ml.binning",
       data <- SparkR::withColumnRenamed(data, existingCol = new_name, newCol = name)
       
       # Rearrange columns
-      data <- as.r4ml.frame(SparkR::select(data, hf_colnames))
+      data <- as.r4ml.frame(SparkR::select(data, r4ml_df_colnames))
       metadata[[name]] = list(featureName=name,
                               minValue=minimum,
                               maxValue=maximum,

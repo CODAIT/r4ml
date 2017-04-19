@@ -18,16 +18,14 @@ NULL
 
 
 #'
-#' A Reference Class that represent log4j Logger
+#' A Reference Class that represents log4j Logger
 #'
-#' Logger class help one control the logging levels in the R console.
-#' We have the global logger called logger which should be use to set the loglevel
-#' at the underlying java/scala level
+#' The Logger class sets the the logging levels for Spark in the R console.
 #'
 #' @family Java Utils
 #'
-#' @field env An R environment that stores bookkeeping states of the class
-#'        along with java ref corresponding to jvm
+#' @field env An R environment that stores bookkeeping states of the class,
+#'        along with the java reference corresponding to the JVM.
 #' @examples
 #' \dontrun{
 #'    jlogger$setLevel("WARN")
@@ -54,8 +52,8 @@ log4j.Logger <- setRefClass("log4j.Logger",
 
     setLevel = function(level) {
       '\\tabular{ll}{
-         Description:\\tab \\cr
-           \\tab set the log levels. Supported options are ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, TRACE_INT, WARN \\cr
+         Description:\\tab  Set the log levels. Supported options are:\\cr
+         \\tab ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, TRACE_INT, WARN \\cr
        }'
       level_jref = get(level, .self$env)
       SparkR:::callJMethod(env$jref, "setLevel", level_jref)
@@ -64,8 +62,7 @@ log4j.Logger <- setRefClass("log4j.Logger",
 
     getLevel = function() {
       '\\tabular{ll}{
-         Description:\\tab \\cr
-           \\tab gets the log level\\cr
+         Description:\\tab gets the log level\\cr
        }'
       level_jref <- SparkR:::callJMethod(env$jref, "getLevel")
       return(SparkR:::callJMethod(level_jref, "toString"))
@@ -81,8 +78,8 @@ log4j.Logger <- setRefClass("log4j.Logger",
 #' @name java.ArrayList
 #' @family Java Utils
 #' @export
-#' @field env An R environment that stores bookkeeping states of the class
-#'        along with java ref corresponding to jvm
+#' @field env An R environment that stores bookkeeping states of the class,
+#'        along with java reference corresponding to the JVM.
 #' @examples \dontrun{
 #'    ja <- R4ML:::java.ArrayList$new()
 #'    ja$add("a")
