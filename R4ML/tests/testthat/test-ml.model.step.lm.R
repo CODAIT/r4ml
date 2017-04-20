@@ -69,3 +69,43 @@ test_that("r4ml.step.lm predict_scoring", {
 })
 
 # TODO add the shiftAndScale test in future when intercept=2 is added
+
+test_that("r4ml.step.lm coefficients without intercept", {
+  df <- mtcars
+  r.slm <- step(lm(mpg ~ -1, data = df),
+                mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb,
+                direction = "forward")
+  
+  df.r4ml <- as.r4ml.matrix(as.r4ml.frame(df))
+  r4ml.slm <- r4ml.step.lm(mpg ~ ., data = df.r4ml, intercept = FALSE)
+  
+  # coefficients from step() and r4ml.step.lm() are not in the same order
+  # So, we'll sort the coefficients by name for both models before comparison
+  snames <- sort(names(coef(r.slm)))
+
+  betas1 <- coef(r4ml.slm)[snames,]
+  betas2 <- coef(r.slm)[snames]
+  names(betas2) <- NULL
+
+  expect_equal(betas1, betas2)
+})
+
+test_that("r4ml.step.lm coefficients with intercept", {
+  df <- mtcars
+  r.slm <- step(lm(mpg ~ 1, data = df),
+                mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb,
+                direction = "forward")
+  
+  df.r4ml <- as.r4ml.matrix(as.r4ml.frame(df))
+  r4ml.slm <- r4ml.step.lm(mpg ~ ., data = df.r4ml, intercept = TRUE)
+  
+  # coefficients from step() and r4ml.step.lm() are not in the same order
+  # So, we'll sort the coefficients by name for both models before comparison
+  snames <- sort(names(coef(r.slm)))
+  
+  betas1 <- coef(r4ml.slm)[snames,]
+  betas2 <- coef(r.slm)[snames]
+  names(betas2) <- NULL
+  
+  expect_equal(betas1, betas2)
+})
