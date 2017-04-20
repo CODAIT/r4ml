@@ -90,7 +90,7 @@ test_that("r4ml.step.lm coefficients without intercept", {
   expect_equal(betas1, betas2)
 })
 
-test_that("r4ml.step.lm coefficients without intercept", {
+test_that("r4ml.step.lm coefficients with intercept", {
   df <- mtcars
   r.slm <- step(lm(mpg ~ 1, data = df),
                 mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb,
