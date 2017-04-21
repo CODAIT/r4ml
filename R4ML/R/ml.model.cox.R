@@ -103,6 +103,7 @@ setClass("r4ml.coxph",
 #' @seealso \link{summary.r4ml.coxph}
 #' @seealso \link{predict.r4ml.coxph}
 #' @export
+#' @import methods
 #' 
 r4ml.coxph <- function(data,
                          formula,

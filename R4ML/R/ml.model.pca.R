@@ -76,6 +76,7 @@ setClass(
 #'
 #' }
 #'
+#' @import methods
 r4ml.pca <- function(data, k, center, scale, projData, applyPCA) {
   pca <- new(
     "r4ml.pca",

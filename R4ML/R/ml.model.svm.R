@@ -408,6 +408,7 @@ setMethod(f = "show", signature = "r4ml.svm", definition =
 #' }
 #' 
 #' @export
+#' @import stats
 #' @seealso \link{r4ml.svm}
 predict.r4ml.svm <- function(object, data, returnScores=T) {
   logSource <- "predict.r4ml.svm"

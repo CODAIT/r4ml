@@ -229,6 +229,7 @@ setMethod("r4ml.model.postTraining", signature="r4ml.lm", definition =
 #' @param object (r4ml.lm) The linear regression model
 #' @return None
 #' @seealso \link{coef}
+#' @import methods
 setMethod(f = "show", signature = "r4ml.lm", definition =
   function(object) {
     logSource <- "r4ml.lm"

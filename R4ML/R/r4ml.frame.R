@@ -112,6 +112,7 @@ r4ml.calc.num.partitions <- function(object_size) {
 #'    r4ml_df1 <- as.r4ml.frame(iris)
 #'    r4ml_df2 <- as.r4ml.frame(SparkR::createDataFrame(iris))
 #' }
+#' @import utils
 setGeneric("as.r4ml.frame", function(object, repartition = TRUE,
                                        numPartitions = NA, ...) {
   logSource <- "as.r4ml.frame"
@@ -624,6 +625,7 @@ setGeneric("r4ml.binning", function(data, ...) {
 setMethod("r4ml.binning",
   signature(data = "r4ml.frame"),
   function(data, columns, number){
+    logSource <- "r4ml.binning"
     metadata <- new.env(parent=emptyenv())
     for(name in as.list(columns)){
       column <- data[[name]]

@@ -23,23 +23,22 @@ test_that("r4ml.session", {
   if (r4ml.env$R4ML_SESSION_EXISTS) { r4ml.session.stop()}
 
   expect_false(r4ml.env$R4ML_SESSION_EXISTS)
-  
+
   r4ml.session()
-  
+
+  expect_true("r4ml.logger" %in% ls(r4ml.env))
+  expect_true("sc" %in% ls(r4ml.env))
+  expect_true("sysml.RDDUtils" %in% ls(r4ml.env))
+  expect_true("sysmlSparkContext" %in% ls(r4ml.env))
+  expect_true("sysmlSqlContext" %in% ls(r4ml.env))
   expect_true(r4ml.env$R4ML_SESSION_EXISTS)
-  expect_true("r4ml.logger" %in% ls(.GlobalEnv))
-  expect_true("sc" %in% ls(.GlobalEnv))
-  expect_true("sysml.RDDUtils" %in% ls(.GlobalEnv))
-  expect_true("sysmlSparkContext" %in% ls(.GlobalEnv))
-  expect_true("sysmlSqlContext" %in% ls(.GlobalEnv))
-  expect_true(r4ml.env$R4ML_SESSION_EXISTS)
-  
+
   r4ml.session.stop()
 
-  expect_false("logger" %in% ls(.GlobalEnv))
-  expect_false("sc" %in% ls(.GlobalEnv))
-  expect_false("sysml.RDDUtils" %in% ls(.GlobalEnv))
-  expect_false("sysmlSparkContext" %in% ls(.GlobalEnv))
-  expect_false("sysmlSqlContext" %in% ls(.GlobalEnv))
+  expect_false("logger" %in% ls(r4ml.env))
+  expect_false("sc" %in% ls(r4ml.env))
+  expect_false("sysml.RDDUtils" %in% ls(r4ml.env))
+  expect_false("sysmlSparkContext" %in% ls(r4ml.env))
+  expect_false("sysmlSqlContext" %in% ls(r4ml.env))
   expect_false(r4ml.env$R4ML_SESSION_EXISTS)
 })

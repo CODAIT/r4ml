@@ -85,6 +85,7 @@ log4j.Logger <- setRefClass("log4j.Logger",
 #'    ja$add("a")
 #'}
 #'
+#' @import methods
 #'
 java.ArrayList <- setRefClass("java.ArrayList",
   fields = list(env="environment"),

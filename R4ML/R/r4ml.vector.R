@@ -33,6 +33,7 @@ setClassUnion("r4ml.frame.OrNull", c("r4ml.frame", "NULL"))
 #' @rdname r4ml.vector_ops
 #' 
 #' @export
+#' @import utils
 setClass("r4ml.vector", 
          slots = list(r4ml_df = "r4ml.frame.OrNull"),
          contains="Column")
@@ -81,16 +82,16 @@ setMethod("collect", signature = "r4ml.vector", definition = function(x) {
   if (is.null(x@r4ml_df)) {
     character(0)
   } else {
-    collect(select(x@r4ml_df, x))[, 1]
+    SparkR::collect(SparkR::select(x@r4ml_df, x))[, 1]
   }
 })
 
 #' @export
 setMethod("head", signature = "r4ml.vector", definition = function(x, n=6) {
   if (is.null(x@r4ml_df)) {
-    collect(x)
+    SparkR::collect(x)
   } else {
-    head(select(x@r4ml_df, x), n)[, 1]
+    head(SparkR::select(x@r4ml_df, x), n)[, 1]
   }
 })
 
@@ -139,13 +140,13 @@ setMethod("mean",
           signature(x = "Column"),
           function(x) {
             jc <- SparkR::sparkR.callJStatic("org.apache.spark.sql.functions", "mean", x@jc)
-            column(jc)
+            SparkR::column(jc)
           })
 
 # The following code needs to be run in the top level environment. Otherwise dynamically
 # created methods will not be part of the R4ML environment
 
-  fnames <- ls("package:SparkR", all.names=T)
+  fnames <- ls("package:SparkR", all.names = TRUE)
   
   # Generic methods appear with an extra .__T__ at the beginning. The code below is to remove that prefix:
   fnames <- sapply(fnames, function(name) {
@@ -317,6 +318,6 @@ setMethod("str",
   signature(object = "r4ml.vector"),
   function(object) {
     cat("'r4ml.vector'\n")
-    out <- capture.output(str(select(object@r4ml_df, object)))
+    out <- capture.output(str(SparkR::select(object@r4ml_df, object)))
     cat(out[2] %++% "\n")
 })
