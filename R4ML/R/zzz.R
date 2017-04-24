@@ -93,7 +93,9 @@ systemml_ascii <- function() {
 # of detaching it.
 # it basically stops the SparkR cluster and unload any namespace associated with it
 .onUnload <- function(libpath) {
-  SparkR::sparkR.session.stop()
+  if (r4ml.env$R4ML_SESSION_EXISTS) {
+    SparkR::sparkR.session.stop()
+  }
 }
 
 .onDetach <- function(libpath) {
