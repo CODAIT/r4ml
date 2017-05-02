@@ -143,7 +143,7 @@ if (intercept_status == 2)  # scale-&-shift X columns to mean 0, variance 1
 if (min (Y_vec) <= 0) { 
     # Category labels "0", "-1" etc. are converted into the largest label
     max_y = max (Y_vec);
-    Y_vec  = Y_vec  + (- Y_vec  + max_y + 1) * Y_vec <= 0.0;
+    Y_vec  = Y_vec  + (- Y_vec  + max_y + 1) * (Y_vec <= 0.0);
 }
 Y = table (seq (1, N, 1), Y_vec);
 K = ncol (Y) - 1;   # The number of  non-baseline categories
