@@ -23,18 +23,18 @@ R4ML is a scalable, hybrid approach to ML/Stats using R, Apache SystemML, and Ap
   Quick install (run from R console):
     
     # Download Apache Spark 2.1.0 (Note: Java must be installed)
-    download.file("https://archive.apache.org/dist/spark/spark-2.1.0/spark-2.1.0-bin-hadoop2.7.tgz", "~/spark-2.1.0-bin-hadoop2.7.tgz")
-    untar("~/spark-2.1.0-bin-hadoop2.7.tgz")
+    download.file("http://archive.apache.org/dist/spark/spark-2.1.0/spark-2.1.0-bin-hadoop2.7.tgz", "~/spark-2.1.0-bin-hadoop2.7.tgz")
+    system("tar -xvf ~/spark-2.1.0-bin-hadoop2.7.tgz")
     Sys.setenv("SPARK_HOME" = file.path(getwd(), "spark-2.1.0-bin-hadoop2.7"))
   
     # Add the library path for SparkR
     .libPaths(c(.libPaths(), "~/spark-2.1.0-bin-hadoop2.7/R/lib/"))
 
     # Install R4ML dependencies
-    install.packages(c("uuid", "R6"), repos = "https://cloud.r-project.org")
+    install.packages(c("uuid", "R6"), repos = "http://cloud.r-project.org")
 
     # Download and install R4ML
-    download.file("https://sparktc.ibmcloud.com/repo/R4ML/05-12-2017/R4ML_0.8.0.tar.gz", "~/R4ML_0.8.0.tar.gz")
+    download.file("http://169.45.79.58/R4ML_0.8.0.tar.gz", "~/R4ML_0.8.0.tar.gz")
     install.packages("~/R4ML_0.8.0.tar.gz", repos = NULL, type = "source")
 
     # Load dependencies and use R4ML
