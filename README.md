@@ -2,18 +2,17 @@
 
 # __**What is R4ML?**__
 
-<span style="color:red"> R4ML: A scalable, hybrid approach to ML/Stats using R, SystemML and Apache Spark </span>
+R4ML is a scalable, hybrid approach to ML/Stats using R, Apache SystemML, and Apache Spark
 
 ## __**R4ML Key Features**__
 
- - <span style="color:green"> R4ML is git downloadable open source R pacakge from IBM </span>
- - <span style="color:green"> Created on top of Apache SparkR and SystemML (so it supports features from both </span>
- - <span style="color:green"> Act as the R bridge between SparkR and SystemML. </span>
- - <span style="color:green"> Provides a collection of canned algorithms. </span>
- - <span style="color:green"> Ability to create custom ML algorithm. </span>
- - <span style="color:green"> User gets both SparkR and R4ML functionality </span>
- - <span style="color:green"> APIs are more friendlier to the R user. </span>
-
+ - R4ML is a git downloadable open source R pacakge from IBM
+ - Created on top of SparkR and Apache SystemML (so it supports features from both)
+ - Acts as a R bridge between SparkR and Apache SystemML
+ - Provides a collection of canned algorithms
+ - Provides the ability to create custom ML algorithms
+ - Provides both SparkR and Apache SystemML functionality
+ - APIs are friendlier to the R user
 
 ## __**R4ML Architecture**__
 
@@ -21,25 +20,45 @@
 
 ## __**How to install**__
   
-  R4ML installation involves, it's dependencies (R and SparkR) installation.
-  Detail instructin is provided at [R4ML Installation](./docs/r4ml-install.md).
+  Quick install (run from R console):
+    
+    # Download Apache Spark 2.1.0 (Note: Java must be installed)
+    download.file("https://archive.apache.org/dist/spark/spark-2.1.0/spark-2.1.0-bin-hadoop2.7.tgz", "~/spark-2.1.0-bin-hadoop2.7.tgz")
+    untar("~/spark-2.1.0-bin-hadoop2.7.tgz")
+    Sys.setenv("SPARK_HOME" = file.path(getwd(), "spark-2.1.0-bin-hadoop2.7"))
+  
+    # Add the library path for SparkR
+    .libPaths(c(.libPaths(), "~/spark-2.1.0-bin-hadoop2.7/R/lib/"))
+
+    # Install R4ML dependencies
+    install.packages(c("uuid", "R6"), repos = "https://cloud.r-project.org")
+
+    # Download and install R4ML
+    download.file("https://sparktc.ibmcloud.com/repo/R4ML/05-12-2017/R4ML_0.8.0.tar.gz", "~/R4ML_0.8.0.tar.gz")
+    install.packages("~/R4ML_0.8.0.tar.gz", repos = NULL, type = "source")
+
+    # Load dependencies and use R4ML
+    library("SparkR", lib.loc = "~/spark-2.1.0-bin-hadoop2.7/R/lib/")
+    library("R4ML")
+    r4ml.session(sparkHome = file.path(getwd(), "spark-2.1.0-bin-hadoop2.7"))
+  
+  More detailed instructions can be found [here](./docs/r4ml-install.md).
 
 ## __**How to Use R4ML**__
 
-  Once you have installed R4ML, it is time to use it for scalable machine learning and 
+  Once you have installed R4ML it is time to use it for scalable machine learning and 
   data analysis. Look at the section on [R4ML Examples](./docs/r4ml-examples.md).
 
-## __**R4ML apis**__
+## __**R4ML Documentation**__
 
- 
  After you follow the instruction at 'How to install', you can point your browser to 
  ```
- $R4ML_INSTALLED_LOCATION/R4ML/R4ML/html/00Index.html .
+ $R4ML_INSTALLED_LOCATION/R4ML/html/00Index.html
  ```
 
  For example, if you have installed in the /home/data-scientist/sparktc then open a 
  web browser and type in the following in the url
 
  ```
- file:///home/data-scientist/sparktc/R4ML/R4ML/html/00Index.html
+ file:///home/data-scientist/sparktc/R4ML/html/00Index.html
  ```
