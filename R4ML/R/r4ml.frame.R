@@ -259,7 +259,8 @@ setMethod("r4ml.impute",
     constants <- list()
     constant_names <- list()
     
-    for(col in names(df_columns)){
+    num_cols <- df_columns[df_columns == "mean"]
+    for(col in names(num_cols)){
       if(!is.r4ml.numeric(as.r4ml.frame(SparkR::select(data, col)))){
         r4ml.err(logSource, "Column for imputation must be numeric")
       }
@@ -273,17 +274,18 @@ setMethod("r4ml.impute",
       }
       # If there are names in named list, parse list to determine mean vs. constant as well as column names
     } else {
+      env.df_cols <- list2env(df_columns)
       for(i in 1:length(df_columns)){
         # If the name is empty, use the mean
         if(name[i] == "" ){
           column_names <- c(column_names, df_columns[i])
           strings <- c(strings, (paste0("SparkR::mean(data$", name[i], ")")))
           # If the list element is "mean", use mean imputation
-        } else if(df_columns[i] == "mean") {
+        } else if(get(name[i], envir=env.df_cols) == "mean") {
           column_names <- c(column_names, name[i])
           strings <- c(strings, (paste0("SparkR::mean(data$", name[i], ")")))
           # If the list element is a constant, don't make call to mean
-        } else if (as.logical(lapply(df_columns[i], is.numeric))[1]){
+        } else if (exists(name[i], envir=env.df_cols)) {
           constant_names <- c(constant_names, name[i])
           constants <- c(constants, (df_columns[i]))
           # Default to mean imputation otherwise
