@@ -28,31 +28,20 @@ requireNamespace("SparkR")
 #'
 #' @family MLContext functions
 #'
-#' @field nrow number of row of the block matrix
-#' @field ncol number of col of the block matrix
-#' @field bnrow number of row in one block
-#' @field bncol number of col of one block
 #' @field env An R environment that stores bookkeeping states of the class,
 #'        along with java reference corresponding to the JVM.
 #' @export
 #' @examples \dontrun{
-#' sysml.MatrixCharacteristics(1000, 1000, 1000, 1000)
+#' sysml.MatrixCharacteristics()
 #' }
 #'
 
 sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
-  fields = list(nrow="numeric", ncol="numeric", bnrow="numeric",
-                bncol="numeric", env="environment"),
-  methods = list (
-    initialize = function(numrow, numcol, blknumrow, blknumcol) {
-      nrow <<- as.integer(numrow)
-      ncol <<- as.integer(numcol)
-      bnrow <<- as.integer(blknumrow)
-      bncol <<- as.integer(blknumcol)
+  fields = list(env = "environment"),
+  methods = list(
+    initialize = function() {
       env <<- new.env()
-      env$jref <<- SparkR:::newJObject("org.apache.sysml.runtime.matrix.MatrixCharacteristics",
-                                   as.integer(nrow), as.integer(ncol),
-                                   as.integer(bnrow), as.integer(bncol))
+      env$jref <<- SparkR::sparkR.newJObject("org.apache.sysml.runtime.matrix.MatrixCharacteristics")
     },
     finalize = function() {
       SparkR:::cleanup.jobj(env$jref)
@@ -60,7 +49,6 @@ sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
   )
 
 )
-
 
 #'
 #' A Reference Class that represent systemML MLContext
@@ -495,13 +483,7 @@ sysml.execute <- function(dml, ...) {
       i <- i + 1
       if (class(arg_val) == "r4ml.matrix") {
         r4mlMat = arg_val
-        # now v is the numeric dataframe
-        #find the characteristics of the dataframe
-        r4mlMat_nrows <- SparkR:::count(r4mlMat)
-        r4mlMat_ncols <- length(SparkR::colnames(r4mlMat))
-        bm_nrows <- min(r4mlMat_nrows, r4ml.env$SYSML_BLOCK_MATRIX_SIZE$nrows)
-        bm_ncols <- min(r4mlMat_ncols,  r4ml.env$SYSML_BLOCK_MATRIX_SIZE$ncols)
-        mc = sysml.MatrixCharacteristics(r4mlMat_nrows, r4mlMat_ncols, bm_nrows, bm_ncols)
+        mc <- sysml.MatrixCharacteristics()
         r4mlMat_jrdd <- rdd_utils$dataFrameToBinaryBlock(r4mlMat, mc)
         ml_ctx$registerInput(arg_name, r4mlMat_jrdd, mc)
       } else if (is.null(arg_name) || arg_name == "") {

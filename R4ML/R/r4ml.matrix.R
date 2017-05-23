@@ -48,10 +48,10 @@ setClass("r4ml.matrix",
 #' @param cache (logical):  If TRUE, object will be cached.
 #' @return An r4ml.matrix
 #' @examples \dontrun{
-#' r4ml_matrix <- as.r4ml.matrix(datasets::beaver1, cache = TRUE)
+#' r4ml_matrix <- as.r4ml.matrix(datasets::beaver1, cache = FALSE)
 #' }
 #' @export
-setGeneric("as.r4ml.matrix", function(object, cache = TRUE) {
+setGeneric("as.r4ml.matrix", function(object, cache = FALSE) {
   standardGeneric("as.r4ml.matrix")
 })
 

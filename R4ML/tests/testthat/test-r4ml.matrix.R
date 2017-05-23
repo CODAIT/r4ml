@@ -33,7 +33,7 @@ test_that("as.r4ml.matrix caching", {
   r4m_cache_false <- as.r4ml.matrix(datasets::beaver1, cache = FALSE)
   r4m_cache_true <- as.r4ml.matrix(datasets::beaver1, cache = TRUE)
   
-  expect_true(r4m@env$isCached) # by default cache
+  expect_false(r4m@env$isCached) # don't cache by default
   expect_false(r4m_cache_false@env$isCached)
   expect_true(r4m_cache_true@env$isCached)
 })
