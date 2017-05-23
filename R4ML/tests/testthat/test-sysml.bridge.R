@@ -19,12 +19,8 @@ context("Testing sysml_bridge\n")
 
 # test the Bridge to SystemML MatrixCharacteristics
 test_that("sysml.MatrixCharacteristics", {
-  mc = sysml.MatrixCharacteristics$new(1000, 1000, 10, 10)
+  mc <- sysml.MatrixCharacteristics$new()
   expect_equal(class(mc$env$jref), "jobj")
-  expect_equal(mc$nrow, 1000)
-  expect_equal(mc$ncol, 1000)
-  expect_equal(mc$bnrow, 10)
-  expect_equal(mc$bncol, 10)
 })
 
 # test the bridge to the SystemML RDDConverterUtilsExt
@@ -32,7 +28,7 @@ test_that("sysml.RDDConverterUtils", {
   aq_ozone <- airquality$Ozone
   aq_ozone[is.na(aq_ozone)] <- 0
   aq_ozone_df <- as.r4ml.matrix(as.data.frame(aq_ozone))
-  mc <- R4ML:::sysml.MatrixCharacteristics$new(count(aq_ozone_df), 1, 10, 1)
+  mc <- R4ML:::sysml.MatrixCharacteristics$new()
   rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
   sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
 })
@@ -46,8 +42,8 @@ test_that("sysml.MLContext sample data",{
   dv=as.data.frame(v)
   dv_df <- as.r4ml.matrix(as.r4ml.frame(dv, repartition = FALSE))
   
-  mc <- R4ML:::sysml.MatrixCharacteristics$new(count(dv_df), 1, 10,1)
-  rdd_utils<- R4ML:::sysml.RDDConverterUtils$new()
+  mc <- R4ML:::sysml.MatrixCharacteristics$new()
+  rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
   mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
   mlc$reset()
   sysml_jrdd=rdd_utils$dataFrameToBinaryBlock(dv_df, mc)
@@ -93,8 +89,7 @@ test_that("sysml.MLContext Short data", {
   aq_ozone[is.na(aq_ozone)] <- 0
   aq_ozone_df <- as.r4ml.matrix(as.data.frame(aq_ozone))
   
-  x_cnt = SparkR:::count(aq_ozone_df)
-  mc <- R4ML:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
+  mc <- R4ML:::sysml.MatrixCharacteristics$new()
   rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
   sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
   mlc$reset()
@@ -122,8 +117,7 @@ test_that("sysml.MLContext Exception handling test", {
   aq_ozone_df <- as.r4ml.matrix(as.r4ml.frame(as.data.frame(aq_ozone),
                                                   repartition = FALSE))
 
-  x_cnt = SparkR:::count(aq_ozone_df)
-  mc <- R4ML:::sysml.MatrixCharacteristics$new(x_cnt, 1, 10, 1)
+  mc <- R4ML:::sysml.MatrixCharacteristics$new()
   rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
   sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
   mlc$reset()
@@ -152,9 +146,8 @@ test_that("sysml.MLContext Long", {
     airrtd <- as.data.frame(airrt)
     air_dist <- createDataFrame(airrtd)
 
-    X_cnt <- SparkR::count(air_dist)
     #X_rdd <- SparkR:::toRDD(air_dist)
-    X_mc <- R4ML:::sysml.MatrixCharacteristics$new(X_cnt, 1, 10, 1)
+    X_mc <- R4ML:::sysml.MatrixCharacteristics$new()
     rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
     air_dist <- as.r4ml.matrix(air_dist)
     bb_df <- rdd_utils$dataFrameToBinaryBlock(air_dist, X_mc)
