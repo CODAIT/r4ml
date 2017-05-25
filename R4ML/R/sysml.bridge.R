@@ -372,9 +372,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
           SparkR:::newJObject("org.apache.spark.api.java.JavaSparkContext",
                               sparkContext)
 
-      # Functionality has moved to a different class in SystemML 0.13+
-      #env$jclass <<- "org.apache.sysml.runtime.instructions.spark.utils.RDDConverterUtilsExt"
-      env$jclass <<- "org.apache.sysml.runtime.instructions.spark.utils.FrameRDDConverterUtils"
+      env$jclass <<- "org.apache.sysml.runtime.instructions.spark.utils.RDDConverterUtils"
     },
 
     finalize = function() {
@@ -411,7 +409,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
       vdf
     },
 
-    dataFrameToBinaryBlock = function(df, mc, id = FALSE) {
+    dataFrameToBinaryBlock = function(df, mc, id = FALSE, isVector = FALSE) {
       '\\tabular{ll}{
         Description:\\tab \\cr
         \\tab convert the spark dataframe to systemML binary block.\\cr
@@ -420,13 +418,8 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
       stopifnot(class(df) == "r4ml.matrix",
                 class(mc) == "sysml.MatrixCharacteristics")
       fname <- "dataFrameToBinaryBlock"
-      # Conversion happens in two phases: DataFrame --> Frame --> Matrix
-      bin_block_rdd_jref<-SparkR:::callJStatic(env$jclass, fname, env$javaSparkContext, df@sdf, mc$env$jref, id)
-      vdf_jref<-SparkR:::callJStatic(env$jclass, "binaryBlockToMatrixBlock", bin_block_rdd_jref, mc$env$jref, mc$env$jref)
-      vdf_jref
-      # @NOTE causing issues so remove it and hack around
-      # vdf <- SparkR:::RDD(vdf_jref)
-      # vdf
+      vdf_jref <- SparkR::sparkR.callJStatic(env$jclass, fname, env$javaSparkContext, df@sdf, mc$env$jref, id, isVector)
+      return(vdf_jref)
     }
   )
 )
