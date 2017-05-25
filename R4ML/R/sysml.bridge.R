@@ -418,8 +418,8 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
       stopifnot(class(df) == "r4ml.matrix",
                 class(mc) == "sysml.MatrixCharacteristics")
       fname <- "dataFrameToBinaryBlock"
-      bin_block_rdd_jref<-SparkR:::callJStatic(env$jclass, fname, env$javaSparkContext, df@sdf, mc$env$jref, id, isVector)
-      return(bin_block_rdd_jref)
+      vdf_jref <- SparkR::sparkR.callJStatic(env$jclass, fname, env$javaSparkContext, df@sdf, mc$env$jref, id, isVector)
+      return(vdf_jref)
     }
   )
 )
