@@ -18,7 +18,7 @@
 #' 
 # This class represents a ALS model for factorization.
 setClass("r4ml.als",
-         representation(
+         slots = c(
            leftFactor = "SparkDataFrame",
            rightFactor = "SparkDataFrame"
          ), contains = "r4ml.model"

@@ -17,7 +17,7 @@
 #' @include ml.model.base.R
 
 setClass("r4ml.step.lm",
-         representation(selectedFeatureNames = "character"),
+         slots = c(selectedFeatureNames = "character"),
          contains = "r4ml.lm"
          )
 

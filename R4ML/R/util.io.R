@@ -258,7 +258,7 @@ r4ml.read.csv <- function(
   stringsAsFactors_val <- ifelse(stringsAsFactors, "true", "false")
   inferSchema_val <- ifelse(inferSchema, "true", "false")
   
-  # old way of reading using the external pacakge com.databricks.spark.csv
+  # old way of reading using the external package com.databricks.spark.csv
   # df <- SparkR::read.df(sysmlSqlContext,
   #                       file,
   #                       source = "com.databricks.spark.csv",

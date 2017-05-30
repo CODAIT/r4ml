@@ -16,7 +16,7 @@
 # This class represents a Principal Component Analysis model
 setClass(
   "r4ml.pca",
-  representation(
+  slots = c(
     k = "numeric",
     eigen.vectors = "data.frame",
     std.deviations = "data.frame",
