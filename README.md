@@ -6,7 +6,7 @@ R4ML is a scalable, hybrid approach to ML/Stats using R, Apache SystemML, and Ap
 
 ## __**R4ML Key Features**__
 
- - R4ML is a git downloadable open source R pacakge from IBM
+ - R4ML is a git downloadable open source R package from IBM
  - Created on top of SparkR and Apache SystemML (so it supports features from both)
  - Acts as a R bridge between SparkR and Apache SystemML
  - Provides a collection of canned algorithms

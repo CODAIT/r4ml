@@ -182,7 +182,7 @@ r4ml.load.SparkR <- function() {
     #library(SparkR, lib.loc = c(lib_loc))
   }
   
-  # force the sparkR pacakge requirement
+  # force the sparkR package requirement
   requireNamespace("SparkR")
 }
 
