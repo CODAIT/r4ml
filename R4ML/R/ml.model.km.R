@@ -17,7 +17,7 @@
 #' @include ml.model.base.R
 #' @include zzz.R
 setClass("r4ml.kaplan.meier",
-         representation(
+         slots = c(
            conf.int = "numeric",
            summary = "list",
            median = "r4ml.matrix",

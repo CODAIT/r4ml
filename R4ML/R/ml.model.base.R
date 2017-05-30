@@ -36,7 +36,7 @@ NULL
 #' @slot dmlOuts (list):  Arguments returned from the DML script
 #' @export
 setClass("r4ml.model",
-  representation(
+  slots = c(
     modelPath = "character",
     transformPath = "character",
     yColname = "character",
@@ -46,7 +46,7 @@ setClass("r4ml.model",
     yColId = "integer",
     dmlArgs = "list",
     dmlOuts = "list"
-  ), "VIRTUAL"
+  ), contains = "VIRTUAL"
 )
 
 # Abstract method: r4ml.model.validateTrainingParameters

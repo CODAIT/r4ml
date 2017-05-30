@@ -15,7 +15,7 @@
 #
 # This class represents Cox proportional hazard (coxph) regression models.
 setClass("r4ml.coxph",
-         representation(
+         slots = c(
            tolerance = "numeric",
            iter.max.outer = "numeric",
            iter.max.inner = "numeric",

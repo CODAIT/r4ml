@@ -19,7 +19,7 @@ setOldClass("family")
 
 setClass(
   "r4ml.glm",
-  representation(
+  slots = c(
     coefficients = "data.frame",
     family="family",
     neg.binomial.class = "numeric",

@@ -37,7 +37,7 @@ is.r4ml.matrix <- function(object) {
 #' @export
 #' @seealso \link{r4ml.frame}, \link{ml.coltypes}
 setClass("r4ml.matrix",
-         representation(type = "character", ml.coltypes = "numeric"),
+         slots = c(type = "character", ml.coltypes = "numeric"),
          contains = "r4ml.frame",
          validity = is.r4ml.matrix
 )

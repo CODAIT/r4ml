@@ -15,7 +15,7 @@
 #
 
 setClass("r4ml.lm",
-         representation(coefficients = "data.frame",
+         slots = c(coefficients = "data.frame",
                         intercept = "logical",
                         shiftAndRescale = "logical",
                         transformPath = "character",
