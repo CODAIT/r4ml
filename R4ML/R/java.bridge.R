@@ -38,10 +38,10 @@ log4j.Logger <- setRefClass("log4j.Logger",
     initialize = function(name = "org") {
       env <<- new.env()
       createLogger <- function(level) {
-        level_jref <- SparkR:::callJStatic("org.apache.log4j.Level", "toLevel", level)
+        level_jref <- SparkR::sparkR.callJStatic("org.apache.log4j.Level", "toLevel", level)
         level_jref
       }
-      env$jref <<-SparkR:::callJStatic("org.apache.log4j.Logger", "getLogger", name)
+      env$jref <<- SparkR::sparkR.callJStatic("org.apache.log4j.Logger", "getLogger", name)
       levels <- c("ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF")
       level_jobjs <- sapply(levels, createLogger)
       sapply(levels, function(level) {assign(level, level_jobjs[[level]], env)})
@@ -56,7 +56,7 @@ log4j.Logger <- setRefClass("log4j.Logger",
          \\tab ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, TRACE_INT, WARN \\cr
        }'
       level_jref = get(level, .self$env)
-      SparkR:::callJMethod(env$jref, "setLevel", level_jref)
+      SparkR::sparkR.callJMethod(env$jref, "setLevel", level_jref)
       .self$getLevel()
     },
 
@@ -64,8 +64,8 @@ log4j.Logger <- setRefClass("log4j.Logger",
       '\\tabular{ll}{
          Description:\\tab gets the log level\\cr
        }'
-      level_jref <- SparkR:::callJMethod(env$jref, "getLevel")
-      return(SparkR:::callJMethod(level_jref, "toString"))
+      level_jref <- SparkR::sparkR.callJMethod(env$jref, "getLevel")
+      return(SparkR::sparkR.callJMethod(level_jref, "toString"))
     }
   )
 )
@@ -103,7 +103,7 @@ java.ArrayList <- setRefClass("java.ArrayList",
       Description:\\tab \\cr
       \\tab Add the value in the ArrayList \\cr
       }'
-      SparkR:::callJMethod(env$jref, "add", value)
+      SparkR::sparkR.callJMethod(env$jref, "add", value)
     },
 
     get = function(index) {
@@ -111,7 +111,7 @@ java.ArrayList <- setRefClass("java.ArrayList",
       Description:\\tab \\cr
       \\tab get the value at the index from ArrayList \\cr
       }'
-      SparkR:::callJMethod(env$jref, "get", as.integer(index))
+      SparkR::sparkR.callJMethod(env$jref, "get", as.integer(index))
     },
 
     size = function() {
@@ -119,7 +119,7 @@ java.ArrayList <- setRefClass("java.ArrayList",
       Description:\\tab \\cr
       \\tab get the size of the array list \\cr
       }'
-      SparkR:::callJMethod(env$jref, "size")
+      SparkR::sparkR.callJMethod(env$jref, "size")
     }
   )
 )
