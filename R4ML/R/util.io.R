@@ -170,8 +170,8 @@ create.r4ml.fs <- function() {
 r4ml.fs.mode <- function() {
   logSource <- "r4ml.fs.mode"
 
-  hadoop_conf <- sparkR.callJMethod(sysmlSparkContext, "hadoopConfiguration")
-  default_fs <- sparkR.callJMethod(hadoop_conf, "get", "fs.defaultFS")
+  hadoop_conf <- SparkR::sparkR.callJMethod(sysmlSparkContext, "hadoopConfiguration")
+  default_fs <- SparkR::sparkR.callJMethod(hadoop_conf, "get", "fs.defaultFS")
 
   if (substr(default_fs, 0, 4) == "file") {
     return("local")

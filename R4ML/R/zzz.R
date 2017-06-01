@@ -219,7 +219,7 @@ sysml.init <- function() {
   sc <- get("sc", envir = .GlobalEnv)
   
   # we get the sparkContext as in the systemML most of the code uses the sparkContext
-  sysmlSparkContext <- sparkR.callJMethod(sc, "sparkContext")
+  sysmlSparkContext <- SparkR::sparkR.callJMethod(sc, "sparkContext")
   assign("sysmlSparkContext", sysmlSparkContext, .GlobalEnv)
 
   # we will use now the Java Spark Context
@@ -229,7 +229,7 @@ sysml.init <- function() {
   
   # since sysmlSqlContext is used for most of the systemML related
   # code we need to have it.
-  sysmlSqlContext <- sparkR.callJMethod(sc, "sqlContext")
+  sysmlSqlContext <- SparkR::sparkR.callJMethod(sc, "sqlContext")
   assign("sysmlSqlContext", sysmlSqlContext, .GlobalEnv)
   
   # java logger and level settings
