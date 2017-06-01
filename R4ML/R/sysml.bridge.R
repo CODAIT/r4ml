@@ -87,7 +87,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
          Description:\\tab \\cr
            \\tab reset the MLContext \\cr
        }'
-      SparkR:::callJMethod(env$jref, "reset")
+      sparkR.callJMethod(env$jref, "reset")
     },
 
     registerInput = function(dmlname, rdd_or_df, mc) {
@@ -119,7 +119,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
         r4ml.err(logSource, "unsupported argument rdd_or_df only rdd or dataframe is supported")
       }
 
-      SparkR:::callJMethod(env$jref, "registerInput", dmlname, jrdd, mc$env$jref)
+      sparkR.callJMethod(env$jref, "registerInput", dmlname, jrdd, mc$env$jref)
     },
 
     registerOutput = function(dmlname) {
@@ -133,7 +133,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
          }
       '
       stopifnot(class(dmlname) == "character")
-      SparkR:::callJMethod(env$jref, "registerOutput", dmlname)
+      sparkR.callJMethod(env$jref, "registerOutput", dmlname)
     },
 
     executeScriptNoArgs = function(dml_script) {
@@ -150,7 +150,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       }
       '
       stopifnot(class(dml_script) == "character")
-      out_jref <- SparkR:::callJMethod(env$jref, "executeScript", dml_script)
+      out_jref <- sparkR.callJMethod(env$jref, "executeScript", dml_script)
       #@TODO. get sysmlSqlContext from the ctor
       outputs <- sysml.MLOutput$new(out_jref, sysmlSqlContext)
     },
@@ -197,28 +197,28 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       
       if (is.file) {
         if (is_namedargs) {
-          out_jref <- SparkR:::callJMethod(
+          out_jref <- sparkR.callJMethod(
                         env$jref, "execute",
                         dml_script,
                         jarg_keys$env$jref,
                         jarg_vals$env$jref
                       )
         } else {
-          out_jref <- SparkR:::callJMethod(
+          out_jref <- sparkR.callJMethod(
                         env$jref, "execute",
                         dml_script
                       )
         }
       } else {
         if (is_namedargs) {
-          out_jref <- SparkR:::callJMethod(
+          out_jref <- sparkR.callJMethod(
                         env$jref, "executeScript",
                         dml_script,
                         jarg_keys$env$jref,
                         jarg_vals$env$jref
                        )
         } else {
-          out_jref <- SparkR:::callJMethod(
+          out_jref <- sparkR.callJMethod(
                         env$jref, "executeScript",
                         dml_script
                       )
@@ -308,7 +308,7 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
       \\tab drop.id (default = TRUE) whether to drop internal columns ID\\cr
       }'
       stopifnot(class(colname) == "character")
-      df_jref <- SparkR:::callJMethod(env$jref, "getDF", env$sysmlSqlContext, colname)
+      df_jref <- sparkR.callJMethod(env$jref, "getDF", env$sysmlSqlContext, colname)
 
       df_unsorted <- new("SparkDataFrame", sdf=df_jref, isCached=FALSE)
       # since sysML create the extra internal __INDEX column, which is used to 
@@ -389,7 +389,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
       }'
       stopifnot(class(df) == "SparkDataFrame")
       fname <- "stringDataFrameToVectorDataFrame"
-      vdf_jref<-SparkR:::callJStatic(env$jclass, fname, env$sparkContext, df@sdf)
+      vdf_jref<-sparkR.callJStatic(env$jclass, fname, env$sparkContext, df@sdf)
       vdf <- new ("SparkDataFrame", vdf_jref, FALSE)
       vdf
     },
@@ -404,7 +404,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
                 class(colname) == "character")
 
       fname <- "vectorDataFrameToBinaryBlock"
-      vdf_jref<-SparkR:::callJStatic(env$jclass, fname, env$sparkContext, df@sdf, mc$env$jref, id, colname)
+      vdf_jref<-sparkR.callJStatic(env$jclass, fname, env$sparkContext, df@sdf, mc$env$jref, id, colname)
       vdf <- SparkR:::RDD(vdf_jref)
       vdf
     },
@@ -418,7 +418,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
       stopifnot(class(df) == "r4ml.matrix",
                 class(mc) == "sysml.MatrixCharacteristics")
       fname <- "dataFrameToBinaryBlock"
-      vdf_jref <- SparkR::sparkR.callJStatic(env$jclass, fname, env$javaSparkContext, df@sdf, mc$env$jref, id, isVector)
+      vdf_jref <- sparkR.callJStatic(env$jclass, fname, env$javaSparkContext, df@sdf, mc$env$jref, id, isVector)
       return(vdf_jref)
     }
   )

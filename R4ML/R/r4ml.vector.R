@@ -53,7 +53,7 @@ setMethod("show", signature = "r4ml.vector", definition = function(object) {
   head.df <- head(object, r4ml.env$DEFAULT_SHOW_ROWS)
   
   if (length(head.df) == 0) {
-    colname <- SparkR:::callJMethod(object@jc, "toString")
+    colname <- sparkR.callJMethod(object@jc, "toString")
     cat(paste0(colname, "\n"))
     cat(paste0("<Empty column>\n"))
   } else {
@@ -138,7 +138,7 @@ setGeneric("mean")
 setMethod("mean",
           signature(x = "Column"),
           function(x) {
-            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "mean", x@jc)
+            jc <- sparkR.callJStatic("org.apache.spark.sql.functions", "mean", x@jc)
             column(jc)
           })
 
@@ -305,8 +305,8 @@ setMethod("ifelse", signature(test = "r4ml.vector", yes = "ANY", no = "ANY"),
     test <- test@jc
     yes <- if (inherits(yes, "Column")) { yes@jc } else { yes }
     no <- if (inherits(no, "Column")) { no@jc } else { no }
-    jc <- SparkR:::callJMethod(
-            SparkR:::callJStatic("org.apache.spark.sql.functions", "when", test, yes),
+    jc <- sparkR.callJMethod(
+            sparkR.callJStatic("org.apache.spark.sql.functions", "when", test, yes),
             "otherwise", no
           )
     result <- new("r4ml.vector", jc, r4ml_df)
