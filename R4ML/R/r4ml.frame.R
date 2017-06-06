@@ -382,8 +382,9 @@ setMethod("r4ml.recode",
       uicol_df <- SparkR::distinct(icol_df)
       uicol_nr <- SparkR::nrow(uicol_df)
       if (uicol_nr > nurow_max) {
-        r4ml.err(logSource, "Number of unique element in the col "
-                   %++% icol %++% "exceed maximum" %++% nurow_max)
+        r4ml.err(logSource, "Number of unique elements in column "
+                   %++% "\"" %++% icol %++% "\"" %++% " exceeds maximum of "
+                   %++% format(nurow_max, scientific=FALSE, big.mark=","))      
       }
       uicol_rdf_tmp <- SparkR::as.data.frame(uicol_df)
       # since empty string can't be the key to the env
