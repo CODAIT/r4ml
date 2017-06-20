@@ -67,6 +67,219 @@ sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
 #'    #sysmlSparkContext # the default spark context
 #'    mlCtx = R4ML:::sysml.MLContext$new(sysmlSparkContext)
 #' }
+sysml.MLContext.new <- setRefClass("sysml.MLContext",
+                               fields = list(env="environment"),
+                               methods = list(
+                                 initialize = function(sparkContext = sysmlSparkContext) {
+                                   env <<- new.env()
+                                   if (missing(sparkContext)) {
+                                     sparkContext = get("sysmlSparkContext", .GlobalEnv)
+                                   }
+                                   env$jref <<- SparkR:::newJObject("org.apache.sysml.api.mlcontext.MLContext", sparkContext)
+                                 },
+                                 
+                                 finalize = function() {
+                                   SparkR:::cleanup.jobj(env$jref)
+                                 },
+                                 
+                                 reset = function() {
+                                   '\\tabular{ll}{
+                                   Description:\\tab \\cr
+                                   \\tab reset the MLContext \\cr
+                                 }'
+      SparkR:::callJMethod(env$jref, "reset")
+                                   },
+      
+      registerInput = function(dmlname, rdd_or_df, mc) {
+        logSource <- "registerInput"
+        '\\tabular{ll}{
+        Description:\\tab \\cr
+        \\tab bind the rdd or dataframe to the dml variable
+      }
+        \\tabular{lll}{
+        Arguments:\\tab \\tab \\cr
+        \\tab dmlname \\tab variable name in the dml script \\cr
+        \\tab rdd_or_df \\tab SparkR:::RDD rdd class which need to be attached\\cr
+        \\tab mc \\tab \\link{sysml.MatrixCharacteristics} info about block matrix
+        }
+        '
+        #check the args
+        stopifnot(class(dmlname) == "character",
+                  class(mc) == "sysml.MatrixCharacteristics")
+        # check rdd_or_df arg
+        cls <- as.vector(class(rdd_or_df))
+        jrdd <- NULL
+        if (cls == 'SparkDataFrame') {
+          jrdd <- SparkR:::toRDD(rdd_or_df)
+        } else if  (cls == 'RDD' || cls == 'PipelinedRDD') {
+          jrdd <- SparkR:::getJRDD(rdd_or_df)
+        } else if (cls == 'jobj') {
+          jrdd = rdd_or_df
+        } else {
+          r4ml.err(logSource, "unsupported argument rdd_or_df only rdd or dataframe is supported")
+        }
+        
+        SparkR:::callJMethod(env$jref, "registerInput", dmlname, jrdd, mc$env$jref)
+        },
+      
+      registerOutput = function(dmlname) {
+        '\\tabular{ll}{
+        Description:\\tab \\cr
+        \\tab bind the output dml var
+      }
+        \\tabular{lll}{
+        Arguments:\\tab \\tab \\cr
+        \\tab dmlname \\tab variable name in the dml script \\cr
+        }
+        '
+        stopifnot(class(dmlname) == "character")
+        SparkR:::callJMethod(env$jref, "registerOutput", dmlname)
+        },
+      
+      executeScriptNoArgs = function(dml_script) {
+        '\\tabular{ll}{
+        Description:\\tab \\cr
+        \\tab This is deprecated. execute the string containing the dml code
+      }
+        \\tabular{lll}{
+        Arguments:\\tab \\tab \\cr
+        \\tab dml_script \\tab string containing the dml script whose variables has been bound using registerInput and registerOut \\cr
+        \\tab rdd_or_df \\tab SparkR:::RDD rdd class which need to be attached\\cr
+        \\tab mc \\tab \\link{sysml.MatrixCharacteristics} info about block matrix
+        
+        }
+        '
+        stopifnot(class(dml_script) == "character")
+        out_jref <- SparkR:::callJMethod(env$jref, "executeScript", dml_script)
+        #@TODO. get sysmlSqlContext from the ctor
+        outputs <- sysml.MLOutput$new(out_jref, sysmlSqlContext)
+        },
+      
+      executeScriptBase = function(dml_script, arg_keys, arg_vals, is.file) {
+        '\\tabular{ll}{
+        Description:\\tab \\cr
+        \\tab execute the string containing the dml code
+      }
+        \\tabular{lll}{
+        Arguments:\\tab \\tab \\cr
+        \\tab dml_script \\tab string containing the dml script whose variables has been bound using registerInput and registerOut \\cr
+        }
+        '
+        stopifnot(class(dml_script) == "character")
+        
+        is_namedargs = FALSE
+        if (!missing(arg_keys) && !missing(arg_vals)) {
+          stopifnot(length(arg_keys) == length(arg_vals))
+          if (length(arg_keys) > 0) {
+            is_namedargs = TRUE
+          }
+        }
+        # create keys
+        jarg_keys <- java.ArrayList$new()
+        if (!missing(arg_keys)) {
+          sapply(arg_keys, function (e) {
+            jarg_keys$add(e)
+          })
+        }
+        
+        #create vals
+        jarg_vals <- java.ArrayList$new()
+        if (!missing(arg_vals)) {
+          sapply(arg_vals, function (e) {
+            jarg_vals$add(e)
+          })
+        }
+        #DEBUG browser()
+        out_jref <- NULL
+        
+        previous_log_level <- jlogger$getLevel()
+        invisible(jlogger$setLevel(r4ml.env$SYSML_LOG_LEVEL))
+        
+        if (is.file) {
+          if (is_namedargs) {
+            out_jref <- SparkR:::callJMethod(
+              env$jref, "execute",
+              dml_script,
+              jarg_keys$env$jref,
+              jarg_vals$env$jref
+            )
+          } else {
+            out_jref <- SparkR:::callJMethod(
+              env$jref, "execute",
+              dml_script
+            )
+          }
+        } else {
+          if (is_namedargs) {
+            out_jref <- SparkR:::callJMethod(
+              env$jref, "executeScript",
+              dml_script,
+              jarg_keys$env$jref,
+              jarg_vals$env$jref
+            )
+          } else {
+            out_jref <- SparkR:::callJMethod(
+              env$jref, "executeScript",
+              dml_script
+            )
+          }
+        }
+        
+        invisible(jlogger$setLevel(previous_log_level))
+        
+        #@TODO. get sysmlSqlContext from the ctor
+        outputs <- sysml.MLOutput$new(out_jref, sysmlSqlContext)
+        },
+      
+      executeScript = function(dml_script, arg_keys, arg_vals) {
+        '\\tabular{ll}{
+        Description:\\tab \\cr
+        \\tab execute the string containing the dml code
+      }
+        \\tabular{lll}{
+        Arguments:\\tab \\tab \\cr
+        \\tab dml_script \\tab string containing the dml script whose variables has been bound using registerInput and registerOut \\cr
+        \\tab arg_keys \\tab arguement name of the dml script\\cr
+        \\tab arg_vals \\tab corresponding arguement value of the dml scripts.
+        }
+        '
+        .self$executeScriptBase(dml_script, arg_keys, arg_vals, is.file=FALSE)
+        },
+      
+      execute = function(dml_script, arg_keys, arg_vals) {
+        '\\tabular{ll}{
+        Description:\\tab \\cr
+        \\tab execute the string containing the dml code
+      }
+        \\tabular{lll}{
+        Arguments:\\tab \\tab \\cr
+        \\tab dml_script \\tab string containing the dml script whose variables has been bound using registerInput and registerOut \\cr
+        \\tab arg_keys \\tab arguement name of the dml script\\cr
+        \\tab arg_vals \\tab corresponding arguement value of the dml scripts.
+        }
+        '
+        .self$executeScriptBase(dml_script, arg_keys, arg_vals, is.file=TRUE)
+        }
+                               )
+)
+
+#'
+#' A Reference Class that represent systemML MLContext
+#'
+#' MLContext is the gateway to the systemML world and this class provides
+#' ability of the R code to connect and use the various systemML
+#' high performant distributed linear algebra library and allow use
+#' to run the dml script in the R code.
+#'
+#' @family MLContext functions
+#'
+#' @field env An R environment that stores bookkeeping states of the class,
+#'        along with java reference corresponding to the JVM.
+#' @export
+#' @examples \dontrun{
+#'    #sysmlSparkContext # the default spark context
+#'    mlCtx = R4ML:::sysml.MLContext$new(sysmlSparkContext)
+#' }
 sysml.MLContext <- setRefClass("sysml.MLContext",
   fields = list(env="environment"),
   methods = list(
