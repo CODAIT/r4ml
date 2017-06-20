@@ -167,7 +167,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.kaplan.meier",
 
       dmlPath <- file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_KM_SCRIPT)
       # @TODO - Find a way to get the timestamps index to the DML script automatically
-      dmlArgs <- list(X = data, dml = dmlPath, "M", "KM", fmt = 'CSV') 
+      dmlArgs <- list(X = data, dml = dmlPath, "M", "KM", "$fmt" = 'CSV') 
       groupIds <- list()
       
       # time_status and groupid paths
@@ -218,7 +218,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.kaplan.meier",
         }
       }
       
-      dmlArgs <- c(dmlArgs, ttype = test.type)
+      dmlArgs <- c(dmlArgs, "$ttype" = test.type)
       
       if (!missing(test.type) & test.type != "none") {
         dmlArgs <- c(dmlArgs, "TEST", "TEST_GROUPS_OE")
@@ -229,13 +229,13 @@ setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.kaplan.meier",
       } else {
         model@conf.int <- 0.95 # default value
       }
-      dmlArgs <- c(dmlArgs, alpha = (1 - model@conf.int))
+      dmlArgs <- c(dmlArgs, "$alpha" = (1 - model@conf.int))
       
       if (!missing(error.type)) {
-        dmlArgs <- c(dmlArgs, etype=error.type)
+        dmlArgs <- c(dmlArgs, "$etype"=error.type)
       }
       if (!missing(conf.type)) {
-        dmlArgs <- c(dmlArgs, ctype=conf.type)
+        dmlArgs <- c(dmlArgs, "$ctype"=conf.type)
       }
       model@dmlArgs <- dmlArgs
       return(model)
@@ -445,7 +445,7 @@ summary.r4ml.kaplan.meier <- function(object) {
 r4ml.kaplan.meier.test <- function(object) {
   logSource <- "r4ml.kaplan.meier.test"
 
-  if (length(object@dmlArgs$ttype) == 0 || object@dmlArgs$ttype == "none") {
+  if (length(object@dmlArgs$`$ttype`) == 0 || object@dmlArgs$`$ttype` == "none") {
     r4ml.err(logSource, "KM object does not incude a test")
   }
   

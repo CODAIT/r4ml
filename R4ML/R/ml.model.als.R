@@ -125,26 +125,26 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.als", definition =
       
 
       dmlPath <- file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_ALS_DS_SCRIPT)
-      dmlArgs <- list(dml = dmlPath, V=data, "L", "Rt", check=TRUE, fmt='CSV')
+      dmlArgs <- list(dml = dmlPath, V=data, "L", "Rt", "$check"=TRUE, "$fmt"='CSV')
       
       # if (conjugate_gradient) {
       #   dmlArgs <- list(dml = dmlPath, V=data, "L", "Rt", ibL=leftFactorPath, R=rightFactorPath, M=VcopyPath, check=TRUE, fmt='CSV')
       # }
       
       if (!missing(lambda)) {
-        dmlArgs <- c(dmlArgs, lambda=lambda)
+        dmlArgs <- c(dmlArgs, "$lambda"=lambda)
       }
       if (!missing(reg.type)) {
-        dmlArgs <- c(dmlArgs, reg=reg.type)
+        dmlArgs <- c(dmlArgs, "$reg"=reg.type)
       }
       if (!missing(rank)) {
-        dmlArgs <- c(dmlArgs, rank=rank)
+        dmlArgs <- c(dmlArgs, "$rank"=rank)
       }
       if (!missing(iter.max)) {
-        dmlArgs <- c(dmlArgs, maxi=iter.max)
+        dmlArgs <- c(dmlArgs, "$maxi"=iter.max)
       }
       if (!missing(tolerance)) {
-        dmlArgs <- c(dmlArgs, thr=tolerance)
+        dmlArgs <- c(dmlArgs, "$thr"=tolerance)
       }
       model@dmlArgs <- dmlArgs
       return(model)
@@ -246,13 +246,13 @@ predict.r4ml.als <- function(object, data, type, k){
               "V_prime");
   
   if (type == r4ml.env$ALS_PAIR){
-    args <- c(args, Vrows=n);
-    args <- c(args, Vcols=m);
-    args <- c(args, fmt = "TEXT");
-  }else{
-    args <- c(args, V=V@dataPath);
+    args <- c(args, "$Vrows"=n);
+    args <- c(args, "$Vcols"=m);
+    args <- c(args, "$fmt" = "TEXT");
+  } else {
+    args <- c(args, V=V@dataPath); # ALOK @FINDOUT what use case ?
     args <- c(args, K=k);
-    args <- c(args, fmt = "CSV");
+    args <- c(args, "$fmt" = "CSV");
   }
   
   # execute factorization based predict dml script

@@ -232,34 +232,34 @@ setMethod(
                         X=X,
                         Y=Y,
                         "beta_out",
-                        O=statsPath,
-                        dfam=distFamily,
-                        vpow=powerOfVariance,
-                        link=linkFunction,
-                        lpow=powerOfLink,
-                        icpt=icpt,
-                        fmt="csv")
+                        "$O"=statsPath,
+                        "$dfam"=distFamily,
+                        "$vpow"=powerOfVariance,
+                        "$link"=linkFunction,
+                        "$lpow"=powerOfLink,
+                        "$icpt"=icpt,
+                        "$fmt"="csv")
         if (!missing(neg.binomial.class)) {
-          dmlArgs <- c(dmlArgs, yneg=neg.binomial.class)
+          dmlArgs <- c(dmlArgs, "$yneg"=neg.binomial.class)
         }
         if (!missing(lambda)) {
-          dmlArgs <- c(dmlArgs, reg=lambda)
+          dmlArgs <- c(dmlArgs, "$reg"=lambda)
           model@lambda <- lambda
         }
         if (!missing(dispersion)) {
-          dmlArgs <- c(dmlArgs, disp=dispersion)
+          dmlArgs <- c(dmlArgs, "$disp"=dispersion)
           model@dispersion <- dispersion
         } else {
           model@dispersion <- 0
         }
         if (!missing(tolerance)) {
-          dmlArgs <- c(dmlArgs, tol=tolerance)
+          dmlArgs <- c(dmlArgs, "$tol"=tolerance)
         }
         if (!missing(outer.iter.max)) {
-          dmlArgs <- c(dmlArgs, moi=outer.iter.max)
+          dmlArgs <- c(dmlArgs, "$moi"=outer.iter.max)
         }
         if (!missing(inner.iter.max)) {
-          dmlArgs <- c(dmlArgs, mii=inner.iter.max)
+          dmlArgs <- c(dmlArgs, "$mii"=inner.iter.max)
         }
         
         model@dmlArgs <- dmlArgs
@@ -276,7 +276,7 @@ setMethod(
   definition =
     function(model) {
       outputs <- model@dmlOuts$sysml.execute
-      statsPath <- model@dmlArgs$O
+      statsPath <- model@dmlArgs$`$O`
       statsCsv <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
       if (model@dispersion == 0) {
         model@dispersion <- as.numeric(statsCsv[8, 2])
@@ -547,12 +547,12 @@ predict.r4ml.glm <- function(object, data, family, dispersion) {
   args <- list(dml=file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_GLM_TEST_SCRIPT),
                B_full = as.r4ml.matrix(as.r4ml.frame(object@dmlOuts[['beta_out']], repartition = FALSE)),
                "means", # this is output $M
-               O=statsPath,
-               dfam=distFamily,
-               vpow=powerOfVariance,
-               link=linkFunction,
-               lpow=powerOfLink,
-               fmt="csv"
+               "$O"=statsPath,
+               "$dfam"=distFamily,
+               "$vpow"=powerOfVariance,
+               "$link"=linkFunction,
+               "$lpow"=powerOfLink,
+               "$fmt"="csv"
   )
   dmlOuts <- NULL
   
@@ -616,9 +616,9 @@ predict.r4ml.glm <- function(object, data, family, dispersion) {
               Y=testset_y)
     
     if (!is.na(dispersion)) {
-      args <- c(args, disp=dispersion)
+      args <- c(args, "$disp"=dispersion)
     }
-    args <- c(args, scoring_only="no")
+    args <- c(args, "$scoring_only"="no")
     dmlOuts <- do.call("sysml.execute", args)  
   } else { #only scoring (no Y is passed)
     args <- c(args, 
@@ -626,7 +626,7 @@ predict.r4ml.glm <- function(object, data, family, dispersion) {
     if (!is.na(dispersion)) {
       args <- c(args, disp=dispersion)
     }
-    args <- c(args, scoring_only="yes")
+    args <- c(args, "$scoring_only"="yes")
     dmlOuts <- do.call("sysml.execute", args)
   }
   

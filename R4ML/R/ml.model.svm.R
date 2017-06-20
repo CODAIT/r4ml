@@ -276,12 +276,12 @@ r4ml.svm <- function (
   model = "w" # from the *svm.dml script
   args <- list(X = trainset_x, 
                Y = trainset_y, 
-               icpt = if(intercept) 1 else 0,
+               "$icpt" = if(intercept) 1 else 0,
                model, # output
                "extra_model_params",
                "weights",
-               Log = debugOutputPath,
-               fmt = r4ml.env$CSV)
+               "$Log" = debugOutputPath,
+               "$fmt" = r4ml.env$CSV)
   
   dmlFile <- NULL
   dmlFilePath <- function(dmlFile) {
@@ -297,13 +297,13 @@ r4ml.svm <- function (
   }
  
   if (!missing(lambda)) {
-    args <- c(args, reg=lambda)
+    args <- c(args, "$reg"=lambda)
   }
   if (!missing(tolerance)) {
-    args <- c(args, tol=tolerance)
+    args <- c(args, "$tol"=tolerance)
   }
   if (!missing(iter.max)) {
-    args <- c(args, maxiter=iter.max)
+    args <- c(args, "$maxiter"=iter.max)
   }
   
   dmlOutputs <- do.call("sysml.execute", args)
@@ -474,13 +474,13 @@ predict.r4ml.svm <- function(object, data, returnScores=T) {
     args <- list(X = testset_x, y = testset_y)
     
     # we want to have more stats
-    args <- c(args, "scoring_only" = "no")
+    args <- c(args, "$scoring_only" = "no")
     
     accuracyPath <- file.path(directory, "accuracy.csv")
     confusionPath <- file.path(directory, "confusion.csv")
     
-    args <- c(args, "accuracy" = accuracyPath) #output
-    args <- c(args, "confusion" = confusionPath) #output , we have to pass this due to dml logic
+    args <- c(args, "$accuracy" = accuracyPath) #output
+    args <- c(args, "$confusion" = confusionPath) #output , we have to pass this due to dml logic
     args <- c(args, "confusion_mat") #output
     
     args <- augmentArgs(args)
@@ -496,7 +496,7 @@ predict.r4ml.svm <- function(object, data, returnScores=T) {
     scoreset_x <- data
     #scoreset_x <- testset_x
     args = list(X = scoreset_x)
-    args <- c(args, "scoring_only" = "yes")
+    args <- c(args, "$scoring_only" = "yes")
     args <- augmentArgs(args)
     
   }
