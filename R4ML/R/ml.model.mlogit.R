@@ -158,17 +158,17 @@ setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.mlogit", definition 
         X = args$X,
         # Update to be scalable with transform
         y = args$Y,
-        icpt = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
+        "$icpt" = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
         "B_out", # Output from DML script
-        fmt = "csv")
+        "$fmt" = "csv")
       if (!missing(lambda)) {
-        dmlArgs <- c(dmlArgs, reg = args$lambda)
+        dmlArgs <- c(dmlArgs, "$reg" = args$lambda)
       }
       if (!missing(outer.iter.max)) {
-        dmlArgs <- c(dmlArgs, moi = args$outer.iter.max)
+        dmlArgs <- c(dmlArgs, "$moi" = args$outer.iter.max)
       }
       if (!missing(inner.iter.max)) {
-        dmlArgs <- c(dmlArgs, mii = args$inner.iter.max)
+        dmlArgs <- c(dmlArgs, "$mii" = args$inner.iter.max)
       }
       model@dmlArgs <- dmlArgs
       return (model)
@@ -282,14 +282,13 @@ predict.r4ml.mlogit <- function(object, data) {
 
   # Establish location to store statistics
   statsPath <- file.path(r4ml.env$WORKSPACE_ROOT("r4ml.mlogit"), "stats_predict.csv")
-
   # Generate arguments to pass to SystemML script
   args <- list(dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_GLM_TEST_SCRIPT),
                B_full = as.r4ml.matrix(coef(object)),
                "means", # this is output $M
-               O = statsPath,
-               dfam = 3, # dfam = 3 gives us Multinomial in GLM_Predict script.
-               fmt = "csv"
+               "$O" = statsPath,
+               "$dfam" = 3, # dfam = 3 gives us Multinomial in GLM_Predict script.
+               "$fmt" = "csv"
   )
 
   # Check the input test data for a labels/outputs column. If it already exists, score the model predictions against this column.
@@ -304,12 +303,12 @@ predict.r4ml.mlogit <- function(object, data) {
     args <- c(args, 
               X = testset_x,
               Y = testset_y)
-    args <- c(args, scoring_only = "no")
+    args <- c(args, "$scoring_only" = "no")
 
     dmlOuts <- do.call("sysml.execute", args)  
   } else { #only scoring (no Y is passed)
     args <- c(args, X = data)
-    args <- c(args, scoring_only = "yes")
+    args <- c(args, "$scoring_only" = "yes")
     dmlOuts <- do.call("sysml.execute", args)
   }
   

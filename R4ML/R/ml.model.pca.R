@@ -90,7 +90,7 @@ r4ml.pca <- function(data, k, center, scale, projData, applyPCA) {
   
   # If projData is true, return a list containing the model and the projected data
   # Else return only the model
-  if (pca@dmlArgs$PROJDATA) {
+  if (pca@dmlArgs$`$PROJDATA`) {
     return (list(
       model = pca,
       "projData" = pca@dmlOuts$sysml.execute$newA
@@ -165,13 +165,13 @@ setMethod(
         )
         
         if (!missing(k)) {
-          dmlArgs <- c(dmlArgs, K = k)
+          dmlArgs <- c(dmlArgs, "$K" = k)
         }
         if (!missing(center)) {
-          dmlArgs <- c(dmlArgs, CENTER = ifelse(center, 1, 0))
+          dmlArgs <- c(dmlArgs, "$CENTER" = ifelse(center, 1, 0))
         }
         if (!missing(scale)) {
-          dmlArgs <- c(dmlArgs, SCALE = ifelse(scale, 1, 0))
+          dmlArgs <- c(dmlArgs, "$SCALE" = ifelse(scale, 1, 0))
         }
         if (!missing(applyPCA)) {
           # @TODO To add support for applyPCA
@@ -183,10 +183,10 @@ setMethod(
         }
         
         if (projData) {
-          dmlArgs <- c(dmlArgs, PROJDATA = 1)
+          dmlArgs <- c(dmlArgs, "$PROJDATA" = 1)
           dmlArgs <- c(dmlArgs, "newA")
         } else {
-          dmlArgs <- c(dmlArgs, PROJDATA = 0)
+          dmlArgs <- c(dmlArgs, "$PROJDATA" = 0)
         }
         
         model@dmlArgs <- dmlArgs

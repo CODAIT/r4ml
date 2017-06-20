@@ -92,6 +92,7 @@ setClass("r4ml.lm",
 #' samples <- r4ml.sample(airlineMatrix, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
 #' test <- samples[[2]]
+#'
 #' 
 #' train <- cache(train)
 #' test <- cache(test)
@@ -176,10 +177,10 @@ setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.lm", definition =
         dml = dmlPath,
         X = args$X,
         y = args$Y,
-        icpt = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
+        "$icpt" = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
         "beta_out", # output from DML script
-        O = statsPath,
-        fmt = r4ml.env$CSV)
+        "$O" = statsPath,
+        "$fmt" = r4ml.env$CSV)
       if (!missing(lambda)) {
         dmlArgs <- c(dmlArgs, reg = args$lambda)
       }
@@ -202,8 +203,9 @@ setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.lm", definition =
 setMethod("r4ml.model.postTraining", signature = "r4ml.lm", definition =
   function(model) {
     outputs <- model@dmlOuts$sysml.execute
+    #DEBUG browser()
     #stats calculation
-    statsPath <- model@dmlArgs$O
+    statsPath <- model@dmlArgs$`$O`
     statsCsv <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header = FALSE, stringsAsFactors = FALSE))
     stats <- statsCsv[, 2, drop = FALSE]
     row.names(stats) <- statsCsv[, 1]
@@ -316,20 +318,20 @@ predict.r4ml.lm <- function(object, data) {
         testset_x <- xAndY$X
         testset_y <- xAndY$Y   
         args = list(X = testset_x, Y = testset_y)
-        args <- c(args, O = statsPath)
-        args <- c(args, scoring_only = "no")
+        args <- c(args, "$O" = statsPath)
+        args <- c(args, "$scoring_only" = "no")
     }
     # accumulate argument if no label data is present to make predictions
     else {
         # scoring
         args = list(X = data)
-        args <- c(args, scoring_only = "yes")
+        args <- c(args, "$scoring_only" = "yes")
     }
     # add arguments that are general across testing/scoring
-    args <- c(args, dfam = 1)
+    args <- c(args, "$dfam" = 1)
     args <- c(args, B_full = as.r4ml.matrix(coef(object)))
     args <- c(args, "means")
-    args <- c(args, fmt = r4ml.env$CSV)
+    args <- c(args, "$fmt" = r4ml.env$CSV)
     args <- c(args, dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_GLM_TEST_SCRIPT))
     
     # call the predict DML script
@@ -342,7 +344,8 @@ predict.r4ml.lm <- function(object, data) {
       stats <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header = FALSE,
                                                    stringsAsFactors = FALSE))
       return(list("predictions" = preds, "statistics" = stats))
-    } else {
+    }
+    else {
       return(list("predictions" = preds))
     }
 }
@@ -463,3 +466,4 @@ summary.r4ml.lm <- function(object) {
 
   return(invisible(NULL))
 }
+

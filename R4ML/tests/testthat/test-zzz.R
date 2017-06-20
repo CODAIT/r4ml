@@ -35,7 +35,7 @@ test_that("r4ml.session.param.enableHiveSupport.false", {
   # test if parameters passed to r4ml.session are propagated to sparkR session.
   r4ml.session.stop()
   
-  r4ml.session(enableHiveSuppor = FALSE)
+  r4ml.session(enableHiveSupport = FALSE)
   config <- sparkR.conf()
   expect_null(config$spark.sql.catalogImplementation)
   
@@ -47,7 +47,7 @@ test_that("r4ml.session.param.enableHiveSupport.true", {
   # test if parameters passed to r4ml.session are propagated to sparkR session.
   r4ml.session.stop()
 
-  r4ml.session(enableHiveSuppor = TRUE)
+  r4ml.session(enableHiveSupport = TRUE)
   config <- sparkR.conf()
   # this may not work if it is build without hive
   if (is.null(config$spark.sql.catalogImplementation)) {

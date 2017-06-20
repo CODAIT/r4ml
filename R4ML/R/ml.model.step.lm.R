@@ -119,10 +119,10 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.step.lm", definition =
         dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), "StepLinearRegDS.dml"),
         X_orig = args$X,
         y = args$Y,
-        icpt = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
-        O = file.path(r4ml.env$WORKSPACE_ROOT("r4ml.step.lm"), "stats.csv"),
-        fmt = "csv",
-        write_beta = 1,
+        "$icpt" = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
+        "$O" = file.path(r4ml.env$WORKSPACE_ROOT("r4ml.step.lm"), "stats.csv"),
+        "$fmt" = "csv",
+        "$write_beta" = "1",
         'Selected',
         'beta_out'
       )
