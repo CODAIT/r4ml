@@ -14,41 +14,43 @@
 # limitations under the License.
 #
 
-library(R4ML)
+library("R4ML")
 r4ml.session()
 
 # Choose dataset size
 
-df_max_size = 90000
-# df_max_size = 30
+df_size <- 90000
+# df_size <- 30
 
-# Create Dataset
-hf <- r4ml.data.gen.km(df_max_size)
-ignore <- cache(hf)
+# Generate survival data
+r4ml_df <- r4ml.data.gen.km(df_size)
 
 # Preprocessing
-survhf <- r4ml.ml.preprocess(
-  hf,
+r4ml_df <- r4ml.ml.preprocess(
+  data = r4ml_df,
   transformPath = "/tmp",
   binningAttrs = "X",
-  numBins=10
-)
+  numBins = 10)
 
 # Transform data to r4ml matrix
-survMatrix <- as.r4ml.matrix(survhf$data)
-ignore <- cache(survMatrix)
+survMatrix <- as.r4ml.matrix(r4ml_df$data)
 
 # Establish formula for parsing
-survFormula <- Surv(Timestamp, Censor) ~ Age
+survFormula <- Surv(Timestamp, Censor) ~ Age + Race
 
 # Run kaplan meier on generated data
-km <- r4ml.kaplan.meier(survFormula, data = survMatrix, test.type = "wilcoxon")
-                         
-# Produce Summary                          
+km <- r4ml.kaplan.meier(data = survMatrix,
+                        formula = survFormula,
+                        conf.int = 0.95,
+                        conf.type = "log",
+                        error.type = "greenwood",
+                        test.type = "wilcoxon")
+
+# Produce Summary
 summary <- summary(km)
 
 # Compute Test Statistics
-test = r4ml.kaplan.meier.test(km)
+test <- r4ml.kaplan.meier.test(km)
 
 # exit R/R4ML
 r4ml.session.stop()
