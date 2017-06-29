@@ -258,27 +258,23 @@ r4ml.ml.preprocess <- function(
   # 6. we apply one hot encoding
   #1.
   
-  
-  is.omit.na <- !missing(omit.na)
-  
   # variable to control the next stop of ml.preprocessors
   stop_now <- FALSE
   proxy.omit.na <- function(data) {
-    r4ml_df = data
-    if (is.omit.na) {
-      r4ml_df <- as.r4ml.frame(SparkR::dropna(data, cols = omit.na), repartition = FALSE)
-      if (!r4ml_df@env$isCached) {
-        ignore <- SparkR::cache(r4ml_df)
-      }
-      cnt <- SparkR::count(r4ml_df)
-      if (cnt == 0) {
-        r4ml.warn(logSource, "After na omission, there are no records left")
-        r4ml.warn(logSource, "Make sure that you dataset contains atleast one valid records")
-        stop_now <<- TRUE
-      }
+    
+    if (!is.null(omit.na)) {
+      data <- SparkR::dropna(data, cols = omit.na)
+      data <- as.r4ml.frame(data, repartition = FALSE)
     }
+
+    if (r4ml.is.empty.df(data)) {
+      r4ml.warn(logSource, "omit.na resulted in a dataset containing 0 records")
+      r4ml.warn(logSource, "Make sure your dataset contains at least one valid records")
+      stop_now <<- TRUE
+    }
+    
     metadata <- list()
-    list(data=r4ml_df, metadata=metadata)
+    return(list(data = data, metadata = metadata))
   }
   #2.
   proxy.impute <- function(data) {

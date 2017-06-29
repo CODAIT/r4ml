@@ -699,3 +699,7 @@ HadoopFS <- R6::R6Class(
   )
 )
 
+r4ml.is.empty.df <- function(data) {
+  # returns TRUE if `data` contains 0 rows
+  return(is.null(SparkR::first(data)[1, 1][[1]]))
+}
