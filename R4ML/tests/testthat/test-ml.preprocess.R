@@ -52,12 +52,29 @@ test_that("r4ml.ml.preprocess omit.na", {
   iris_hf$Petal.Width[5] <- NA
   iris_hf <- as.r4ml.frame(iris_hf)
   
+  # with omit.na col specified
   iris_transform <- r4ml.ml.preprocess(
-    iris_hf,
+    data = iris_hf,
     transformPath = tempdir(),
     omit.na = c("Petal_Width")
   )
   expect_equal(nrow(iris_transform$data), 149)
+  
+  # with no cols specified (should default to all columns)
+  iris_transform <- r4ml.ml.preprocess(
+    data = iris_hf,
+    transformPath = tempdir()
+  )
+  expect_equal(nrow(iris_transform$data), 149)
+  
+  # with no cols spefied
+  iris_transform <- r4ml.ml.preprocess(
+    data = iris_hf,
+    transformPath = tempdir(),
+    omit.na = c()
+  )
+  expect_equal(nrow(iris_transform$data), 150)
+  
 })
 
 #Execute ml.preprocess without transformPath parameter
