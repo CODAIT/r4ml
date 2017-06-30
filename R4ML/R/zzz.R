@@ -239,14 +239,14 @@ sysml.init <- function() {
 
   # static class sysml.RDDUtils
   # since actual class is static, we need this
-  sysml.RDDUtils <- sysml.RDDConverterUtils$new()
-  assign("sysml.RDDUtils", sysml.RDDUtils, .GlobalEnv)
+  #sysml.RDDUtils <- sysml.RDDConverterUtils$new() ##ALOK TODO rm
+  #assign("sysml.RDDUtils", sysml.RDDUtils, .GlobalEnv) ## ALOK TODO rm
 }
 
 # systemML related stopping i.e de-initialization
 sysml.stop <- function() {
   if("jlogger" %in% ls(.GlobalEnv)) { rm(jlogger, envir = .GlobalEnv) }
-  if("sysml.RDDUtils" %in% ls(.GlobalEnv)) { rm(sysml.RDDUtils, envir = .GlobalEnv) }
+  #if("sysml.RDDUtils" %in% ls(.GlobalEnv)) { rm(sysml.RDDUtils, envir = .GlobalEnv) } ## ALOK TODO rm
   if("sysmlSparkContext" %in% ls(.GlobalEnv)) { rm(sysmlSparkContext, envir = .GlobalEnv) }
   if("sysmlJavaSparkContext" %in% ls(.GlobalEnv)) { rm(sysmlJavaSparkContext, envir = .GlobalEnv) }
   if("sysmlSqlContext" %in% ls(.GlobalEnv)) { rm(sysmlSqlContext, envir = .GlobalEnv) }

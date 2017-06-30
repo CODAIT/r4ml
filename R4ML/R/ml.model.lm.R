@@ -173,10 +173,10 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
         dml = dmlPath,
         X = args$X,
         y = args$Y,
-        icpt = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
+        "$icpt" = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
         "beta_out", # output from DML script
-        O = statsPath,
-        fmt = "csv")
+        "$O" = statsPath,
+        "$fmt" = "csv")
       if (!missing(lambda)) {
         dmlArgs <- c(dmlArgs, reg = args$lambda)
       }
@@ -188,7 +188,6 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
           dmlArgs <- c(dmlArgs, maxi = args$iter.max)
         }
       }
-      #DEBUG browser()
       model@dmlArgs <- dmlArgs
       return(model)
     })
@@ -200,9 +199,8 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
 setMethod("r4ml.model.postTraining", signature="r4ml.lm", definition =
   function(model) {
     outputs <- model@dmlOuts$sysml.execute
-    #DEBUG browser()
     #stats calculation
-    statsPath <- model@dmlArgs$O
+    statsPath <- model@dmlArgs$`$O`
     statsCsv <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header = FALSE, stringsAsFactors = FALSE))
     stats <- statsCsv[, 2, drop=FALSE]
     row.names(stats) <- statsCsv[, 1]
@@ -296,6 +294,7 @@ setMethod("stats", signature="r4ml.lm", definition =
 #' @export
 #' @seealso \link{r4ml.lm}
 predict.r4ml.lm <- function(object, data) {
+    browser()
     logSource <- "predict.r4ml.lm"
     
     r4ml.info(logSource, "Predicting labels using given Linear Regression model.")
@@ -315,21 +314,25 @@ predict.r4ml.lm <- function(object, data) {
         testset_x <- xAndY$X
         testset_y <- xAndY$Y   
         args = list(X = testset_x, Y = testset_y)
-        args <- c(args, O = statsPath)
-        args <- c(args, scoring_only = "no")
+        args <- c(args, "$O" = statsPath)
+        args <- c(args, "$cmd_scoring_only" = "no")
     }
     # accumulate argument if no label data is present to make predictions
     else {
         # scoring
         args = list(X = data)
-        args <- c(args, scoring_only = "yes")
+        args <- c(args, "$cmd_scoring_only" = "yes")
     }
     # add arguments that are general across testing/scoring
-    args <- c(args, dfam = 1)
+    args <- c(args, "$dfam" = 1)
     args <- c(args, B_full = as.r4ml.matrix(coef(object)))
     args <- c(args, "means")
-    args <- c(args, fmt = "csv")
+    args <- c(args, "$fmt" = "csv")
     args <- c(args, dml=file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_GLM_TEST_SCRIPT))
+    
+    r4ml.debug(logSource, "Running GLM predic DML...")
+    r4ml.debugShow(logSource, args)
+    
     
     # call the predict DML script
     dmlOuts <- do.call("sysml.execute", args)

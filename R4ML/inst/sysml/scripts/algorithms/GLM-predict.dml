@@ -86,13 +86,20 @@
 #   disp=3.0 fmt=csv X=INPUT_DIR/X B=INPUT_DIR/B Y=INPUT_DIR/Y M=OUTPUT_DIR/M O=OUTPUT_DIR/out.csv
 
 # Default values for input parameters:
-fileX = " ";
-fileB = " ";
+#fileX = " ";
+fileX = $X; #ALOK
+#fileB = " ";
+fileB = $B; #ALOK
 fileM = ifdef ($M, " ");
 fileY = " ";
 fileO = ifdef ($O, " ");
 fmtM  = ifdef ($fmt, "text");
 cmd_scoring_only = ifdef($scoring_only, "yes");
+
+print("ALOK")
+print(cmd_scoring_only)
+
+stop("test ")
 
 dist_type  = ifdef ($dfam, 1);    # $dfam = 1;
 var_power  = ifdef ($vpow, 0.0);  # $vpow = 0.0;
@@ -206,6 +213,7 @@ if (cmd_scoring_only != "yes")
             Y = matrix (0, rows = num_records, cols = num_categories);
             Y [, 1 : Y_size] = Y_unsized [, 1 : Y_size];
             Y_counts = ones_rec;
+            
         } else {
             Y_counts = rowSums (Y);
         }
