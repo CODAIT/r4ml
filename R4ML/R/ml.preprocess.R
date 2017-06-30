@@ -267,6 +267,12 @@ r4ml.ml.preprocess <- function(
       data <- as.r4ml.frame(data, repartition = FALSE)
     }
 
+    if (r4ml.is.empty.df(data)) {
+      r4ml.warn(logSource, "omit.na resulted in a dataset containing 0 records")
+      r4ml.warn(logSource, "Make sure your dataset contains at least one valid records")
+      stop_now <<- TRUE
+    }
+    
     metadata <- list()
     return(list(data = data, metadata = metadata))
   }

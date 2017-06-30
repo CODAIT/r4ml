@@ -177,3 +177,14 @@ test_that("HadoopFS", {
   user_home <- hfs$user.home()
 })
 
+test_that("r4ml.is.empty.df", {
+  df <- SparkR::as.DataFrame(datasets::iris)
+  expect_false(r4ml.is.empty.df(df))
+  
+  df <- datasets::iris
+  df$Species <- NA
+  df <- SparkR::as.DataFrame(df)
+  df <- SparkR::dropna(df)
+  expect_true(r4ml.is.empty.df(df))
+})
+
