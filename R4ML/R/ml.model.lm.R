@@ -345,13 +345,13 @@ predict.r4ml.lm <- function(object, data) {
 }
 
 #' @name summary.r4ml.lm
-#' @title LM Summary.....
-#' @description Summarizes.....
-#' @param object (r4ml.coxph):  An R4ML lm model
-#' @return ............l
+#' @title LM Summary
+#' @description Summarizes an R4ML LM model
+#' @param object (r4ml.lm):  An R4ML lm model
+#' @return a summary of the model
 #' @export
 #' @examples \dontrun{
-#' summary(r4ml_lm_model)
+#' summary.r4ml.lm(r4ml_lm_model)
 #' }
 summary.r4ml.lm <- function(object) {
 
