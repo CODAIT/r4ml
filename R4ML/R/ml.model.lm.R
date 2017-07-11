@@ -76,8 +76,6 @@ setClass("r4ml.lm",
 #'
 #' airlineFiltered <- as.r4ml.frame(airlineFiltered)
 #'
-#' airlineFiltered <- as.r4ml.frame(airlineFiltered)
-#'
 #' # Apply required transformations for Machine Learning
 #' airlineFiltered <- r4ml.ml.preprocess(
 #'  data = airlineFiltered,
@@ -93,6 +91,9 @@ setClass("r4ml.lm",
 #' samples <- r4ml.sample(airlineMatrix, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
 #' test <- samples[[2]]
+#' 
+#' train <- cache(train)
+#' test <- cache(test)
 #'
 #' # Create a linear regression model
 #' lm <- r4ml.lm(ArrDelay ~ ., data=train, directory = "/tmp")
@@ -188,7 +189,6 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
           dmlArgs <- c(dmlArgs, maxi = args$iter.max)
         }
       }
-      #DEBUG browser()
       model@dmlArgs <- dmlArgs
       return(model)
     })
@@ -200,7 +200,6 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
 setMethod("r4ml.model.postTraining", signature="r4ml.lm", definition =
   function(model) {
     outputs <- model@dmlOuts$sysml.execute
-    #DEBUG browser()
     #stats calculation
     statsPath <- model@dmlArgs$O
     statsCsv <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header = FALSE, stringsAsFactors = FALSE))
@@ -340,8 +339,46 @@ predict.r4ml.lm <- function(object, data) {
     if (testing) {
       stats <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
       return(list("predictions"=preds, "statistics"=stats))
-    }
-    else {
+    } else {
       return(list("predictions"=preds))
     }
+}
+
+#' @name summary.r4ml.lm
+#' @title LM Summary.....
+#' @description Summarizes.....
+#' @param object (r4ml.coxph):  An R4ML lm model
+#' @return ............l
+#' @export
+#' @examples \dontrun{
+#' summary(r4ml_lm_model)
+#' }
+summary.r4ml.lm <- function(object) {
+
+  cat("Call:\n")
+  cat(object@call)
+  cat("\n\n")
+
+  cat("Residuals:\n")
+  cat("   Mean: ")
+  cat(object@dmlOuts$stats["AVG_RES_Y", "value"])
+  cat("   St. Dev.: ")
+  cat(object@dmlOuts$stats["STDEV_RES_Y", "value"])
+  cat("\n\n")
+
+  cat("Coefficients:\n")
+  print(object@coefficients)
+  cat("\n\n")
+
+  cat("Residual standard deviation: ")
+  cat(object@dmlOuts$stats["STDEV_RES_Y", "value"])
+  cat("\n\n")
+  
+  
+  cat("Multiple R-squared: ")
+  cat(object@dmlOuts$stats["PLAIN_R2", "value"])
+  cat(",	Adjusted R-squared: ")
+  cat(object@dmlOuts$stats["ADJUSTED_R2", "value"])
+
+  return(invisible(TRUE))
 }
