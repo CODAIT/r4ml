@@ -16,11 +16,12 @@
 
 setClass("r4ml.lm",
          slots = c(coefficients = "data.frame",
-                        intercept = "logical",
-                        shiftAndRescale = "logical",
-                        transformPath = "character",
-                        labelColumnName = "character",
-                        method="character"),
+                   intercept = "logical",
+                   shiftAndRescale = "logical",
+                   transformPath = "character",
+                   labelColumnName = "character",
+                   method = "character",
+                   trainingData = "r4ml.matrix"),
          contains = "r4ml.model"
 )
 
@@ -76,8 +77,6 @@ setClass("r4ml.lm",
 #'
 #' airlineFiltered <- as.r4ml.frame(airlineFiltered)
 #'
-#' airlineFiltered <- as.r4ml.frame(airlineFiltered)
-#'
 #' # Apply required transformations for Machine Learning
 #' airlineFiltered <- r4ml.ml.preprocess(
 #'  data = airlineFiltered,
@@ -93,6 +92,9 @@ setClass("r4ml.lm",
 #' samples <- r4ml.sample(airlineMatrix, perc=c(0.7, 0.3))
 #' train <- samples[[1]]
 #' test <- samples[[2]]
+#' 
+#' train <- cache(train)
+#' test <- cache(test)
 #'
 #' # Create a linear regression model
 #' lm <- r4ml.lm(ArrDelay ~ ., data=train, directory = "/tmp")
@@ -107,25 +109,25 @@ setClass("r4ml.lm",
 #' }
 #'
 #' @seealso {predict.r4ml.lm} #NOTE add link after predict func
-r4ml.lm <- function(formula, data, method = "direct-solve", intercept=T, shiftAndRescale=F,
-                      tolerance, iter.max, lambda, directory) {
-  new("r4ml.lm", modelType="regression",
-      formula=formula, data=data, method=method, intercept=intercept, shiftAndRescale=shiftAndRescale,
-      tolerance=tolerance, iter.max=iter.max, lambda=lambda)
+r4ml.lm <- function(formula, data, method = "direct-solve", intercept = TRUE,
+                    shiftAndRescale = FALSE, tolerance, iter.max, lambda, directory) {
+  new("r4ml.lm", modelType = "regression", formula = formula, data = data,
+      method = method, intercept = intercept, shiftAndRescale = shiftAndRescale,
+      tolerance = tolerance, iter.max = iter.max, lambda = lambda)
 
 }
 
 # overloaded method which checks the training parameters of the linear model
-setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.lm", definition =
+setMethod("r4ml.model.validateTrainingParameters", signature = "r4ml.lm", definition =
   function(model, args) {
     logSource <- "r4ml.model.validateTrainingParameters"
     with(args, {
       .r4ml.checkParameter(logSource, method, "character", c("direct-solve", "iterative"))
       .r4ml.checkParameter(logSource, intercept, "logical", c(TRUE, FALSE))
       .r4ml.checkParameter(logSource, shiftAndRescale, "logical", c(TRUE, FALSE))
-      .r4ml.checkParameter(logSource, tolerance, "numeric", isOptional = T)
-      .r4ml.checkParameter(logSource, iter.max, "numeric", isOptional=T)
-      .r4ml.checkParameter(logSource, lambda, "numeric", isOptional=T)
+      .r4ml.checkParameter(logSource, tolerance, "numeric", isOptional = TRUE)
+      .r4ml.checkParameter(logSource, iter.max, "numeric", isOptional = TRUE)
+      .r4ml.checkParameter(logSource, lambda, "numeric", isOptional = TRUE)
       if (!missing(iter.max) && (iter.max < 0)) {
         r4ml.err(logSource, "Parameter iter.max must be a natural number.")
       }
@@ -150,9 +152,10 @@ setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.lm", definiti
 
 # Overwrite the base model's method to build the traning args which will be
 # passed to the dml script to run
-setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
+setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.lm", definition =
   function(model, args) {
-    with(args,  {
+    with(args, {
+      model@trainingData <- args$data
       model@method <- method
       model@intercept <- intercept
       model@shiftAndRescale <- shiftAndRescale
@@ -166,7 +169,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
       workspace <- r4ml.env$WORKSPACE_ROOT("r4ml.lm")
       statsPath <- file.path(workspace, "stats.csv")
       dmlPath <- file.path(r4ml.env$SYSML_ALGO_ROOT(),
-                   ifelse(args$method=="direct-solve",
+                   ifelse(args$method == "direct-solve",
                      r4ml.env$DML_LM_DS_SCRIPT, r4ml.env$DML_LM_CG_SCRIPT))
       # invoke DML script
       dmlArgs <- list(
@@ -176,7 +179,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
         icpt = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
         "beta_out", # output from DML script
         O = statsPath,
-        fmt = "csv")
+        fmt = r4ml.env$CSV)
       if (!missing(lambda)) {
         dmlArgs <- c(dmlArgs, reg = args$lambda)
       }
@@ -188,7 +191,6 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
           dmlArgs <- c(dmlArgs, maxi = args$iter.max)
         }
       }
-      #DEBUG browser()
       model@dmlArgs <- dmlArgs
       return(model)
     })
@@ -197,14 +199,13 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
 
 # overwrite the base model's post training function so that one can
 # post process the final outputs from the dml scripts
-setMethod("r4ml.model.postTraining", signature="r4ml.lm", definition =
+setMethod("r4ml.model.postTraining", signature = "r4ml.lm", definition =
   function(model) {
     outputs <- model@dmlOuts$sysml.execute
-    #DEBUG browser()
     #stats calculation
     statsPath <- model@dmlArgs$O
     statsCsv <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header = FALSE, stringsAsFactors = FALSE))
-    stats <- statsCsv[, 2, drop=FALSE]
+    stats <- statsCsv[, 2, drop = FALSE]
     row.names(stats) <- statsCsv[, 1]
     colnames(stats) <- "value"
     model@dmlOuts$stats = stats
@@ -245,7 +246,7 @@ setMethod(f = "show", signature = "r4ml.lm", definition =
 #' @param object (r4ml.lm) The linear regression model
 #' @return A data.frame with the coefficient for the learned model
 #' @seealso \link{show}
-setMethod("coef", signature="r4ml.lm", definition =
+setMethod("coef", signature = "r4ml.lm", definition =
   function(object) {
     obj <- SparkR::as.data.frame(object@dmlOuts[["beta_out"]])
     rownames(obj) <- object@featureNames
@@ -259,7 +260,7 @@ setMethod("coef", signature="r4ml.lm", definition =
 #' @name stats
 #' @param object (r4ml.lm) The linear regression model
 #' @return A data.frame with the statistics data for the learned model
-setMethod("stats", signature="r4ml.lm", definition =
+setMethod("stats", signature = "r4ml.lm", definition =
   function(object) {
     return(object@dmlOuts$stats)
   }
@@ -291,7 +292,7 @@ setMethod("stats", signature="r4ml.lm", definition =
 #'   test <- as.r4ml.matrix(test[,c(2:5)])
 #'   iris_lm <- r4ml.lm(Sepal_Length ~ ., data = train, method = "iterative")
 #'   output <- predict(iris_lm, test)
-#' }       
+#' }
 #' 
 #' @export
 #' @seealso \link{r4ml.lm}
@@ -300,7 +301,7 @@ predict.r4ml.lm <- function(object, data) {
     
     r4ml.info(logSource, "Predicting labels using given Linear Regression model.")
     model <- object
-    .r4ml.checkParameter(logSource, data, inheritsFrom="r4ml.matrix")
+    .r4ml.checkParameter(logSource, data, inheritsFrom = "r4ml.matrix")
 
     # Create path for storing goodness-of-fit statistics
     statsPath <- file.path(r4ml.env$WORKSPACE_ROOT("r4ml.lm"), "stats_predict.csv")
@@ -328,8 +329,8 @@ predict.r4ml.lm <- function(object, data) {
     args <- c(args, dfam = 1)
     args <- c(args, B_full = as.r4ml.matrix(coef(object)))
     args <- c(args, "means")
-    args <- c(args, fmt = "csv")
-    args <- c(args, dml=file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_GLM_TEST_SCRIPT))
+    args <- c(args, fmt = r4ml.env$CSV)
+    args <- c(args, dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_GLM_TEST_SCRIPT))
     
     # call the predict DML script
     dmlOuts <- do.call("sysml.execute", args)
@@ -338,10 +339,127 @@ predict.r4ml.lm <- function(object, data) {
 
     # orgainze result for presentation to user
     if (testing) {
-      stats <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
-      return(list("predictions"=preds, "statistics"=stats))
+      stats <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header = FALSE,
+                                                   stringsAsFactors = FALSE))
+      return(list("predictions" = preds, "statistics" = stats))
+    } else {
+      return(list("predictions" = preds))
     }
-    else {
-      return(list("predictions"=preds))
+}
+
+.r4ml.lm.se <- function(object, seed = 5) {
+
+  df <- object@trainingData
+  training_nrow <- SparkR::nrow(df)
+
+  if (training_nrow > 125000) {
+    # since the dataset has >125k rows we want a sample we can fit on the driver
+    frac <- 125000 / training_nrow # we want a sample of ~125k rows
+    df <- SparkR::sample(df, withReplacement = FALSE, fraction = frac, seed = seed)
+  }
+
+  df <- SparkR::as.data.frame(df)
+
+  colnames(df)[which(colnames(df) == object@labelColumnName)] <- "y"
+
+  if (object@intercept) {
+    fit <- lm(y ~ ., data = df )
+  } else {
+    fit <- lm(y ~ . -1, data = df )
+  }
+
+  coefs <- summary(fit)$coefficients
+  coefs <- as.data.frame(coefs)
+
+  # rescale the std. error
+  coefs$`Std. Error` <- coefs$`Std. Error` * sqrt(nrow(df) / training_nrow)
+
+  coefs$`t value` <- coefs$Estimate / coefs$`Std. Error`
+
+  coefs$`Pr(>|t|)` <- 2 * pt(abs(coefs$`t value`), training_nrow, lower.tail = FALSE)
+
+  return(coefs)
+}
+
+#' @name summary.r4ml.lm
+#' @title LM Summary
+#' @description Summarizes an R4ML LM model \eqn{a + b}
+#' @param object (r4ml.lm): An R4ML LM model
+#' @return a summary of the model
+#' @export
+#' @examples \dontrun{
+#' summary.r4ml.lm(r4ml_lm_model)
+#' }
+summary.r4ml.lm <- function(object) {
+  logSource <- "summary.r4ml.lm"
+  
+  cat("Call:\n")
+  cat(object@call)
+  cat("\n\n")
+
+  cat("Residuals:\n")
+  cat("   Mean: ")
+  cat(round(x = as.numeric(object@dmlOuts$stats["AVG_RES_Y", "value"]), digits = 5))
+  cat("   St. Dev.: ")
+  cat(round(x = as.numeric(object@dmlOuts$stats["STDEV_RES_Y", "value"]), digits = 5))
+  cat("\n\n")
+
+  cat("Coefficients:\n")
+  coef_df <- object@coefficients
+  base::colnames(coef_df) <- c("Estimate")
+  coef_df$`Std. Error` <- NA
+  coef_df$`t value` <- NA
+  coef_df$`Pr(>|t|)` <- NA
+
+  # loop through the .r4ml.lm.se() function until we have a model that is
+  # similar to the betas in the original dataset
+  i <- 0
+  while (i < 3) {
+    i <- i + 1
+    se_df <- .r4ml.lm.se(object, seed = i)
+
+    # need to make sure the order is the same
+    se_df <- se_df[order(row.names(se_df)), ]
+    coef_df <- coef_df[order(row.names(coef_df)), ]
+
+    # caculate percent diff between the full and sample betas
+    B_full <- coef_df$Estimate
+    B_sub <- se_df$Estimate
+  
+    pd <- abs(B_sub - B_full) / abs(B_full)
+  
+    if (max(pd) < 0.1) {
+      break
     }
+    
+    if (i == 3) {
+      r4ml.warn(logSource, "Unable to caculate Std. Error")
+      se_df$`Std. Error` <- NA
+      se_df$`t value` <- NA
+      se_df$`Pr(>|t|)` <- NA
+    }
+  }
+  
+  coef_df$`Std. Error` <- round(se_df$`Std. Error`, 7)
+  coef_df$`t value` <- round(se_df$`t value`, 3)
+  coef_df$`Pr(>|t|)` <- round(se_df$`Pr(>|t|)`, 10)
+
+  cat("\n") # new line here to deal with RStudio handling of SparkR output
+  print(coef_df)
+  
+  cat("\n")
+  cat("NOTE: Std. Error, t value, & Pr(>|t|) are estimated")
+  cat("\n\n")
+
+  cat("Residual standard deviation: ")
+  cat(round(x = as.numeric(object@dmlOuts$stats["STDEV_RES_Y", "value"]), digits = 5))
+  cat("\n\n")
+
+  cat("Multiple R-squared: ")
+  cat(round(x = as.numeric(object@dmlOuts$stats["PLAIN_R2", "value"]), digits = 5))
+  cat(", Adjusted R-squared: ")
+  cat(round(x = as.numeric(object@dmlOuts$stats["ADJUSTED_R2", "value"]), digits = 5))
+  cat("\n")
+
+  return(invisible(NULL))
 }
