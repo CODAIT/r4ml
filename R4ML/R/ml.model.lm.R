@@ -347,14 +347,13 @@ predict.r4ml.lm <- function(object, data) {
 #' @name summary.r4ml.lm
 #' @title LM Summary
 #' @description Summarizes an R4ML LM model
-#' @param object (r4ml.lm):  An R4ML lm model
+#' @param object (r4ml.lm): An R4ML LM model
 #' @return a summary of the model
 #' @export
 #' @examples \dontrun{
 #' summary.r4ml.lm(r4ml_lm_model)
 #' }
 summary.r4ml.lm <- function(object) {
-
   cat("Call:\n")
   cat(object@call)
   cat("\n\n")
@@ -373,12 +372,11 @@ summary.r4ml.lm <- function(object) {
   cat("Residual standard deviation: ")
   cat(object@dmlOuts$stats["STDEV_RES_Y", "value"])
   cat("\n\n")
-  
-  
+
   cat("Multiple R-squared: ")
   cat(object@dmlOuts$stats["PLAIN_R2", "value"])
-  cat(",	Adjusted R-squared: ")
+  cat(", Adjusted R-squared: ")
   cat(object@dmlOuts$stats["ADJUSTED_R2", "value"])
 
-  return(invisible(TRUE))
+  return(invisible(NULL))
 }
