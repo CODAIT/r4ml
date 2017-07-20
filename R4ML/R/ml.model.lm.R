@@ -294,7 +294,6 @@ setMethod("stats", signature="r4ml.lm", definition =
 #' @export
 #' @seealso \link{r4ml.lm}
 predict.r4ml.lm <- function(object, data) {
-    browser()
     logSource <- "predict.r4ml.lm"
     
     r4ml.info(logSource, "Predicting labels using given Linear Regression model.")
@@ -315,13 +314,14 @@ predict.r4ml.lm <- function(object, data) {
         testset_y <- xAndY$Y   
         args = list(X = testset_x, Y = testset_y)
         args <- c(args, "$O" = statsPath)
-        args <- c(args, "$cmd_scoring_only" = "no")
+        args <- c(args, "$scoring_only" = "no")
     }
     # accumulate argument if no label data is present to make predictions
     else {
         # scoring
         args = list(X = data)
-        args <- c(args, "$cmd_scoring_only" = "yes")
+        args <- c(args, "$scoring_only" = "yes")
+        
     }
     # add arguments that are general across testing/scoring
     args <- c(args, "$dfam" = 1)
