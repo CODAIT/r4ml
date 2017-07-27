@@ -45,8 +45,7 @@ setClass("r4ml.model",
     modelType = "character",
     yColId = "integer",
     dmlArgs = "list",
-    dmlOuts = "list",
-    training_data = "r4ml.matrix"
+    dmlOuts = "list"
   ), contains = "VIRTUAL"
 )
 

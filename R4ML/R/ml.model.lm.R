@@ -20,7 +20,8 @@ setClass("r4ml.lm",
                    shiftAndRescale = "logical",
                    transformPath = "character",
                    labelColumnName = "character",
-                   method = "character"),
+                   method = "character",
+                   training_data = "r4ml.matrix"),
          contains = "r4ml.model"
 )
 
