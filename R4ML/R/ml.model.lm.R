@@ -397,9 +397,9 @@ summary.r4ml.lm <- function(object) {
 
   cat("Residuals:\n")
   cat("   Mean: ")
-  cat(round(x = object@dmlOuts$stats["AVG_RES_Y", "value"], digits = 5))
+  cat(round(x = as.numeric(object@dmlOuts$stats["AVG_RES_Y", "value"]), digits = 5))
   cat("   St. Dev.: ")
-  cat(round(x = object@dmlOuts$stats["STDEV_RES_Y", "value"], digits = 5))
+  cat(round(x = as.numeric(object@dmlOuts$stats["STDEV_RES_Y", "value"]), digits = 5))
   cat("\n\n")
 
   cat("Coefficients:\n")
@@ -427,13 +427,13 @@ summary.r4ml.lm <- function(object) {
   cat("\n\n")
 
   cat("Residual standard deviation: ")
-  cat(round(x = object@dmlOuts$stats["STDEV_RES_Y", "value"], digits = 5))
+  cat(round(x = as.numeric(object@dmlOuts$stats["STDEV_RES_Y", "value"]), digits = 5))
   cat("\n\n")
 
   cat("Multiple R-squared: ")
-  cat(round(x = object@dmlOuts$stats["PLAIN_R2", "value"], digits = 5))
+  cat(round(x = as.numeric(object@dmlOuts$stats["PLAIN_R2", "value"]), digits = 5))
   cat(", Adjusted R-squared: ")
-  cat(round(x = object@dmlOuts$stats["ADJUSTED_R2", "value"], digits = 5))
+  cat(round(x = as.numeric(object@dmlOuts$stats["ADJUSTED_R2", "value"]), digits = 5))
   cat("\n")
 
   return(invisible(NULL))
