@@ -16,11 +16,11 @@
 
 setClass("r4ml.lm",
          slots = c(coefficients = "data.frame",
-                        intercept = "logical",
-                        shiftAndRescale = "logical",
-                        transformPath = "character",
-                        labelColumnName = "character",
-                        method="character"),
+                   intercept = "logical",
+                   shiftAndRescale = "logical",
+                   transformPath = "character",
+                   labelColumnName = "character",
+                   method = "character"),
          contains = "r4ml.model"
 )
 
@@ -108,25 +108,25 @@ setClass("r4ml.lm",
 #' }
 #'
 #' @seealso {predict.r4ml.lm} #NOTE add link after predict func
-r4ml.lm <- function(formula, data, method = "direct-solve", intercept=T, shiftAndRescale=F,
-                      tolerance, iter.max, lambda, directory) {
-  new("r4ml.lm", modelType="regression",
-      formula=formula, data=data, method=method, intercept=intercept, shiftAndRescale=shiftAndRescale,
-      tolerance=tolerance, iter.max=iter.max, lambda=lambda)
+r4ml.lm <- function(formula, data, method = "direct-solve", intercept = TRUE,
+                    shiftAndRescale = FALSE, tolerance, iter.max, lambda, directory) {
+  new("r4ml.lm", modelType = "regression", formula = formula, data = data,
+      method = method, intercept = intercept, shiftAndRescale = shiftAndRescale,
+      tolerance = tolerance, iter.max = iter.max, lambda = lambda)
 
 }
 
 # overloaded method which checks the training parameters of the linear model
-setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.lm", definition =
+setMethod("r4ml.model.validateTrainingParameters", signature = "r4ml.lm", definition =
   function(model, args) {
     logSource <- "r4ml.model.validateTrainingParameters"
     with(args, {
       .r4ml.checkParameter(logSource, method, "character", c("direct-solve", "iterative"))
       .r4ml.checkParameter(logSource, intercept, "logical", c(TRUE, FALSE))
       .r4ml.checkParameter(logSource, shiftAndRescale, "logical", c(TRUE, FALSE))
-      .r4ml.checkParameter(logSource, tolerance, "numeric", isOptional = T)
-      .r4ml.checkParameter(logSource, iter.max, "numeric", isOptional=T)
-      .r4ml.checkParameter(logSource, lambda, "numeric", isOptional=T)
+      .r4ml.checkParameter(logSource, tolerance, "numeric", isOptional = TRUE)
+      .r4ml.checkParameter(logSource, iter.max, "numeric", isOptional = TRUE)
+      .r4ml.checkParameter(logSource, lambda, "numeric", isOptional = TRUE)
       if (!missing(iter.max) && (iter.max < 0)) {
         r4ml.err(logSource, "Parameter iter.max must be a natural number.")
       }
@@ -151,9 +151,10 @@ setMethod("r4ml.model.validateTrainingParameters", signature="r4ml.lm", definiti
 
 # Overwrite the base model's method to build the traning args which will be
 # passed to the dml script to run
-setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
+setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.lm", definition =
   function(model, args) {
-    with(args,  {
+    with(args, {
+      model@training_data <- args$data
       model@method <- method
       model@intercept <- intercept
       model@shiftAndRescale <- shiftAndRescale
@@ -167,7 +168,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
       workspace <- r4ml.env$WORKSPACE_ROOT("r4ml.lm")
       statsPath <- file.path(workspace, "stats.csv")
       dmlPath <- file.path(r4ml.env$SYSML_ALGO_ROOT(),
-                   ifelse(args$method=="direct-solve",
+                   ifelse(args$method == "direct-solve",
                      r4ml.env$DML_LM_DS_SCRIPT, r4ml.env$DML_LM_CG_SCRIPT))
       # invoke DML script
       dmlArgs <- list(
@@ -197,13 +198,13 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.lm", definition =
 
 # overwrite the base model's post training function so that one can
 # post process the final outputs from the dml scripts
-setMethod("r4ml.model.postTraining", signature="r4ml.lm", definition =
+setMethod("r4ml.model.postTraining", signature = "r4ml.lm", definition =
   function(model) {
     outputs <- model@dmlOuts$sysml.execute
     #stats calculation
     statsPath <- model@dmlArgs$O
     statsCsv <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header = FALSE, stringsAsFactors = FALSE))
-    stats <- statsCsv[, 2, drop=FALSE]
+    stats <- statsCsv[, 2, drop = FALSE]
     row.names(stats) <- statsCsv[, 1]
     colnames(stats) <- "value"
     model@dmlOuts$stats = stats
@@ -244,7 +245,7 @@ setMethod(f = "show", signature = "r4ml.lm", definition =
 #' @param object (r4ml.lm) The linear regression model
 #' @return A data.frame with the coefficient for the learned model
 #' @seealso \link{show}
-setMethod("coef", signature="r4ml.lm", definition =
+setMethod("coef", signature = "r4ml.lm", definition =
   function(object) {
     obj <- SparkR::as.data.frame(object@dmlOuts[["beta_out"]])
     rownames(obj) <- object@featureNames
@@ -258,7 +259,7 @@ setMethod("coef", signature="r4ml.lm", definition =
 #' @name stats
 #' @param object (r4ml.lm) The linear regression model
 #' @return A data.frame with the statistics data for the learned model
-setMethod("stats", signature="r4ml.lm", definition =
+setMethod("stats", signature = "r4ml.lm", definition =
   function(object) {
     return(object@dmlOuts$stats)
   }
@@ -290,7 +291,7 @@ setMethod("stats", signature="r4ml.lm", definition =
 #'   test <- as.r4ml.matrix(test[,c(2:5)])
 #'   iris_lm <- r4ml.lm(Sepal_Length ~ ., data = train, method = "iterative")
 #'   output <- predict(iris_lm, test)
-#' }       
+#' }
 #' 
 #' @export
 #' @seealso \link{r4ml.lm}
@@ -299,7 +300,7 @@ predict.r4ml.lm <- function(object, data) {
     
     r4ml.info(logSource, "Predicting labels using given Linear Regression model.")
     model <- object
-    .r4ml.checkParameter(logSource, data, inheritsFrom="r4ml.matrix")
+    .r4ml.checkParameter(logSource, data, inheritsFrom = "r4ml.matrix")
 
     # Create path for storing goodness-of-fit statistics
     statsPath <- file.path(r4ml.env$WORKSPACE_ROOT("r4ml.lm"), "stats_predict.csv")
@@ -327,8 +328,8 @@ predict.r4ml.lm <- function(object, data) {
     args <- c(args, dfam = 1)
     args <- c(args, B_full = as.r4ml.matrix(coef(object)))
     args <- c(args, "means")
-    args <- c(args, fmt = "csv")
-    args <- c(args, dml=file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_GLM_TEST_SCRIPT))
+    args <- c(args, fmt = r4ml.env$CSV)
+    args <- c(args, dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_GLM_TEST_SCRIPT))
     
     # call the predict DML script
     dmlOuts <- do.call("sysml.execute", args)
@@ -337,16 +338,52 @@ predict.r4ml.lm <- function(object, data) {
 
     # orgainze result for presentation to user
     if (testing) {
-      stats <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header=FALSE, stringsAsFactors=FALSE))
-      return(list("predictions"=preds, "statistics"=stats))
+      stats <- SparkR::as.data.frame(r4ml.read.csv(statsPath, header = FALSE,
+                                                   stringsAsFactors = FALSE))
+      return(list("predictions" = preds, "statistics" = stats))
     } else {
-      return(list("predictions"=preds))
+      return(list("predictions" = preds))
     }
+}
+
+r4ml.lm.se <- function(object) {
+  logSource <- "r4ml.lm.se"
+
+  df <- object@training_data
+  training_nrow <- SparkR::nrow(df)
+
+  if (training_nrow > 60000) {
+    # since the dataset has >60k rows we want a sample we can fit on the driver
+    frac <- 50000 / training_nrow # we want a sample of ~50k rows
+    df <- SparkR::sample(df, withReplacement = FALSE, fraction = frac, seed = 5)
+  }
+
+  df <- SparkR::as.data.frame(df)
+
+  colnames(df)[which(colnames(df) == object@labelColumnName)] <- "y"
+
+  if (object@intercept) {
+    fit <- lm(y ~ ., data = df )
+  } else {
+    fit <- lm(y ~ . -1, data = df )
+  }
+
+  coefs <- summary(fit)$coefficients
+  coefs <- as.data.frame(coefs)
+
+  # rescale the std. error
+  coefs$`Std. Error` <- coefs$`Std. Error` * sqrt(nrow(df) / training_nrow)
+
+  coefs$`t value` <- coefs$Estimate / coefs$`Std. Error`
+
+  coefs$`Pr(>|t|)` <- 2 * pt(abs(coefs$`t value`), training_nrow, lower.tail = FALSE)
+
+  return(coefs)
 }
 
 #' @name summary.r4ml.lm
 #' @title LM Summary
-#' @description Summarizes an R4ML LM model
+#' @description Summarizes an R4ML LM model \eqn{a + b}
 #' @param object (r4ml.lm): An R4ML LM model
 #' @return a summary of the model
 #' @export
@@ -360,23 +397,44 @@ summary.r4ml.lm <- function(object) {
 
   cat("Residuals:\n")
   cat("   Mean: ")
-  cat(object@dmlOuts$stats["AVG_RES_Y", "value"])
+  cat(round(x = object@dmlOuts$stats["AVG_RES_Y", "value"], digits = 5))
   cat("   St. Dev.: ")
-  cat(object@dmlOuts$stats["STDEV_RES_Y", "value"])
+  cat(round(x = object@dmlOuts$stats["STDEV_RES_Y", "value"], digits = 5))
   cat("\n\n")
 
   cat("Coefficients:\n")
-  print(object@coefficients)
+  coef_df <- object@coefficients
+  base::colnames(coef_df) <- c("Estimate")
+  coef_df$`Std. Error` <- NA
+  coef_df$`t value` <- NA
+  coef_df$`Pr(>|t|)` <- NA
+
+  se_df <- r4ml.lm.se(object)
+
+  # need to make sure the order is correct
+  se_df <- se_df[order(row.names(se_df)), ]
+  coef_df <- coef_df[order(row.names(coef_df)), ] 
+
+  coef_df$`Std. Error` <- round(se_df$`Std. Error`, 7)
+  coef_df$`t value` <- round(se_df$`t value`, 3)
+  coef_df$`Pr(>|t|)` <- round(se_df$`Pr(>|t|)`, 10)
+
+  cat("\n") # new line here to deal with RStudio handling of SparkR output
+  print(coef_df)
+  
+  cat("\n")
+  cat("NOTE: Std. Error, t value, & Pr(>|t|) are estimated")
   cat("\n\n")
 
   cat("Residual standard deviation: ")
-  cat(object@dmlOuts$stats["STDEV_RES_Y", "value"])
+  cat(round(x = object@dmlOuts$stats["STDEV_RES_Y", "value"], digits = 5))
   cat("\n\n")
 
   cat("Multiple R-squared: ")
-  cat(object@dmlOuts$stats["PLAIN_R2", "value"])
+  cat(round(x = object@dmlOuts$stats["PLAIN_R2", "value"], digits = 5))
   cat(", Adjusted R-squared: ")
-  cat(object@dmlOuts$stats["ADJUSTED_R2", "value"])
+  cat(round(x = object@dmlOuts$stats["ADJUSTED_R2", "value"], digits = 5))
+  cat("\n")
 
   return(invisible(NULL))
 }
