@@ -21,7 +21,7 @@ setClass("r4ml.lm",
                    transformPath = "character",
                    labelColumnName = "character",
                    method = "character",
-                   training_data = "r4ml.matrix"),
+                   trainingData = "r4ml.matrix"),
          contains = "r4ml.model"
 )
 
@@ -155,7 +155,7 @@ setMethod("r4ml.model.validateTrainingParameters", signature = "r4ml.lm", defini
 setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.lm", definition =
   function(model, args) {
     with(args, {
-      model@training_data <- args$data
+      model@trainingData <- args$data
       model@method <- method
       model@intercept <- intercept
       model@shiftAndRescale <- shiftAndRescale
@@ -347,15 +347,14 @@ predict.r4ml.lm <- function(object, data) {
     }
 }
 
-r4ml.lm.se <- function(object, seed = 5) {
-  logSource <- "r4ml.lm.se"
+.r4ml.lm.se <- function(object, seed = 5) {
 
-  df <- object@training_data
+  df <- object@trainingData
   training_nrow <- SparkR::nrow(df)
 
   if (training_nrow > 100000) {
     # since the dataset has >100k rows we want a sample we can fit on the driver
-    frac <- 100000 / training_nrow # we want a sample of ~50k rows
+    frac <- 100000 / training_nrow # we want a sample of ~100k rows
     df <- SparkR::sample(df, withReplacement = FALSE, fraction = frac, seed = seed)
   }
 
@@ -412,21 +411,22 @@ summary.r4ml.lm <- function(object) {
   coef_df$`t value` <- NA
   coef_df$`Pr(>|t|)` <- NA
 
-  
- i <- 0
+  # loop through the .r4ml.lm.se() function until we have a model that is
+  # similar to the betas in the original dataset
+  i <- 0
   while (i < 3) {
     i <- i + 1
-    se_df <- r4ml.lm.se(object, seed = i)
+    se_df <- .r4ml.lm.se(object, seed = i)
 
-    ### need to make sure the order is the same ###
+    # need to make sure the order is the same
     se_df <- se_df[order(row.names(se_df)), ]
     coef_df <- coef_df[order(row.names(coef_df)), ]
 
-    ### caculate percent diff between the full and sample betas ###
+    # caculate percent diff between the full and sample betas
     B_full <- coef_df$Estimate
     B_sub <- se_df$Estimate
   
-    pd <- abs(B_sub - B_full) / ((B_sub + B_full) / 2)
+    pd <- abs((B_sub - B_full) / B_full)
   
     if (max(pd) < 0.15) {
       break
