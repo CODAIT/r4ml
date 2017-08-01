@@ -352,9 +352,9 @@ predict.r4ml.lm <- function(object, data) {
   df <- object@trainingData
   training_nrow <- SparkR::nrow(df)
 
-  if (training_nrow > 100000) {
-    # since the dataset has >100k rows we want a sample we can fit on the driver
-    frac <- 100000 / training_nrow # we want a sample of ~100k rows
+  if (training_nrow > 125000) {
+    # since the dataset has >125k rows we want a sample we can fit on the driver
+    frac <- 125000 / training_nrow # we want a sample of ~125k rows
     df <- SparkR::sample(df, withReplacement = FALSE, fraction = frac, seed = seed)
   }
 
@@ -426,9 +426,9 @@ summary.r4ml.lm <- function(object) {
     B_full <- coef_df$Estimate
     B_sub <- se_df$Estimate
   
-    pd <- abs((B_sub - B_full) / B_full)
+    pd <- abs(B_sub - B_full) / abs(B_full)
   
-    if (max(pd) < 0.15) {
+    if (max(pd) < 0.1) {
       break
     }
     
