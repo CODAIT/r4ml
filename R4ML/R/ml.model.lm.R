@@ -179,7 +179,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature = "r4ml.lm", definition =
         icpt = ifelse(!args$intercept, 0, ifelse(!args$shiftAndRescale, 1, 2)),
         "beta_out", # output from DML script
         O = statsPath,
-        fmt = "csv")
+        fmt = r4ml.env$CSV)
       if (!missing(lambda)) {
         dmlArgs <- c(dmlArgs, reg = args$lambda)
       }
@@ -347,16 +347,16 @@ predict.r4ml.lm <- function(object, data) {
     }
 }
 
-r4ml.lm.se <- function(object) {
+r4ml.lm.se <- function(object, seed = 5) {
   logSource <- "r4ml.lm.se"
 
   df <- object@training_data
   training_nrow <- SparkR::nrow(df)
 
-  if (training_nrow > 60000) {
-    # since the dataset has >60k rows we want a sample we can fit on the driver
-    frac <- 50000 / training_nrow # we want a sample of ~50k rows
-    df <- SparkR::sample(df, withReplacement = FALSE, fraction = frac, seed = 5)
+  if (training_nrow > 100000) {
+    # since the dataset has >100k rows we want a sample we can fit on the driver
+    frac <- 100000 / training_nrow # we want a sample of ~50k rows
+    df <- SparkR::sample(df, withReplacement = FALSE, fraction = frac, seed = seed)
   }
 
   df <- SparkR::as.data.frame(df)
@@ -392,6 +392,8 @@ r4ml.lm.se <- function(object) {
 #' summary.r4ml.lm(r4ml_lm_model)
 #' }
 summary.r4ml.lm <- function(object) {
+  logSource <- "summary.r4ml.lm"
+  
   cat("Call:\n")
   cat(object@call)
   cat("\n\n")
@@ -410,12 +412,34 @@ summary.r4ml.lm <- function(object) {
   coef_df$`t value` <- NA
   coef_df$`Pr(>|t|)` <- NA
 
-  se_df <- r4ml.lm.se(object)
+  
+ i <- 0
+  while (i < 3) {
+    i <- i + 1
+    se_df <- r4ml.lm.se(object, seed = i)
 
-  # need to make sure the order is correct
-  se_df <- se_df[order(row.names(se_df)), ]
-  coef_df <- coef_df[order(row.names(coef_df)), ] 
+    ### need to make sure the order is the same ###
+    se_df <- se_df[order(row.names(se_df)), ]
+    coef_df <- coef_df[order(row.names(coef_df)), ]
 
+    ### caculate percent diff between the full and sample betas ###
+    B_full <- coef_df$Estimate
+    B_sub <- se_df$Estimate
+  
+    pd <- abs(B_sub - B_full) / ((B_sub + B_full) / 2)
+  
+    if (max(pd) < 0.15) {
+      break
+    }
+    
+    if (i == 3) {
+      r4ml.warn(logSource, "Unable to caculate Std. Error")
+      se_df$`Std. Error` <- NA
+      se_df$`t value` <- NA
+      se_df$`Pr(>|t|)` <- NA
+    }
+  }
+  
   coef_df$`Std. Error` <- round(se_df$`Std. Error`, 7)
   coef_df$`t value` <- round(se_df$`t value`, 3)
   coef_df$`Pr(>|t|)` <- round(se_df$`Pr(>|t|)`, 10)
