@@ -80,6 +80,10 @@ sysml.Script <- setRefClass("sysml.Script",
         df_val <- df
       } else if (cls == 'character') {
         df_val <- df
+      } else if (cls == 'logical') {
+        df_val <- df
+      } else if (cls == 'integer') {
+        df_val <- df
       } else {
         r4ml.err(logSource, "unsupported argument type " %++% cls)
       }

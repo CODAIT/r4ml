@@ -249,7 +249,7 @@ r4ml.onehot.column <- function(r4mlMat, colname) {
   outputs <- sysml.execute(
     dml = dml, # dml code
     X = r4mlMat, # attach the input r4ml matrix to X var in dml
-    onehot_index  = col_idx,
+    "$onehot_index"  = col_idx,
     "Y" # attach the output Y from dml
   )
   Y = outputs[['Y']] # get the output dataframes

@@ -29,7 +29,6 @@ test_that("r4ml.session", {
   expect_true(r4ml.env$R4ML_SESSION_EXISTS)
   expect_true("r4ml.logger" %in% ls(.GlobalEnv))
   expect_true("sc" %in% ls(.GlobalEnv))
-  expect_true("sysml.RDDUtils" %in% ls(.GlobalEnv))
   expect_true("sysmlSparkContext" %in% ls(.GlobalEnv))
   expect_true("sysmlSqlContext" %in% ls(.GlobalEnv))
   expect_true(r4ml.env$R4ML_SESSION_EXISTS)
@@ -38,7 +37,6 @@ test_that("r4ml.session", {
 
   expect_false("logger" %in% ls(.GlobalEnv))
   expect_false("sc" %in% ls(.GlobalEnv))
-  expect_false("sysml.RDDUtils" %in% ls(.GlobalEnv))
   expect_false("sysmlSparkContext" %in% ls(.GlobalEnv))
   expect_false("sysmlSqlContext" %in% ls(.GlobalEnv))
   expect_false(r4ml.env$R4ML_SESSION_EXISTS)

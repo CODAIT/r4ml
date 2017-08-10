@@ -101,7 +101,7 @@ test_that("sampling check", {
 
   r4_lm <- r4ml.lm(ArrDelay ~ ., data = train)
   r4_glm <- r4ml.glm(ArrDelay ~ ., data = train)
-  r4_step_lm <- r4ml.step.lm(ArrDelay ~ ., data = train)
+  #r4_step_lm <- r4ml.step.lm(ArrDelay ~ ., data = train) #ALOK TODO enable it in future
   
   ml.coltypes(train)[1] <- "nominal"
   r4_mlogit <- r4ml.mlogit(Month ~., data = train)
