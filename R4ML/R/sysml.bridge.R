@@ -115,12 +115,12 @@ sysml.ScriptFactory <- setRefClass("sysml.ScriptFactory",
     },
     
     dmlFromString = function(dml) {
-      script_jref <- SparkR:::callJMethod(.self$env$jref, "dmlFromString", dml)
+      script_jref <- SparkR::sparkR.callJMethod(.self$env$jref, "dmlFromString", dml)
       return(sysml.Script$new(jref = script_jref))
     },
     
     dmlFromLocalFile = function(dmlFile) {
-      script_jref <- SparkR:::callJMethod(.self$env$jref, "dmlFromFile", dmlFile)
+      script_jref <- SparkR::sparkR.callJMethod(.self$env$jref, "dmlFromFile", dmlFile)
      return(sysml.Script$new(jref = script_jref))
     }
   )
@@ -193,7 +193,7 @@ sysml.Matrix <- setRefClass("sysml.Matrix",
       
       colname <- .self$env$name
       
-      df_jref <- SparkR:::callJMethod(.self$env$jref, "toDF")
+      df_jref <- SparkR::sparkR.callJMethod(.self$env$jref, "toDF")
       
       # df_unsorted <- new("SparkDataFrame", sdf=df_jref, isCached=FALSE)# ALOK TODO rm 
       df_unsorted <-  SparkR:::dataFrame(df_jref, FALSE) # ALOK TODO use this
@@ -235,7 +235,7 @@ sysml.MLResults <- setRefClass("sysml.MLResults",
     
     getMatrix = function(oname) {
       stopifnot(class(oname) == "character")
-      mat_jref <- SparkR:::callJMethod(env$jref, "getMatrix", oname)
+      mat_jref <- SparkR::sparkR.callJMethod(env$jref, "getMatrix", oname)
       sysml.mat <- sysml.Matrix$new(oname, mat_jref)
       return(sysml.mat)
     }
@@ -283,7 +283,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
          Description:\\tab \\cr
            \\tab reset the MLContext \\cr
        }'
-      SparkR:::callJMethod(env$jref, "reset")
+      SparkR::sparkR.callJMethod(env$jref, "reset")
     },
 
  
@@ -309,7 +309,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       
       dml_script_jref <- dml_script$env$jref
       
-      out_jref <- SparkR:::callJMethod(
+      out_jref <- SparkR::sparkR.callJMethod(
         env$jref, "execute",
         dml_script_jref
       )

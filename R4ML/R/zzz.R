@@ -237,10 +237,6 @@ sysml.init <- function() {
   assign("jlogger", jlogger, .GlobalEnv)
   jlogger$setLevel("WARN")
 
-  # static class sysml.RDDUtils
-  # since actual class is static, we need this
-  #sysml.RDDUtils <- sysml.RDDConverterUtils$new() ##ALOK TODO rm
-  #assign("sysml.RDDUtils", sysml.RDDUtils, .GlobalEnv) ## ALOK TODO rm
 }
 
 # systemML related stopping i.e de-initialization
