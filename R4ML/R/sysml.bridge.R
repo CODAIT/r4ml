@@ -70,10 +70,10 @@ sysml.MatrixCharacteristics <- setRefClass("sysml.MatrixCharacteristics",
 sysml.MLContext <- setRefClass("sysml.MLContext",
   fields = list(env="environment"),
   methods = list(
-    initialize = function(sparkContext = sysmlSparkContext) {
+    initialize = function(sparkContext = r4ml.env$sysmlSparkContext) {
       env <<- new.env()
       if (missing(sparkContext)) {
-        sparkContext = get("sysmlSparkContext", .GlobalEnv)
+        sparkContext <- r4ml.env$sysmlSparkContext
       }
       env$jref <<- SparkR:::newJObject("org.apache.sysml.api.MLContext", sparkContext)
     },
@@ -152,7 +152,7 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
       stopifnot(class(dml_script) == "character")
       out_jref <- SparkR::sparkR.callJMethod(env$jref, "executeScript", dml_script)
       #@TODO. get sysmlSqlContext from the ctor
-      outputs <- sysml.MLOutput$new(out_jref, sysmlSqlContext)
+      outputs <- sysml.MLOutput$new(out_jref, r4ml.env$sysmlSqlContext)
     },
 
     executeScriptBase = function(dml_script, arg_keys, arg_vals, is.file) {
@@ -189,11 +189,10 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
           jarg_vals$add(e)
         })
       }
-      #DEBUG browser()
       out_jref <- NULL
       
-      previous_log_level <- jlogger$getLevel()
-      invisible(jlogger$setLevel(r4ml.env$SYSML_LOG_LEVEL))
+      previous_log_level <- r4ml.env$jlogger$getLevel()
+      invisible(r4ml.env$jlogger$setLevel(r4ml.env$SYSML_LOG_LEVEL))
       
       if (is.file) {
         if (is_namedargs) {
@@ -225,10 +224,10 @@ sysml.MLContext <- setRefClass("sysml.MLContext",
         }
       }
       
-      invisible(jlogger$setLevel(previous_log_level))
+      invisible(r4ml.env$jlogger$setLevel(previous_log_level))
       
       #@TODO. get sysmlSqlContext from the ctor
-      outputs <- sysml.MLOutput$new(out_jref, sysmlSqlContext)
+      outputs <- sysml.MLOutput$new(out_jref, r4ml.env$sysmlSqlContext)
     },
 
     executeScript = function(dml_script, arg_keys, arg_vals) {
@@ -286,7 +285,7 @@ sysml.MLOutput <- setRefClass("sysml.MLOutput",
   methods = list(
     initialize = function(jref, sysmlSqlContext) {
       if (missing(sysmlSqlContext)) {
-        sysmlSqlContext = get("sysmlSqlContext", .GlobalEnv)
+        sysmlSqlContext = r4ml.env$sysmlSqlContext
       }
 
       if (missing(jref)) {
@@ -362,7 +361,7 @@ sysml.RDDConverterUtils <- setRefClass("sysml.RDDConverterUtils",
   methods = list(
     initialize = function(sparkContext) {
       if (missing(sparkContext)) {
-        sparkContext = get("sysmlSparkContext", .GlobalEnv)
+        sparkContext = r4ml.env$sysmlSparkContext
       }
       env <<- new.env()
       env$sparkContext <<- sparkContext

@@ -44,10 +44,10 @@ test_that("sysml.MLContext sample data",{
   
   mc <- R4ML:::sysml.MatrixCharacteristics$new()
   rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
-  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
+  mlc <- R4ML:::sysml.MLContext$new(r4ml.env$sysmlSparkContext)
   mlc$reset()
   sysml_jrdd=rdd_utils$dataFrameToBinaryBlock(dv_df, mc)
-  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
+  mlc = R4ML:::sysml.MLContext$new(r4ml.env$sysmlSparkContext)
   dml = '
   fileX = ""
   fileO = 1
@@ -77,7 +77,7 @@ test_that("sysml.MLContext sample data",{
 # test the Bridge to the SystemML MLContext . To be removed eventually
 test_that("sysml.MLContext Short data", {
   cat("testing sysml.MLContext...")
-  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
+  mlc = R4ML:::sysml.MLContext$new(r4ml.env$sysmlSparkContext)
   dml = '
     fileX = ""
     fileO = ""
@@ -104,7 +104,7 @@ test_that("sysml.MLContext Short data", {
 # test the Bridge to the SystemML MLContext . To be removed eventually
 test_that("sysml.MLContext Exception handling test", {
   cat("testing sysml.MLContext...")
-  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
+  mlc = R4ML:::sysml.MLContext$new(r4ml.env$sysmlSparkContext)
   dml = '
     fileX = ""
     fileO = ""
@@ -132,7 +132,7 @@ test_that("sysml.MLContext Exception handling test", {
 # test the Bridge to the SystemML MLContext. To be removed eventually
 test_that("sysml.MLContext Long", {
   if (r4ml.env$TESTTHAT_LONGTEST() == TRUE) {
-    mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
+    mlc = R4ML:::sysml.MLContext$new(r4ml.env$sysmlSparkContext)
     dml = '
     fileX = ""
     fileO = ""

@@ -37,10 +37,10 @@ r4ml.gen.logger <- function(ilevel) {
       msg <- ""
     }
     
-    if (exists("r4ml.logger", envir=.GlobalEnv)) {
-      if (r4ml.logger$isLoggable(ilevel)) {
+    if (exists("r4ml.logger", envir = r4ml.env)) {
+      if (r4ml.env$r4ml.logger$isLoggable(ilevel)) {
         # if r4ml logger has been initialized user it
-        code.logging <- sprintf("r4ml.logger$%s(msg, src)", tolower(ilevel))
+        code.logging <- sprintf("r4ml.env$r4ml.logger$%s(msg, src)", tolower(ilevel))
         eval(parse(text=code.logging))
       }
     } else {
@@ -98,10 +98,10 @@ r4ml.fatal <- r4ml.gen.logger("FATAL")
 #' }
 #' @export
 r4ml.setLogLevel <- function(level, java.log = FALSE) {
-  if (!exists("r4ml.logger", envir = .GlobalEnv)) {
+  if (!exists("r4ml.logger", envir = r4ml.env)) {
     stop("R4ML session does not exist.")
   }
-  r4ml.logger$setLevel(level, java.log)
+  r4ml.env$r4ml.logger$setLevel(level, java.log)
 }
 
 #' r4ml.getLogLevel
@@ -116,16 +116,16 @@ r4ml.setLogLevel <- function(level, java.log = FALSE) {
 #' }
 #' @export
 r4ml.getLogLevel <- function() {
-  if (!exists("r4ml.logger", envir = .GlobalEnv)) {
+  if (!exists("r4ml.logger", envir = r4ml.env)) {
     stop("R4ML session does not exist.")
   }
-  r4ml.logger$getLevel()
+  r4ml.env$r4ml.logger$getLevel()
 }
 
 # in case we want to show the whole object. This might go away in future
 r4ml.infoShow <- function(source, message) {
-  if (exists("r4ml.logger", envir=.GlobalEnv)) {
-    if (!r4ml.logger$isLoggable("INFO")) {
+  if (exists("r4ml.logger", envir = r4ml.env)) {
+    if (!r4ml.env$r4ml.logger$isLoggable("INFO")) {
       return(invisible(NULL))
     }
   } 
@@ -138,8 +138,8 @@ r4ml.infoShow <- function(source, message) {
 
 # in case we want to show the whole object. This might go away in future
 r4ml.debugShow <- function(source, message) {
-  if (exists("r4ml.logger", envir=.GlobalEnv)) {
-    if (!r4ml.logger$isLoggable("DEBUG")) {
+  if (exists("r4ml.logger", envir = r4ml.env)) {
+    if (!r4ml.env$r4ml.logger$isLoggable("DEBUG")) {
       return(invisible(NULL))
     }
   }
@@ -170,7 +170,7 @@ create.r4ml.fs <- function() {
 r4ml.fs.mode <- function() {
   logSource <- "r4ml.fs.mode"
 
-  hadoop_conf <- SparkR::sparkR.callJMethod(sysmlSparkContext, "hadoopConfiguration")
+  hadoop_conf <- SparkR::sparkR.callJMethod(r4ml.env$sysmlSparkContext, "hadoopConfiguration")
   default_fs <- SparkR::sparkR.callJMethod(hadoop_conf, "get", "fs.defaultFS")
 
   if (substr(default_fs, 0, 4) == "file") {
@@ -348,7 +348,7 @@ Logging <- R6::R6Class(
     initialize = function(name = "R4ML", level = "INFO") {
       self$name <- name
       self$level <- level
-      self$jlogger <- get("jlogger", .GlobalEnv)
+      self$jlogger <- r4ml.env$jlogger
     },
     
     # is current string representation represent correct level

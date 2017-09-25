@@ -163,9 +163,9 @@ with(r4ml.env, {
   # utility to find the location of the scratch workspace
   # this location is used for temporaty storage
   WORKSPACE_ROOT <- function(subdir="") {
-    fs_root <- r4ml.fs$user.home()
+    fs_root <- r4ml.env$r4ml.fs$user.home()
     ws_root <- file.path(fs_root, PACKAGE_NAME, "scratch_workspace", subdir)
-    workspace <- r4ml.fs$tempdir(prefix=ws_root)
+    workspace <- r4ml.env$r4ml.fs$tempdir(prefix = ws_root)
     return(workspace)
   }
   

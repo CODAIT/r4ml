@@ -94,6 +94,7 @@ setClass("r4ml.mlogit",
 #'  output <- predict.r4ml.mlogit(iris_log_reg, test)
 #'
 #' }
+#' @import methods
 #'
 
 r4ml.mlogit <- function(formula, data, intercept = TRUE, shiftAndRescale = FALSE, tolerance,
