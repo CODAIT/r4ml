@@ -23,15 +23,6 @@ test_that("sysml.MatrixCharacteristics", {
   expect_equal(class(mc$env$jref), "jobj")
 })
 
-# test the bridge to the SystemML RDDConverterUtilsExt
-test_that("sysml.RDDConverterUtils", {
-  aq_ozone <- airquality$Ozone
-  aq_ozone[is.na(aq_ozone)] <- 0
-  aq_ozone_df <- as.r4ml.matrix(as.data.frame(aq_ozone))
-  mc <- R4ML:::sysml.MatrixCharacteristics$new()
-  rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
-  sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
-})
 
 # test the Bridge to the SystemML MLContext
 test_that("sysml.MLContext sample data",{
@@ -42,29 +33,21 @@ test_that("sysml.MLContext sample data",{
   dv=as.data.frame(v)
   dv_df <- as.r4ml.matrix(as.r4ml.frame(dv, repartition = FALSE))
   
-  mc <- R4ML:::sysml.MatrixCharacteristics$new()
-  rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
-  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
-  mlc$reset()
-  sysml_jrdd=rdd_utils$dataFrameToBinaryBlock(dv_df, mc)
-  mlc = R4ML:::sysml.MLContext$new(sysmlSparkContext)
   dml = '
-  fileX = ""
+  #fileX = ""
   fileO = 1
-  fileF = 2
-  #factor = 0
+  #fileF = 2
+  F = ifdef($factor, 2)
+  #F = $factor # test factors TODO
   X = read($fileX)
   print($factor)
-  F = $factor
   O = X*F
   write(O, fileO)
   #write(F, fileF)
   '
-  mlc$reset()
-  mlc$registerInput("X", sysml_jrdd, mc)
-  mlc$registerOutput("O")
-  outputs <- mlc$executeScript(dml, c("factor"), c("2"))
-  o1 = outputs$getDF("O")
+  result=sysml.execute(dml = dml, X = dv_df, factor = "3", "O")
+  
+  o1 = result$O
   cat("output dataframe")
   SparkR:::showDF(o1)
   o2=SparkR:::collect(o1)
@@ -89,14 +72,8 @@ test_that("sysml.MLContext Short data", {
   aq_ozone[is.na(aq_ozone)] <- 0
   aq_ozone_df <- as.r4ml.matrix(as.data.frame(aq_ozone))
   
-  mc <- R4ML:::sysml.MatrixCharacteristics$new()
-  rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
-  sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
-  mlc$reset()
-  mlc$registerInput("X", sysml_jrdd, mc)
-  mlc$registerOutput("O")
-  outputs <- mlc$executeScript(dml)
-  o1 = outputs$getDF("O")
+  outputs=sysml.execute(dml = dml, X = aq_ozone_df, "O")
+  o1 = outputs$O
   cat("output dataframe")
   SparkR:::showDF(o1)
 })
@@ -117,14 +94,8 @@ test_that("sysml.MLContext Exception handling test", {
   aq_ozone_df <- as.r4ml.matrix(as.r4ml.frame(as.data.frame(aq_ozone),
                                                   repartition = FALSE))
 
-  mc <- R4ML:::sysml.MatrixCharacteristics$new()
-  rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
-  sysml_jrdd <- rdd_utils$dataFrameToBinaryBlock(aq_ozone_df, mc)
-  mlc$reset()
-  mlc$registerInput("X", sysml_jrdd, mc)
-  mlc$registerOutput("O")
   options(warning.length = 5000) # set warning length to some number
-  expect_error(do.call(mlc$executeScript,list(dml)))
+  expect_error(sysml.execute(dml = dml, X = aq_ozone_df, "O"))
   expect_equal(options()$warning.length, 5000) # test that the number remains the same
 
 })
@@ -146,15 +117,8 @@ test_that("sysml.MLContext Long", {
     airrtd <- as.data.frame(airrt)
     air_dist <- createDataFrame(airrtd)
 
-    #X_rdd <- SparkR:::toRDD(air_dist)
-    X_mc <- R4ML:::sysml.MatrixCharacteristics$new()
-    rdd_utils <- R4ML:::sysml.RDDConverterUtils$new()
     air_dist <- as.r4ml.matrix(air_dist)
-    bb_df <- rdd_utils$dataFrameToBinaryBlock(air_dist, X_mc)
-    mlc$reset()
-    mlc$registerInput("X", bb_df, X_mc)
-    mlc$registerOutput("O")
-    outputs <- mlc$executeScript(dml)
+    outputs=sysml.execute(dml = dml, X = air_dist, "O")
     o1 <- outputs$getDF("O")
   }
 })

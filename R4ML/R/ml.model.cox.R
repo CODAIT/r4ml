@@ -163,7 +163,7 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.coxph", definition =
       dmlArgs <- list(
       X_orig = data,
       dml = file.path(r4ml.env$SYSML_ALGO_ROOT(), r4ml.env$DML_COX_SCRIPT),
-      fmt = "csv",
+      "$fmt" = "csv",
       "M",
       "RT",
       "COV",
@@ -207,22 +207,22 @@ setMethod("r4ml.model.buildTrainingArgs", signature="r4ml.coxph", definition =
       }
                 
       if (!missing(tolerance)) {
-        dmlArgs <- c(dmlArgs, tol = tolerance)
+        dmlArgs <- c(dmlArgs, "$tol" = tolerance)
         model@tolerance <- tolerance
       }
                   
       if (!missing(conf.int)) {
-        dmlArgs <- c(dmlArgs, alpha = 1 - conf.int)
+        dmlArgs <- c(dmlArgs, "$alpha" = 1 - conf.int)
         model@conf.int <- conf.int
       }
                 
       if (!missing(iter.max.outer)) {
-        dmlArgs <- c(dmlArgs, moi = iter.max.outer)
+        dmlArgs <- c(dmlArgs, "$moi" = iter.max.outer)
         model@iter.max.outer <- iter.max.outer
       }
                   
       if (!missing(iter.max.inner)) {
-        dmlArgs <- c(dmlArgs, mii = iter.max.inner)
+        dmlArgs <- c(dmlArgs, "$mii" = iter.max.inner)
         model@iter.max.inner <- iter.max.inner
       }
                 
