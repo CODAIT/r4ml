@@ -3,10 +3,10 @@ Type: Package
 Title: Scalable R Based on Distributed Apache SparkR and Apache SystemML
 Version: 0.8.0
 Date: 2017-02-28
-Author: IBM Spark Technology Center
+Author: IBM Center for Open-source Data & AI Technologies
 Maintainer: Alok Singh <singh_alok@hotmail.com>
 Description: Distributed R based on the Apache SparkR and Apache SystemML.
-URL: https://github.com/SparkTC/R4ML/
+URL: https://github.com/CODAIT/R4ML/
 LazyData: TRUE
 Depends:
     R(>= 3.0.0),

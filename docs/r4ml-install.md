@@ -24,8 +24,8 @@
    Issue the following shell commands
    ```
    # assumming that the downloaded file is at /tmp/spark-2.1.0-bin-hadoop2.7.tgz
-   mkdir -p ~/sparktc
-   pushd ~/sparktc
+   mkdir -p ~/codait
+   pushd ~/codait
    mv /tmp/spark-2.1.0-bin-hadoop2.7.tgz .
 
    # extract the spark binary 
@@ -43,8 +43,8 @@
    Execute the following shell script
 
    ```
-   mkdir -p ~/sparktc
-   pushd ~/sparktc
+   mkdir -p ~/codait
+   pushd ~/codait
 
    # 2.1 maintenance branch with stability fixes on top of Spark 2.1.0
    git clone git://github.com/apache/spark.git -b branch-2.1
@@ -65,13 +65,13 @@
    B) Add the following lines in `~/.Renviron` (note: replace `<OUTPUT_FROM_PREVIOUS_CODE>` appropriately
    ```
    # change <VAR> to the appropriate value
-   R_LIBS=<OUTPUT_FROM_PREVIOUS_CODE>:~/sparktc/spark/R/lib:$R_LIBS
+   R_LIBS=<OUTPUT_FROM_PREVIOUS_CODE>:~/codait/spark/R/lib:$R_LIBS
    ```
 
    C) Add the SPARK_HOME env variable in ~/.Renviron
    ```
    # SPARK_HOME=<SPARK_INSTALL_DIR>/spark
-   SPARK_HOME=~/sparktc/spark
+   SPARK_HOME=~/codait/spark
    ```
 
 #### 3.0 __**Install R4ML's dependencies (R packages)**__
@@ -101,9 +101,9 @@
   A) clone github and install R4ML.
 
    ```
-   mkdir -p ~/sparktc
-   pushd ~/sparktc
-   git clone https://github.com/SparkTC/R4ML R4ML
+   mkdir -p ~/codait
+   pushd ~/codait
+   git clone https://github.com/CODAIT/R4ML R4ML
    pushd R4ML
    bin/install-all.sh
    popd
@@ -114,5 +114,5 @@
 
    ```
   # note: replace <VAR> with the appropriate value for your environment
-  R_LIBS=<PREVIOUS_PATH_FOR_R_LIBRARY>:<PATH_FOR_SPARKR_LIB>:~/sparktc/R4ML/lib:$R_LIBS 
+  R_LIBS=<PREVIOUS_PATH_FOR_R_LIBRARY>:<PATH_FOR_SPARKR_LIB>:~/codait/R4ML/lib:$R_LIBS 
    ```

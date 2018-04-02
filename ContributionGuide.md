@@ -2,13 +2,13 @@
 
 ### Create a fork of R4ML
 
-1) Fork the master https://github.com/SparkTC/R4ML to your own repo (ex: https://github.com/aloknsingh/R4ML)
+1) Fork the master https://github.com/CODAIT/R4ML to your own repo (ex: https://github.com/aloknsingh/R4ML)
 
-2) Clone the resipatory using git clone. (See https://github.com/SparkTC/R4ML#r4ml-development-and-usages)
+2) Clone the resipatory using git clone. (See https://github.com/CODAIT/R4ML#r4ml-development-and-usages)
 
 3) Add the upstream
   ```
-    git remote add upstream https://github.com/SparkTC/R4ML
+    git remote add upstream https://github.com/CODAIT/R4ML
   ```
   
 ### Local development 

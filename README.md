@@ -56,9 +56,9 @@ R4ML is a scalable, hybrid approach to ML/Stats using R, Apache SystemML, and Ap
  $R4ML_INSTALLED_LOCATION/R4ML/html/00Index.html
  ```
 
- For example, if you have installed in the /home/data-scientist/sparktc then open a 
+ For example, if you have installed in the /home/data-scientist/codait then open a 
  web browser and type in the following in the url
 
  ```
- file:///home/data-scientist/sparktc/R4ML/html/00Index.html
+ file:///home/data-scientist/codait/R4ML/html/00Index.html
  ```
