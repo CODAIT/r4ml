@@ -34,7 +34,7 @@ R4ML is a scalable, hybrid approach to ML/Stats using R, Apache SystemML, and Ap
     install.packages(c("uuid", "R6"), repos = "http://cloud.r-project.org")
 
     # Download and install R4ML
-    download.file("http://169.45.79.58/R4ML_0.8.0.tar.gz", "~/R4ML_0.8.0.tar.gz")
+    download.file("http://codait-r4ml.s3-api.us-geo.objectstorage.softlayer.net/R4ML_0.8.0.tar.gz", "~/R4ML_0.8.0.tar.gz")
     install.packages("~/R4ML_0.8.0.tar.gz", repos = NULL, type = "source")
 
     # Load dependencies and use R4ML
