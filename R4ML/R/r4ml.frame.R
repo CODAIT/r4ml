@@ -72,31 +72,6 @@ setMethod("is.r4ml.numeric",
   }
 )
 
-r4ml.calc.num.partitions <- function(object_size) {
-  logSource <- "calc num partitions"
-
-  # attempt to detect the # of CPU cores on machine
-  cores <- parallel::detectCores(all.tests = TRUE)
-  
-  if (is.null(cores) | cores < 1) {
-    r4ml.warn(logSource, "unable to detect number of CPU cores")
-    cores <- 8 # default to 8 cores
-  }
-
-  num_partitions <- as.numeric(object_size) / r4ml.env$MIN_PARTITION_SIZE
-  num_partitions <- ceiling(num_partitions)
-  
-  if (num_partitions < cores) {
-    # we should have at least as many partitions as cpu cores
-    num_partitions <- cores
-  }
-  
-  r4ml.info(logSource, paste(num_partitions, "partitions"))
-  
-  return(num_partitions)
-}
-
-
 #' Coerce to an R4ML Frame
 #'
 #' Convert a data.frame, r4ml.matrix, or Spark DataFrame into an r4ml.frame
@@ -165,7 +140,7 @@ setMethod("as.r4ml.frame",
     if (repartition) {
 
       if (is.na(numPartitions)) {
-        numPartitions <- r4ml.calc.num.partitions(object_size)
+        numPartitions <- SparkR::sparkR.callJMethod(sysmlSparkContext, "defaultParallelism")
       }
 
       r4ml.info(logSource,
